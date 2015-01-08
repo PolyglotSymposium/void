@@ -1,0 +1,3 @@
+# The Architecture of Void
+The core logic will be written in F# that is ignorant of view/UI. The view/UI
+code will be written in C#. The idea is mimic the way that Angular works.
