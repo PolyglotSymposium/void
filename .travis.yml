@@ -1,2 +1,8 @@
 language: csharp
 solution: Void/Void.sln
+install:
+  - nuget restore Void/Void.sln
+  - nuget install NUnit.Runners -Version 2.6.4 -OutputDirectory testrunner
+script:
+  - xbuild /p:Configuration=Release Void/Void.sln
+  - mono ./testrunner/NUnit.Runners.2.6.4/tools/nunit-console.exe ./Void/Void.Core.Spec/bin/Release/Void.Core.Spec.dll

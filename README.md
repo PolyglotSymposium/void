@@ -1,5 +1,6 @@
 # Void
 ## A fearless modern text editor in the spirit of Vim
+[![Build Status](https://travis-ci.org/PolyglotSymposium/void.svg?branch=master)](https://travis-ci.org/PolyglotSymposium/void)
 
 ### What?
 A text editor that is not afraid to break compatibility with Vim, but is
