@@ -34,18 +34,30 @@ _Void_ is derived from "Vim-oid", that is, it is a Vim-like text editor.
   language. Vi is fundamentally modal; I believe that there needs to be a modal
   distinction drawn between wanting to dash off quick commands while working,
   and doing some serious scripting.
-+ Bind keys rather than mapping them...
++ Bind keys to the underlying API rather than mapping them to other keys.
 + Default some keys to more useful default mappings, as many Vim users are
   already doing (<kbd>CTRL</kbd>-<kbd>a</kbd> and <kbd>CTRL</kbd>-<kbd>c</kbd>
   and possibly <kbd>CTRL</kbd>-<kbd>v</kbd> should follow CUA standards; use `;`
   rather than `:` to enter command mode; <kbd>TAB</kbd> and
   <kbd>SHIFT</kbd>-<kbd>TAB</kbd> should indent and de-indent...)
 + Integrate brilliant ideas from plugins that really should be canonical into
-  the core, particularly many of those by the great @tpope such as Surround and
-  Fugitive (a Git wrapper so awesome, it should be ~~illegal~~ in everyone's
-  text editor). One of the things that makes @tpope great is that his plugins
-  make you think, "This feels so native and good, I can't believe it's not part
-  of the core Vim."
-+ Run my shell sessions within my editor, instead of my editor within my shell
+  the core, particularly many of those by the great @tpope such as
+  [Surround](https://github.com/tpope/vim-surround) and
+  [Fugitive](https://github.com/tpope/vim-fugitive) (a Git wrapper so awesome,
+  it should be ~~illegal~~ in everyone's text editor). One of the things that
+  makes Tim Pope great is that his plugins make you think, "This feels so native
+  and good, I can't believe it's not part of the core Vim."
++ Run my shell sessions within my editor, instead of my editor within my shell,
+  so I can use all of Vim's slick Window and Tab navigation commands seamlessly
+  rather than having to deal with two sets of tabs and two sets of commands (or
+  mouse clicks) such as what happens when Vim is hosted in another editor
 + Make use of GUI to increase usability
 + Improve searchability of documentation
+
+### How?
++ Haskell?
++ .NET (F#/C#)?
+  - Eto?
+  - GTK#?
+  - WinForms?
++ Node?
