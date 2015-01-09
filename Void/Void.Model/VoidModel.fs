@@ -11,7 +11,7 @@ type DataOperations =
     | Down
     | Escape // TODO Is there a better word for this?
 
-type Modes =
+type Mode =
     | Insert
     | Normal
     | Command
@@ -36,6 +36,7 @@ type ScreenBuffer = {
 type EditorState = {
     CurrentBuffer : ScreenBuffer
     BufferList : FileBuffer list
+    Mode : Mode
 }
 
 module Editor = 
@@ -56,6 +57,7 @@ module Editor =
         {
             CurrentBuffer = emptyScreenBuffer()
             BufferList = []
+            Mode = Mode.Normal
         }
 
     let bootstrapped = true
