@@ -54,9 +54,10 @@ module Editor =
         }
 
     let init (commands : CommandLine.Arguments) =
+        let currentBuffer = emptyScreenBuffer()
         {
-            CurrentBuffer = emptyScreenBuffer()
-            BufferList = []
+            CurrentBuffer = currentBuffer
+            BufferList = [currentBuffer.Buffer]
             Mode = Mode.Normal
         }
 
