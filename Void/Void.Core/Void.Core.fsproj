@@ -42,6 +42,7 @@
     <Reference Include="System.Numerics" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CommandLine.fs" />
     <Compile Include="VoidCore.fs" />
   </ItemGroup>
   <PropertyGroup>
