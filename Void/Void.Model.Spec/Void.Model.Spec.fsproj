@@ -7,11 +7,11 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>a168e281-5a32-4865-a262-11250af32b27</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>Void.Core.Spec</RootNamespace>
-    <AssemblyName>Void.Core.Spec</AssemblyName>
+    <RootNamespace>Void.Model.Spec</RootNamespace>
+    <AssemblyName>Void.Model.Spec</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <TargetFSharpCoreVersion>4.3.1.0</TargetFSharpCoreVersion>
-    <Name>Void.Core.Spec</Name>
+    <Name>Void.Model.Spec</Name>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -21,7 +21,7 @@
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>bin\Debug\Void.Core.Spec.XML</DocumentationFile>
+    <DocumentationFile>bin\Debug\Void.Model.Spec.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -30,7 +30,7 @@
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>bin\Release\Void.Core.Spec.XML</DocumentationFile>
+    <DocumentationFile>bin\Release\Void.Model.Spec.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>
@@ -52,7 +52,7 @@
     <Content Include="packages.config" />
     <Content Include="app.config" />
     <Compile Include="CommandLineSpec.fs" />
-    <Compile Include="VoidCoreSpec.fs" />
+    <Compile Include="VoidModelSpec.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FsUnit.NUnit">
@@ -72,8 +72,8 @@
     <Reference Include="System.Numerics" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Void.Core\Void.Core.fsproj">
-      <Name>Void.Core</Name>
+    <ProjectReference Include="..\Void.Model\Void.Model.fsproj">
+      <Name>Void.Model</Name>
       <Project>{7b6cd168-c742-44f2-9967-1055a203c973}</Project>
       <Private>True</Private>
     </ProjectReference>

@@ -19,9 +19,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "UI", "UI", "{9768F9F7-BFC6-
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Core", "Core", "{E31181A4-AAEB-4A6D-BC79-CDE03FEA26AE}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Void.Core", "Void.Core\Void.Core.fsproj", "{7B6CD168-C742-44F2-9967-1055A203C973}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Void.Model", "Void.Model\Void.Model.fsproj", "{7B6CD168-C742-44F2-9967-1055A203C973}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Void.Core.Spec", "Void.Core.Spec\Void.Core.Spec.fsproj", "{A168E281-5A32-4865-A262-11250AF32B27}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Void.Model.Spec", "Void.Model.Spec\Void.Model.Spec.fsproj", "{A168E281-5A32-4865-A262-11250AF32B27}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -1,6 +1,6 @@
 ﻿module CommandLineSpec
 
-open Void.Core.CommandLine
+open Void.Model.CommandLine
 open NUnit.Framework
 open FsUnit
 

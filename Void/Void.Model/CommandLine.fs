@@ -1,4 +1,4 @@
-﻿namespace Void.Core
+﻿namespace Void.Model
 
 module CommandLine =
     type Arguments = {
