@@ -12,11 +12,11 @@ namespace Void
 
         public MainForm()
         {
-            const int LinePadding = 3;
-            _lineHeight = Convert.ToInt32(Math.Ceiling(_font.LineHeight))+LinePadding;
+            var verticalPadding = Platform.IsGtk ? 0 : 3;
+            _lineHeight = Convert.ToInt32(Math.Ceiling(_font.LineHeight))+verticalPadding;
             Title = "Void - A text editor in the spirit of Vim";
             const int NumberOfRows = 25;
-            var height = _lineHeight * NumberOfRows + LinePadding;
+            var height = _lineHeight * NumberOfRows + verticalPadding;
 			var size = new Size(480, height);
 			BackgroundColor = Color.FromArgb(0, 0, 0);
 			Content = PopulateContent(size, NumberOfRows);
