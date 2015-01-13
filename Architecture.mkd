@@ -1,9 +1,24 @@
 # The Architecture of Void
 
-## User Interface
+## User Interface and Architectural Layers
 The core logic will be written in F# that is ignorant of view/UI. The view/UI
 code will be written in C#. The idea is, crudely, that the C# code can be
 tightly coupled to the F#, but not vice-versa.
+
+The UI/View is to handle all logic which is closely coupled with the
+implementation details of the UI, not its conceptual model, such as the details
+of a particular graphics library. The view model is to model the UI. However,
+this model is conceptually different than the total current state of the editor
+(in other words, there is not a one-to-one between everything in the editor's
+state and the screen, or everything on the screen and the editor's state). The
+model should not reference the view model, but the view model can reference the
+model. The model and view model should be written functionally, except the
+controllers, which are the imperative "glue" in the view model that ties
+together view, model, and view model. Their only concern is to connect the other
+components; they should be light on logic and heavy on delegation. The view
+models should probably not reference the controllers, even thought they are all
+within the same `ViewModel` layer; if this becomes important, or if it becomes
+too confusing to have view models and controllers in the `ViewModel`.
 
 ## Other
 Pending, but will imitate VsVim and other known good patterns.

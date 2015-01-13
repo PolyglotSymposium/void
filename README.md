@@ -54,11 +54,11 @@ _Void_ is derived from "Vim-oid", that is, it is a Vim-like text editor.
   mouse clicks) such as what happens when Vim is hosted in another editor
 + Make use of GUI to increase usability
 + Improve searchability of documentation
++ Reduce number of options/center configurability more solidly around filetypes
 
-### How?
-+ Haskell?
-+ .NET (F#/C#)?
-  - Eto?
-  - GTK#?
-  - WinForms?
-+ Node?
+### Contributing
+I would love to see pull requests, but I recommend that if you are implementing
+a new feature you submit an issue first so we can discuss the new feature, even
+if the "new" feature is a Vim feature, because I do not intend to
+indiscriminately accept all Vim features into Void. That being said, please
+contribute!
