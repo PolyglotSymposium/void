@@ -7,25 +7,26 @@ namespace Void
 {
     public class MainForm : Form
     {
+        private readonly ViewModel.VoidController _controller = new ViewModel.VoidController();
 		private readonly Font _font = Fonts.Monospace(9);
         private readonly int _lineHeight;
         private readonly int _lineWidth;
 
         public MainForm()
         {
-            Title = "Void - A text editor in the spirit of Vim";
-			BackgroundColor = Color.FromArgb(0, 0, 0);
+            Title = _controller.titlebarText();
+            var bg = _controller.backgroundColor();
+			BackgroundColor = Color.FromArgb(bg.Red, bg.Green, bg.Blue);
 
+            var dimensions = _controller.startupDimensions();
             var verticalPadding = Platform.IsGtk ? 0 : 3;
             var horizontalPadding = Platform.IsGtk ? 0.0 : 2.57;
             _lineHeight = Convert.ToInt32(Math.Ceiling(_font.LineHeight))+verticalPadding;
-            const int NumberOfColumns = 80;
-            _lineWidth = Convert.ToInt32(Math.Ceiling((_font.XHeight+horizontalPadding)*NumberOfColumns));
-            const int NumberOfRows = 25;
-            var height = _lineHeight * NumberOfRows + verticalPadding;
+            _lineWidth = Convert.ToInt32(Math.Ceiling((_font.XHeight+horizontalPadding)*dimensions.Columns));
+            var height = _lineHeight * dimensions.Rows + verticalPadding;
 			var size = new Size(_lineWidth, height);
 			ClientSize = size;
-			Content = PopulateContent(size, NumberOfRows);
+			Content = PopulateContent(size, dimensions.Rows);
         }
 
 		private Control PopulateContent(Size size, int numberOfRows)
@@ -45,9 +46,10 @@ namespace Void
 
         private Label MakeLabel(string text)
         {
+            var fg = _controller.foregroundColor();
             return new Label {
                 Text = text,
-                TextColor = Color.FromArgb(255, 255, 255),
+                TextColor = Color.FromArgb(fg.Red, fg.Green, fg.Blue),
                 Font = _font,
                 Height = _lineHeight,
                 Width = _lineWidth

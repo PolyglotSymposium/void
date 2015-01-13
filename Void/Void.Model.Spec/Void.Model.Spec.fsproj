@@ -5,7 +5,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>a168e281-5a32-4865-a262-11250af32b27</ProjectGuid>
+    <ProjectGuid>{26b7a27d-32fe-4bf5-ba14-00cd6e90ef54}</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>Void.Model.Spec</RootNamespace>
     <AssemblyName>Void.Model.Spec</AssemblyName>
