@@ -25,6 +25,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "UI", "UI", "{E4DBAF7D-C129-
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Void.ViewModel.Spec", "Void.ViewModel.Spec\Void.ViewModel.Spec.fsproj", "{59E18566-01F3-467C-BCF5-1D7291F795F6}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{17C27C95-B99B-4C62-A48B-44F6F9F6838C}"
+	ProjectSection(SolutionItems) = preProject
+		.nuget\NuGet.Config = .nuget\NuGet.Config
+		.nuget\NuGet.exe = .nuget\NuGet.exe
+		.nuget\NuGet.targets = .nuget\NuGet.targets
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		Void\Void.projitems*{3a8b1397-4942-4258-8aa4-8673be79caed}*SharedItemsImports = 13
