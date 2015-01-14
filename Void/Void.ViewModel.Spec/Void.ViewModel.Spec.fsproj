@@ -69,9 +69,11 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\Void.ViewModel\Void.ViewModel.fsproj">
       <Name>Void.ViewModel</Name>
-      <Project>{7d1ac7c5-c203-4e37-bd4a-6059526870cf}</Project>
+      <Project>{10ca91be-7de0-4f6f-ba6a-c01f91e6cc0f}</Project>
       <Private>True</Private>
     </ProjectReference>
   </ItemGroup>

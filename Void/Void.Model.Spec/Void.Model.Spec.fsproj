@@ -74,7 +74,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Void.Model\Void.Model.fsproj">
       <Name>Void.Model</Name>
-      <Project>{7b6cd168-c742-44f2-9967-1055a203c973}</Project>
+      <Project>{623e6e9e-62aa-433b-8561-fdbee85c62ff}</Project>
       <Private>True</Private>
     </ProjectReference>
   </ItemGroup>
