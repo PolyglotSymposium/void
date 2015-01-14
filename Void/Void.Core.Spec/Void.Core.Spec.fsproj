@@ -5,13 +5,13 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{26b7a27d-32fe-4bf5-ba14-00cd6e90ef54}</ProjectGuid>
+    <ProjectGuid>bfcce3a7-30f0-405a-8f05-5550d1d4bbfd</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>Void.Model.Spec</RootNamespace>
-    <AssemblyName>Void.Model.Spec</AssemblyName>
+    <RootNamespace>Void.Core.Spec</RootNamespace>
+    <AssemblyName>Void.Core.Spec</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <TargetFSharpCoreVersion>4.3.1.0</TargetFSharpCoreVersion>
-    <Name>Void.Model.Spec</Name>
+    <Name>Void.Core.Spec</Name>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -21,7 +21,7 @@
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>bin\Debug\Void.Model.Spec.XML</DocumentationFile>
+    <DocumentationFile>bin\Debug\Void.Core.Spec.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -30,7 +30,7 @@
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>bin\Release\Void.Model.Spec.XML</DocumentationFile>
+    <DocumentationFile>bin\Release\Void.Core.Spec.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>
@@ -52,30 +52,27 @@
     <Content Include="packages.config" />
     <Content Include="app.config" />
     <Compile Include="CommandLineSpec.fs" />
-    <Compile Include="VoidModelSpec.fs" />
+    <Compile Include="VoidCoreSpec.fs" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="FSharp.Core">
-      <HintPath>..\packages\FSharp.Core.3.1.2.1\lib\net40\FSharp.Core.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="FsUnit.NUnit">
       <HintPath>..\packages\FsUnit.1.3.0.1\Lib\Net40\FsUnit.NUnit.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="mscorlib" />
+    <Reference Include="FSharp.Core, Version=$(TargetFSharpCoreVersion), Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+      <Private>True</Private>
+    </Reference>
     <Reference Include="nunit.framework">
-      <HintPath>..\packages\NUnit.2.6.4\lib\nunit.framework.dll</HintPath>
+      <HintPath>..\packages\NUnit.2.6.3\lib\nunit.framework.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Void.Model\Void.Model.fsproj">
-      <Name>Void.Model</Name>
-      <Project>{623e6e9e-62aa-433b-8561-fdbee85c62ff}</Project>
+    <ProjectReference Include="..\Void.Core\Void.Core.fsproj">
+      <Name>Void.Core</Name>
+      <Project>{0619a030-5068-4eff-8d9e-55ea3fe924d8}</Project>
       <Private>True</Private>
     </ProjectReference>
   </ItemGroup>

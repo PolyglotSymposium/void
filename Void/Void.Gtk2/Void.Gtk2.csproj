@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
-    <ProjectGuid>{5D62BE60-3E7E-44DA-940A-A31C4B1258A9}</ProjectGuid>
+    <ProjectGuid>{58783347-B157-41E2-A98A-2E0270B4C5EC}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <RootNamespace>Void.Gtk2</RootNamespace>
     <AssemblyName>Void.Gtk2</AssemblyName>
@@ -28,22 +28,14 @@
     <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Eto, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Eto.Forms.2.0.7\lib\net45\Eto.dll</HintPath>
+    <Reference Include="Eto">
+      <HintPath>..\packages\Eto.Forms.2.0.3\lib\net45\Eto.dll</HintPath>
     </Reference>
-    <Reference Include="Eto.Gtk2, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Eto.Platform.Gtk.2.0.7\lib\net45\Eto.Gtk2.dll</HintPath>
+    <Reference Include="Eto.Gtk2">
+      <HintPath>..\packages\Eto.Platform.Gtk.2.0.3\lib\net45\Eto.Gtk2.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Void\Void.csproj">
-      <Project>{b2b7fabb-5258-4abf-a70c-123d0b4588e0}</Project>
-      <Name>Void</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Program.cs" />
@@ -52,5 +44,12 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Void.ViewModel\Void.ViewModel.fsproj">
+      <Project>{aba22359-eaf6-4604-82e2-977f816040ed}</Project>
+      <Name>Void.ViewModel</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="..\Void\Void.projitems" Label="Shared" Condition="Exists('..\Void\Void.projitems')" />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>
