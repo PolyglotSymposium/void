@@ -6,3 +6,4 @@ install:
 script:
   - xbuild /p:Configuration=Release Void/Void.sln
   - mono ./testrunner/NUnit.Runners.2.6.4/tools/nunit-console.exe ./Void/Void.Model.Spec/bin/Release/Void.Model.Spec.dll
+  - mono ./testrunner/NUnit.Runners.2.6.4/tools/nunit-console.exe ./Void/Void.ViewModel.Spec/bin/Release/Void.ViewModel.Spec.dll
