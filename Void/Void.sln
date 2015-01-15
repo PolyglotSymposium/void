@@ -34,7 +34,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{17C27C
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		Void\Void.projitems*{58783347-b157-41e2-a98a-2e0270b4c5ec}*SharedItemsImports = 4
+		Void\Void.projitems*{1e06f9a6-035d-49a8-a104-c5ed33a4411e}*SharedItemsImports = 4
 		Void\Void.projitems*{3a8b1397-4942-4258-8aa4-8673be79caed}*SharedItemsImports = 13
+		Void\Void.projitems*{2e47f234-3fef-46be-a11f-ed273ac5c9fb}*SharedItemsImports = 4
+		Void\Void.projitems*{03b5b8e0-c05b-475d-a1f9-801defeb725d}*SharedItemsImports = 4
+		Void\Void.projitems*{a31c1e97-192f-4022-933d-d09682939641}*SharedItemsImports = 4
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

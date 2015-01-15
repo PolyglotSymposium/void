@@ -1,26 +1,25 @@
 ﻿namespace Void.ViewModel
 
-type WindowDimensions = {
-    Rows : uint16
-    Columns : uint16
-}
+type MainView =
+    abstract member GetFontMetrics : unit -> FontMetrics
+    abstract member SetBackgroundColor : RGBColor -> unit
+    abstract member SetFontBySize : byte -> unit
+    abstract member SetViewSize : SizeInPixels -> unit
+    abstract member SetViewTitle : string -> unit
 
-type RGBColor = {
-    Red : byte
-    Green : byte
-    Blue : byte
-}
+type MainController
+    (
+        _view : MainView
+    ) =
+    let _dimensions = { Rows = 25us; Columns = 80us }
 
-module Colors =
-    let white = { Red = 255uy; Green = 255uy; Blue = 255uy }
-    let black = { Red = 0uy; Green = 0uy; Blue = 0uy }
+    member x.init() =
+        _view.SetViewTitle "Void - A text editor in the spirit of Vim"
+        _view.SetBackgroundColor Colors.black
+        _view.SetFontBySize 9uy;
+        let fontMetrics = _view.GetFontMetrics()
+        Sizing.viewSizeFromFontMetrics _dimensions fontMetrics
+        |> _view.SetViewSize 
 
-type VoidController() =
-    member x.startupDimensions() =
-        { Rows = 25us; Columns = 80us }
-    member x.backgroundColor() =
-        Colors.black
     member x.foregroundColor() =
         Colors.white
-    member x.titlebarText() =
-        "Void - A text editor in the spirit of Vim"
