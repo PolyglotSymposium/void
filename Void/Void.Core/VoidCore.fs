@@ -1,4 +1,4 @@
-﻿namespace Void.Model
+﻿namespace Void.Core
 
 type DataOperations = 
     | Append
@@ -21,6 +21,11 @@ type FileBuffer = {
     Filepath : string option
     Contents: string
 }
+
+type BufferType =
+    | File
+    | Scratch
+    | Shell
 
 type Coordinate = {
     Row : uint32

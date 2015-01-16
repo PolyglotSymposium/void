@@ -1,6 +1,6 @@
-﻿namespace Void.Model.Spec
+﻿namespace Void.Core.Spec
 
-open Void.Model
+open Void.Core
 open NUnit.Framework
 open FsUnit
 

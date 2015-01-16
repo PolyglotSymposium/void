@@ -45,6 +45,13 @@
     <Compile Include="VoidViewModel.fs" />
     <Compile Include="VoidController.fs" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Void.Core\Void.Core.fsproj">
+      <Name>Void.Core</Name>
+      <Project>{0619a030-5068-4eff-8d9e-55ea3fe924d8}</Project>
+      <Private>True</Private>
+    </ProjectReference>
+  </ItemGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>
   </PropertyGroup>

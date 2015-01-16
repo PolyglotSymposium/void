@@ -46,6 +46,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Void.Core\Void.Core.fsproj">
+      <Project>{0619a030-5068-4eff-8d9e-55ea3fe924d8}</Project>
+      <Name>Void.Core</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Void.ViewModel\Void.ViewModel.fsproj">
       <Project>{aba22359-eaf6-4604-82e2-977f816040ed}</Project>
       <Name>Void.ViewModel</Name>
