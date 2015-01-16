@@ -10,28 +10,28 @@ namespace Void
     {
         private readonly MainController _controller;
 		private Font _font;
-        private int _lineHeight;
+        private float _lineHeight;
 
         public MainForm()
         {
             _controller = new MainController(this);
             _controller.init();
-			Content = PopulateContent(25); // TODO do not hard-code
+			PopulateContent(25); // TODO do not hard-code
         }
 
         public FontMetrics GetFontMetrics()
         {
             var verticalPadding = Platform.IsGtk ? 0 : 3;
-            var horizontalPadding = Platform.IsGtk ? 0.0 : 2.57;
+            var horizontalPadding = Platform.IsGtk ? 0.0 : 2.77;
             var height = _font.LineHeight + verticalPadding;
             var width = _font.XHeight + horizontalPadding;
-            _lineHeight = Convert.ToInt32(height); // TODO DELETE
+            _lineHeight = height; // TODO DELETE
             return new FontMetrics(height, width);
         }
 
         public void SetBackgroundColor(RGBColor color)
         {
-            BackgroundColor = Color.FromArgb(color.Red, color.Green, color.Blue);
+            BackgroundColor = color.AsEtoColor();
         }
 
         public void SetFontBySize(byte size)
@@ -41,7 +41,7 @@ namespace Void
 
         public void SetViewSize(SizeInPixels size)
         {
-			ClientSize = new Size(size.Width, size.Height);
+            ClientSize = size.AsEtoSize();
         }
 
         public void SetViewTitle(string title)
@@ -49,36 +49,23 @@ namespace Void
             Title = title;
         }
 
-		private Control PopulateContent(int numberOfRows)
+		private void PopulateContent(int numberOfRows)
 		{
-			var content = new TableLayout(ClientSize);
-            var offset0 = Convert.ToInt32(Math.Floor(_font.LineHeight))*0;
-            content.Add(MakeLabel("XWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWX"), new Point(0, offset0));
-			foreach (var i in Enumerable.Range(1, numberOfRows-2))
-			{
-			    var offset = Convert.ToInt32(Math.Floor(_font.LineHeight))*i;
-				content.Add(MakeLabel(i), new Point(0, offset));
-			}
-            var offset25 = Convert.ToInt32(Math.Floor(_font.LineHeight))*numberOfRows-1;
-            content.Add(MakeLabel("XWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWX"), new Point(0, offset25));
-			return content;
-		}
-
-        private Label MakeLabel(string text)
-        {
-            var fg = _controller.foregroundColor();
-            return new Label {
-                Text = text,
-                TextColor = Color.FromArgb(fg.Red, fg.Green, fg.Blue),
-                Font = _font,
-                Height = _lineHeight,
-                Width = ClientSize.Width
-            };
-        }
-
-		private Label MakeLabel(int counter)
-		{
-            return MakeLabel("Line #" + counter);
+		    var content = new Drawable();
+		    content.Paint += (sender, pe) =>
+		    {
+                var brush = new SolidBrush(_controller.foregroundColor().AsEtoColor());
+		        Action<PointF, string> draw = (pointf, text) => pe.Graphics.DrawText(_font, brush, pointf, text);
+		        draw(new PointF(2f, 0f), "XWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWX");
+                foreach (var i in Enumerable.Range(1, numberOfRows-2))
+                {
+                    var offset = _lineHeight*i;
+                    draw(new PointF(2f, offset), ("X Line #" + i));
+                }
+                var offset25 = _lineHeight*(numberOfRows-1);
+		        draw(new PointF(2f, offset25), "XWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWX");
+		    };
+			Content = content;
 		}
     }
 }
