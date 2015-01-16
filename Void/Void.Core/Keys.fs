@@ -1,5 +1,6 @@
 ﻿namespace Void.Core
 
+[<RequireQualifiedAccess>]
 type KeyPress =
     | One
     | Two

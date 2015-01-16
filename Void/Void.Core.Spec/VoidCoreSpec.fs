@@ -5,12 +5,6 @@ open NUnit.Framework
 open FsUnit
 
 [<TestFixture>]
-type ``Void core model``() = 
-    [<Test>]
-    member x.``should be bootstrapped properly``() =
-        Editor.bootstrapped |> should be True
-
-[<TestFixture>]
 type ``When the editor is launched without any command-line arguments``() = 
     [<Test>]
     member x.``it should open an empty buffer``() =

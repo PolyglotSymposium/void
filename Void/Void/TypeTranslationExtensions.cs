@@ -21,9 +21,20 @@ namespace Void
         public static KeyPress AsVoidKeyPress(this KeyEventArgs keyEvent)
         {
             KeyPress keyPress = null;
-            if (keyEvent.Shift && keyEvent.Key == Keys.Z)
+            if (keyEvent.Shift)
             {
-                keyPress = KeyPress.ShiftZ;
+                if (keyEvent.Key == Keys.Z)
+                {
+                    keyPress = KeyPress.ShiftZ;
+                }
+                else if (keyEvent.Key == Keys.Q)
+                {
+                    keyPress = KeyPress.ShiftQ;
+                }  
+            } 
+            if (keyEvent.Key == Keys.Escape)
+            {
+                keyPress = KeyPress.Escape;
             }
             return keyPress;
         }

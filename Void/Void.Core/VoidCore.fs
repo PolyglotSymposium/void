@@ -11,11 +11,6 @@ type DataOperations =
     | Down
     | Escape // TODO Is there a better word for this?
 
-type Mode =
-    | Insert
-    | Normal
-    | Command
-
 // TODO This is naive, obviously
 type FileBuffer = {
     Filepath : string option
@@ -65,5 +60,3 @@ module Editor =
             BufferList = [currentBuffer.Buffer]
             Mode = Mode.Normal
         }
-
-    let bootstrapped = true

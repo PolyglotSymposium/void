@@ -54,6 +54,7 @@
     <Content Include="packages.config" />
     <Content Include="app.config" />
     <Compile Include="CommandLineSpec.fs" />
+    <Compile Include="NormalModeSpec.fs" />
     <Compile Include="VoidCoreSpec.fs" />
   </ItemGroup>
   <ItemGroup>

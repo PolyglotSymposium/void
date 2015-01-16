@@ -44,6 +44,8 @@
   <ItemGroup>
     <Compile Include="CommandLine.fs" />
     <Compile Include="Keys.fs" />
+    <Compile Include="Commands.fs" />
+    <Compile Include="NormalMode.fs" />
     <Compile Include="VoidCore.fs" />
   </ItemGroup>
   <PropertyGroup>
