@@ -7,16 +7,8 @@ open FsUnit
 
 [<TestFixture>]
 type ``Normal mode controller``() = 
-    let mutable invoked = false
     [<Test>]
-    member x.``should call the command handler for the command which the binding is mapped to``() =
-        let handleCommand command =
-            invoked <- match command with
-                       | Command.Quit -> true
-                       | _ -> false
-            ()
+    member x.``should return the appropriate command once a mapping is completed``() =
         let controller = NormalModeController()
-        controller.handle KeyPress.ShiftZ handleCommand
-        invoked |> should be False
-        controller.handle KeyPress.ShiftQ handleCommand
-        invoked |> should be True
+        controller.handle KeyPress.ShiftZ |> should equal Command.Noop
+        controller.handle KeyPress.ShiftQ |> should equal Command.Quit

@@ -15,13 +15,13 @@ type NormalModeController() =
     let _bindings = NormalMode.defaultBindings
     let mutable _state = NormalMode.noKeysYet
 
-    member x.handle keyPress handleCommand =
+    member x.handle keyPress =
         match NormalMode.parse _bindings keyPress _state with
         | NormalMode.ParseResult.AwaitingKeyPress prevKeys ->
             _state <- prevKeys
-            ()
+            Command.Noop
         | NormalMode.ParseResult.Command command ->
-            handleCommand command
+            command
 
 type MainController
     (
@@ -40,13 +40,14 @@ type MainController
         |> _view.SetViewSize 
 
         _view.SubscribeToKeyUp (fun keyPress ->
-            _normalCtrl.handle keyPress x.handle
+            _normalCtrl.handle keyPress |> x.handle
         )
 
     member x.handle command =
         match command with
+        | Command.Noop -> ()
         | Command.Quit -> _view.Close()
-        | _ -> ()
+        | _ -> () // TODO implement all command explicitly
 
     // TODO remove
     member x.foregroundColor() =
