@@ -11,6 +11,7 @@ module NormalMode =
     let defaultBindings = 
         [
             [KeyPress.Semicolon], Command.ChangeToMode Mode.Command
+            [KeyPress.ControlL], Command.Redraw
             [KeyPress.ShiftZ; KeyPress.ShiftQ], Command.Quit
             [KeyPress.G; KeyPress.Q; KeyPress.Q], Command.FormatCurrentLine
         ] |> Map.ofList

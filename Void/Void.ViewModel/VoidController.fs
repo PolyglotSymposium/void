@@ -1,15 +1,22 @@
 ﻿namespace Void.ViewModel
 
+open System
 open Void.Core
 
+type Artist =
+    abstract member RenderText : string -> View.Point -> RGBColor -> unit
+    abstract member RenderBlock : View.Block -> RGBColor -> unit
+
 type MainView =
+    abstract member Close : unit -> unit
     abstract member GetFontMetrics : unit -> FontMetrics
     abstract member SetBackgroundColor : RGBColor -> unit
     abstract member SetFontBySize : byte -> unit
     abstract member SetViewSize : SizeInPixels -> unit
     abstract member SetViewTitle : string -> unit
-    abstract member SubscribeToKeyUp : System.Action<KeyPress> -> unit
-    abstract member Close : unit -> unit
+    abstract member SubscribeToKeyUp : Action<KeyPress> -> unit
+    abstract member SubscribeToDraw : Action<Artist> -> unit
+    abstract member Redraw : unit -> unit
 
 type NormalModeController() =
     let _bindings = NormalMode.defaultBindings
@@ -47,6 +54,7 @@ type MainController
         match command with
         | Command.Noop -> ()
         | Command.Quit -> _view.Close()
+        | Command.Redraw -> _view.Redraw()
         | _ -> () // TODO implement all command explicitly
 
     // TODO remove

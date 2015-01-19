@@ -10,6 +10,7 @@ namespace Void
     public class MainForm : Form, MainView
     {
         private readonly MainController _controller;
+        private Drawable _drawable;
         private Font _font;
         private float _lineHeight;
 
@@ -18,18 +19,6 @@ namespace Void
             _controller = new MainController(this);
             _controller.init();
             PopulateContent(25); // TODO do not hard-code
-        }
-
-        public void SubscribeToKeyUp(Action<KeyPress> handler)
-        {
-            KeyUp += (sender, eventArgs) =>
-            {
-                var keyPress = eventArgs.AsVoidKeyPress();
-                if (keyPress != null)
-                {
-                    handler(keyPress);
-                }
-            };
         }
 
         public FontMetrics GetFontMetrics()
@@ -62,23 +51,47 @@ namespace Void
             Title = title;
         }
 
+        public void SubscribeToKeyUp(Action<KeyPress> handler)
+        {
+            KeyUp += (sender, eventArgs) =>
+            {
+                var keyPress = eventArgs.AsVoidKeyPress();
+                if (keyPress != null)
+                {
+                    handler(keyPress);
+                }
+            };
+        }
+
+        public void SubscribeToDraw(Action<Artist> handler)
+        {
+            _drawable.Paint += (sender, eventArgs) =>
+            {
+                handler(new EtoArtist(eventArgs.Graphics, _font));
+            };
+        }
+
+        public void Redraw()
+        {
+            _drawable.Update(new Rectangle(ClientSize));
+        }
+
         private void PopulateContent(int numberOfRows)
         {
-            var drawable = new Drawable();
-            drawable.Paint += (sender, pe) =>
+            _drawable = new Drawable();
+            _drawable.Paint += (sender, eventArgs) =>
             {
-                var brush = new SolidBrush(_controller.foregroundColor().AsEtoColor());
-                Action<PointF, string> draw = (pointf, text) => pe.Graphics.DrawText(_font, brush, pointf, text);
-                draw(new PointF(2f, 0f), "XWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWX");
+                var artist = new EtoArtist(eventArgs.Graphics, _font);
+                var offset25 = _lineHeight*(numberOfRows-1);
+                artist.RenderText("XWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWX", new View.Point(2f, 0f), Void.ViewModel.Colors.white);
                 foreach (var i in Enumerable.Range(1, numberOfRows-2))
                 {
                     var offset = _lineHeight*i;
-                    draw(new PointF(2f, offset), ("X Line #" + i));
+                    artist.RenderText("X Line #" + i, new View.Point(2f, offset), Void.ViewModel.Colors.white);
                 }
-                var offset25 = _lineHeight*(numberOfRows-1);
-                draw(new PointF(2f, offset25), "XWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWX");
+                artist.RenderText("XWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWX", new View.Point(2f, offset25), Void.ViewModel.Colors.white);
             };
-            Content = drawable;
+            Content = _drawable;
         }
     }
 }

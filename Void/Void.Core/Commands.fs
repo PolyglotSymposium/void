@@ -12,3 +12,4 @@ type Command =
     | FormatCurrentLine
     | ChangeToMode of Mode
     | Quit
+    | Redraw

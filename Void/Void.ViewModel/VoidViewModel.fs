@@ -23,6 +23,17 @@ type SizeInPixels = {
     Width : uint16
 }
 
+module View =
+    type Point = {
+        X : float32
+        Y : float32
+    }
+    type Block = {
+        UpperLeftCorner : Point
+        Height : float32
+        Width : float32
+    }
+
 module Colors =
     let white = { Red = 255uy; Green = 255uy; Blue = 255uy }
     let black = { Red = 0uy; Green = 0uy; Blue = 0uy }

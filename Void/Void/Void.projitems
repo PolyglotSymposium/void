@@ -9,6 +9,7 @@
     <Import_RootNamespace>Void</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)EtoArtist.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TypeTranslationExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MainForm.cs" />
   </ItemGroup>
