@@ -11,27 +11,24 @@ type MainView =
     abstract member SubscribeToKeyUp : System.Action<KeyPress> -> unit
     abstract member Close : unit -> unit
 
-type NormalModeController
-    (
-        _handleCommand : Command -> unit
-    ) =
+type NormalModeController() =
     let _bindings = NormalMode.defaultBindings
     let mutable _state = NormalMode.noKeysYet
 
-    member x.handle keyPress =
+    member x.handle keyPress handleCommand =
         match NormalMode.parse _bindings keyPress _state with
         | NormalMode.ParseResult.AwaitingKeyPress prevKeys ->
-            let _state = prevKeys
+            _state <- prevKeys
             ()
         | NormalMode.ParseResult.Command command ->
-            _handleCommand command
+            handleCommand command
 
 type MainController
     (
         _view : MainView
     ) =
     let _dimensions = { Rows = 25us; Columns = 80us }
-    member x._normalCtrl = NormalModeController x.handle 
+    let _normalCtrl = NormalModeController()
 
     member x.init() =
         _view.SetViewTitle "Void - A text editor in the spirit of Vim"
@@ -43,7 +40,7 @@ type MainController
         |> _view.SetViewSize 
 
         _view.SubscribeToKeyUp (fun keyPress ->
-            x._normalCtrl.handle keyPress
+            _normalCtrl.handle keyPress x.handle
         )
 
     member x.handle command =

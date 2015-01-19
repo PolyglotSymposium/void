@@ -5,7 +5,7 @@
 
 ### What?
 A text editor that is not afraid to break compatibility with Vim, but is
-fundamentally inspired to it and dedicated to the spirit of Vim.
+fundamentally inspired by it and dedicated to the spirit of Vim.
 
 ### Why?
 Vim is a great text editor. To my mind, it is _the_ great text editor. Even if
