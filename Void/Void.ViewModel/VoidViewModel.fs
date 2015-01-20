@@ -25,13 +25,13 @@ type SizeInPixels = {
 
 module View =
     type Point = {
-        X : float32
-        Y : float32
+        X : float
+        Y : float
     }
     type Block = {
         UpperLeftCorner : Point
-        Height : float32
-        Width : float32
+        Height : float
+        Width : float
     }
 
 module Colors =

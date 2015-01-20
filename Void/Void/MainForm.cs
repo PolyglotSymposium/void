@@ -12,13 +12,13 @@ namespace Void
         private readonly MainController _controller;
         private Drawable _drawable;
         private Font _font;
-        private float _lineHeight;
 
         public MainForm()
         {
+            _drawable = new Drawable();
+            Content = _drawable;
             _controller = new MainController(this);
             _controller.init();
-            PopulateContent(25); // TODO do not hard-code
         }
 
         public FontMetrics GetFontMetrics()
@@ -27,7 +27,6 @@ namespace Void
             var horizontalPadding = Platform.IsGtk ? 0.0 : 2.77;
             var height = _font.LineHeight + verticalPadding;
             var width = _font.XHeight + horizontalPadding;
-            _lineHeight = height; // TODO DELETE
             return new FontMetrics(height, width);
         }
 
@@ -74,24 +73,6 @@ namespace Void
         public void Redraw()
         {
             _drawable.Update(new Rectangle(ClientSize));
-        }
-
-        private void PopulateContent(int numberOfRows)
-        {
-            _drawable = new Drawable();
-            _drawable.Paint += (sender, eventArgs) =>
-            {
-                var artist = new EtoArtist(eventArgs.Graphics, _font);
-                var offset25 = _lineHeight*(numberOfRows-1);
-                artist.RenderText("XWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWX", new View.Point(2f, 0f), Void.ViewModel.Colors.white);
-                foreach (var i in Enumerable.Range(1, numberOfRows-2))
-                {
-                    var offset = _lineHeight*i;
-                    artist.RenderText("X Line #" + i, new View.Point(2f, offset), Void.ViewModel.Colors.white);
-                }
-                artist.RenderText("XWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWX", new View.Point(2f, offset25), Void.ViewModel.Colors.white);
-            };
-            Content = _drawable;
         }
     }
 }

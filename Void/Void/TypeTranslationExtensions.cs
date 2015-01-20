@@ -6,6 +6,8 @@ using Void.ViewModel;
 
 namespace Void
 {
+    // This class exists to protect the View and the View Model from each other,
+    // so that each can be built the way it wants to be built
     public static class TypeTranslationExtensions
     {
         public static Color AsEtoColor(this RGBColor color)
@@ -20,12 +22,12 @@ namespace Void
 
         public static PointF AsEtoPointF(this View.Point point)
         {
-            return new PointF(point.X, point.Y);
+            return new PointF(Convert.ToSingle(point.X), Convert.ToSingle(point.Y));
         }
 
         public static RectangleF AsEtoRectangleF(this View.Block block)
         {
-            return new RectangleF(block.UpperLeftCorner.AsEtoPointF(), new SizeF(block.Width, block.Height));
+            return new RectangleF(block.UpperLeftCorner.AsEtoPointF(), new SizeF(Convert.ToSingle(block.Width), Convert.ToSingle(block.Height)));
         }
 
         public static KeyPress AsVoidKeyPress(this KeyEventArgs keyEvent)

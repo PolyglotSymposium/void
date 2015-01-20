@@ -46,6 +46,16 @@ type MainController
         Sizing.viewSizeFromFontMetrics _dimensions fontMetrics
         |> _view.SetViewSize 
 
+        // TODO refactor to architecture
+        _view.SubscribeToDraw(fun artist ->
+            let offset25 = fontMetrics.LineHeight * (_dimensions.Rows - 1us |> float)
+            artist.RenderText "XWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWX" { X = 2.0; Y = 0.0 } Colors.white
+            for i in [1us.._dimensions.Rows - 2us] do
+                let offset = fontMetrics.LineHeight * (float i)
+                artist.RenderText (sprintf "X Line #%i" i) { X = 2.0; Y = offset } Colors.white
+            artist.RenderText "XWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWX" { X = 2.0; Y = offset25 } Colors.white
+        )
+
         _view.SubscribeToKeyUp (fun keyPress ->
             _normalCtrl.handle keyPress |> x.handle
         )
@@ -56,7 +66,3 @@ type MainController
         | Command.Quit -> _view.Close()
         | Command.Redraw -> _view.Redraw()
         | _ -> () // TODO implement all command explicitly
-
-    // TODO remove
-    member x.foregroundColor() =
-        Colors.white
