@@ -40,7 +40,7 @@ namespace Void
             _font = Fonts.Monospace(size);
         }
 
-        public void SetViewSize(SizeInPixels size)
+        public void SetViewSize(PixelGrid.IntegerDimensions size)
         {
             ClientSize = size.AsEtoSize();
         }

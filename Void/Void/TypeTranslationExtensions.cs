@@ -15,19 +15,24 @@ namespace Void
             return Color.FromArgb(color.Red, color.Green, color.Blue);
         }
 
-        public static Size AsEtoSize(this SizeInPixels size)
+        public static Size AsEtoSize(this PixelGrid.IntegerDimensions size)
         {
             return new Size(size.Width, size.Height);
         }
 
-        public static PointF AsEtoPointF(this View.Point point)
+        public static PointF AsEtoPointF(this PixelGrid.Point point)
         {
             return new PointF(Convert.ToSingle(point.X), Convert.ToSingle(point.Y));
         }
 
-        public static RectangleF AsEtoRectangleF(this View.Block block)
+        public static SizeF AsEtoSizeF(this PixelGrid.Dimensions size)
         {
-            return new RectangleF(block.UpperLeftCorner.AsEtoPointF(), new SizeF(Convert.ToSingle(block.Width), Convert.ToSingle(block.Height)));
+            return new SizeF(Convert.ToSingle(size.WidthF), Convert.ToSingle(size.HeightF));
+        }
+
+        public static RectangleF AsEtoRectangleF(this PixelGrid.Block block)
+        {
+            return new RectangleF(block.UpperLeftCorner.AsEtoPointF(), block.Dimensions.AsEtoSizeF());
         }
 
         public static KeyPress AsVoidKeyPress(this KeyEventArgs keyEvent)
