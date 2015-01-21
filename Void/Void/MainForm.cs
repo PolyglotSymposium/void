@@ -18,7 +18,7 @@ namespace Void
             _drawable = new Drawable();
             Content = _drawable;
             _controller = new MainController(this);
-            _controller.init();
+            _controller.initializeVoid();
         }
 
         public PixelGrid.FontMetrics GetFontMetrics()
