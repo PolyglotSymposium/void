@@ -24,7 +24,7 @@ namespace Void
         public PixelGrid.FontMetrics GetFontMetrics()
         {
             var verticalPadding = Platform.IsGtk ? 0 : 3;
-            var horizontalPadding = Platform.IsGtk ? 0.0 : 2.77;
+            var horizontalPadding = Platform.IsGtk ? 0.0 : 2.74;
             var height = _font.LineHeight + verticalPadding;
             var width = _font.XHeight + horizontalPadding;
             return new PixelGrid.FontMetrics(height, width);

@@ -38,7 +38,7 @@ type MainController
     (
         _view : MainView
     ) =
-    let _dimensions = { Rows = 25us; Columns = 80us }
+    let _dimensions = { Rows = 26us; Columns = 80us }
     let _normalCtrl = NormalModeController()
     let _colorscheme = Colors.defaultColorscheme
 
@@ -53,12 +53,36 @@ type MainController
 
         // TODO refactor to architecture
         _view.SubscribeToDraw(fun artist ->
-            let offset25 = fontMetrics.LineHeight * (_dimensions.Rows - 1us |> float)
-            artist.RenderText "XWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWX" { X = 2.0; Y = 0.0 } _colorscheme.Foreground
-            for i in [1us.._dimensions.Rows - 2us] do
+            let text = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n\
+                        X Line #1                                                                      X\n\
+                        X Line #2                                                                      X\n\
+                        X Line #3                                                                      X\n\
+                        X Line #4                                                                      X\n\
+                        X Line #5                                                                      X\n\
+                        X Line #6                                                                      X\n\
+                        X Line #7                                                                      X\n\
+                        X Line #8                                                                      X\n\
+                        X Line #9                                                                      X\n\
+                        X Line #10                                                                     X\n\
+                        X Line #11                                                                     X\n\
+                        X Line #12                                                                     X\n\
+                        X Line #13                                                                     X\n\
+                        X Line #14                                                                     X\n\
+                        X Line #15                                                                     X\n\
+                        X Line #16                                                                     X\n\
+                        X Line #17                                                                     X\n\
+                        X Line #18                                                                     X\n\
+                        X Line #19                                                                     X\n\
+                        X Line #20                                                                     X\n\
+                        X Line #21                                                                     X\n\
+                        X Line #22                                                                     X\n\
+                        X Line #23                                                                     X\n\
+                        XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            let mutable i = 0
+            for line in text.Split [|'\n'|] do
                 let offset = fontMetrics.LineHeight * (float i)
-                artist.RenderText (sprintf "X Line #%i" i) { X = 2.0; Y = offset } _colorscheme.Foreground
-            artist.RenderText "XWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWX" { X = 2.0; Y = offset25 } _colorscheme.Foreground
+                i <- i + 1
+                artist.RenderText line { X = 0.0; Y = offset } _colorscheme.Foreground
         )
 
         _view.SubscribeToKeyUp (fun keyPress ->
