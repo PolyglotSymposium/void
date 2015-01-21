@@ -1,10 +1,5 @@
 ﻿namespace Void.ViewModel
 
-type FontMetrics = {
-    LineHeight : float
-    CharWidth : float
-}
-
 module CellGrid =
     type Cell = {
         Row : uint16
@@ -20,6 +15,10 @@ module CellGrid =
     }
 
 module PixelGrid =
+    type FontMetrics = {
+        LineHeight : float
+        CharWidth : float
+    }
     type Point = {
         X : float
         Y : float

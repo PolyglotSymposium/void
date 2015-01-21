@@ -34,8 +34,9 @@ _Void_ is derived from "Vim-oid", that is, it is a Vim-like text editor.
 ### Goals
 + Honor the inherent conflict of interest between command-mode and a scripting
   language. Vi is fundamentally modal; I believe that there needs to be a modal
-  distinction drawn between wanting to dash off quick commands while working,
-  and doing some serious scripting.
+  distinction drawn between wanting to dash off quick commands or while working
+  or even do some simple configuration, and doing some serious scripting such as
+  implementing a whole plugin.
 + Bind keys to the underlying API rather than mapping them to other keys.
 + Default some keys to more useful default mappings, as many Vim users are
   already doing (<kbd>CTRL</kbd>-<kbd>a</kbd> and <kbd>CTRL</kbd>-<kbd>c</kbd>
