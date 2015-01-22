@@ -25,14 +25,14 @@ namespace Void
             return new PointF(Convert.ToSingle(point.X), Convert.ToSingle(point.Y));
         }
 
-        public static SizeF AsEtoSizeF(this PixelGrid.Dimensions size)
+        public static SizeF AsEtoSizeF(this PixelGrid.DimensionsF size)
         {
             return new SizeF(Convert.ToSingle(size.WidthF), Convert.ToSingle(size.HeightF));
         }
 
         public static RectangleF AsEtoRectangleF(this PixelGrid.Block block)
         {
-            return new RectangleF(block.UpperLeftCorner.AsEtoPointF(), block.Dimensions.AsEtoSizeF());
+            return new RectangleF(block.UpperLeftCorner.AsEtoPointF(), block.DimensionsF.AsEtoSizeF());
         }
 
         public static KeyPress AsVoidKeyPress(this KeyEventArgs keyEvent)

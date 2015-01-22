@@ -42,7 +42,9 @@
     <Reference Include="System.Numerics" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Color.fs" />
     <Compile Include="VoidViewModel.fs" />
+    <Compile Include="ModeControllers.fs" />
     <Compile Include="VoidController.fs" />
   </ItemGroup>
   <ItemGroup>

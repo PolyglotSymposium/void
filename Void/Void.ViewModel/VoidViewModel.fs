@@ -27,56 +27,38 @@ module PixelGrid =
         Height : uint16
         Width : uint16
     }
-    type Dimensions = {
+    type DimensionsF = {
         HeightF : float
         WidthF : float
     }
     type Block = {
         UpperLeftCorner : Point
-        Dimensions : Dimensions
+        DimensionsF : DimensionsF
     }
 
-type RGBColor = {
-    Red : byte
-    Green : byte
-    Blue : byte
+    let origin = { X = 0.0; Y = 0.0 }
+
+type ViewSize = {
+    Dimensions : CellGrid.Dimensions
+    FontMetrics : PixelGrid.FontMetrics
 }
-
-type Colorscheme = {
-    Background : RGBColor
-    Foreground : RGBColor
-    StatusLineEtc : RGBColor // TODO rename
-    Error : RGBColor
-}
-
-module Colors =
-    let white = { Red = 255uy; Green = 255uy; Blue = 255uy }
-    let black = { Red = 0uy; Green = 0uy; Blue = 0uy }
-    let red = { Red = 255uy; Green = 0uy; Blue = 0uy }
-    let green = { Red = 0uy; Green = 255uy; Blue = 0uy }
-    let blue = { Red = 0uy; Green = 0uy; Blue = 255uy }
-
-    let defaultColorscheme = {
-        Background = black
-        Foreground = white
-        StatusLineEtc = blue
-        Error = red
-    }
-
 
 module Sizing =
     open System
     open PixelGrid
     open CellGrid
 
-    let ceilingAsUInt16 (x : float) =
+    let private ceilingAsUInt16 (x : float) =
         Math.Ceiling(x) |> Convert.ToUInt16
 
-    let viewSizeFromFontMetrics viewDimensions fontMetrics = 
+    let defaultViewSize =
         {
-            Height = ceilingAsUInt16 (fontMetrics.LineHeight * (float viewDimensions.Rows))
-            Width = ceilingAsUInt16 (fontMetrics.CharWidth * (float viewDimensions.Columns))
+            Dimensions = { Rows = 26us; Columns = 80us }
+            FontMetrics = { LineHeight = 10.0; CharWidth = 5.0 } // Arbitrary default
         }
 
-module Scope = 
-    let bootstrapped = true
+    let viewSizeInPixels viewSize = 
+        {
+            Height = ceilingAsUInt16 (viewSize.FontMetrics.LineHeight * (float viewSize.Dimensions.Rows))
+            Width = ceilingAsUInt16 (viewSize.FontMetrics.CharWidth * (float viewSize.Dimensions.Columns))
+        }

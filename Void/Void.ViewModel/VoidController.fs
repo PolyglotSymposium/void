@@ -18,25 +18,13 @@ type MainView =
     abstract member SubscribeToDraw : Action<Artist> -> unit
     abstract member Redraw : unit -> unit
 
-type NormalModeController() =
-    let _bindings = NormalMode.defaultBindings
-    let mutable _state = NormalMode.noKeysYet
-
-    member x.handle keyPress =
-        match NormalMode.parse _bindings keyPress _state with
-        | NormalMode.ParseResult.AwaitingKeyPress prevKeys ->
-            _state <- prevKeys
-            Command.Noop
-        | NormalMode.ParseResult.Command command ->
-            command
-
 open CellGrid
 
 type ViewController
     (
         _view : MainView
     ) =
-    let _dimensions = { Rows = 26us; Columns = 80us }
+    let mutable _viewSize = Sizing.defaultViewSize
     let _colorscheme = Colors.defaultColorscheme
 
     member x.initializeView() =
@@ -44,15 +32,14 @@ type ViewController
         _view.SetBackgroundColor Colors.black
         _view.SetFontBySize 9uy;
 
-        let fontMetrics = _view.GetFontMetrics()
-        Sizing.viewSizeFromFontMetrics _dimensions fontMetrics
-        |> _view.SetViewSize 
+        _viewSize <- { _viewSize with FontMetrics = _view.GetFontMetrics() }
+        Sizing.viewSizeInPixels _viewSize |> _view.SetViewSize 
 
         // TODO refactor to architecture
         _view.SubscribeToDraw(fun artist ->
             let mutable i = 0
             for line in Editor.testFileBuffer().Contents.Split [|'\n'|] do
-                let offset = fontMetrics.LineHeight * (float i)
+                let offset = _viewSize.FontMetrics.LineHeight * (float i)
                 i <- i + 1
                 x.textOnRow artist line offset
         )
