@@ -64,3 +64,8 @@ a new feature you submit an issue first so we can discuss the new feature, even
 if the "new" feature is a Vim feature, because I do not intend to
 indiscriminately accept all Vim features into Void. That being said, please
 contribute!
+
+## Disclaimer
+And yes, I know...
+
+![One does not simply reimplement Vim](http://i.imgur.com/cNmpx3x.jpg)
