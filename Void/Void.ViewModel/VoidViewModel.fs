@@ -16,27 +16,23 @@ module CellGrid =
 
 module PixelGrid =
     type FontMetrics = {
-        LineHeight : float
-        CharWidth : float
+        LineHeight : uint16
+        CharWidth : uint16
     }
     type Point = {
-        X : float
-        Y : float
+        X : uint16
+        Y : uint16
     }
-    type IntegerDimensions = {
+    type Dimensions = {
         Height : uint16
         Width : uint16
     }
-    type DimensionsF = {
-        HeightF : float
-        WidthF : float
-    }
     type Block = {
         UpperLeftCorner : Point
-        DimensionsF : DimensionsF
+        DimensionsF : Dimensions
     }
 
-    let origin = { X = 0.0; Y = 0.0 }
+    let origin = { X = 0us; Y = 0us }
 
 type ViewSize = {
     Dimensions : CellGrid.Dimensions
@@ -48,17 +44,17 @@ module Sizing =
     open PixelGrid
     open CellGrid
 
-    let private ceilingAsUInt16 (x : float) =
-        Math.Ceiling(x) |> Convert.ToUInt16
+    let private ceiling (x : uint16) =
+        Convert.ToDouble x |> Math.Ceiling |> Convert.ToUInt16
 
     let defaultViewSize =
         {
             Dimensions = { Rows = 26us; Columns = 80us }
-            FontMetrics = { LineHeight = 10.0; CharWidth = 5.0 } // Arbitrary default
+            FontMetrics = { LineHeight = 10us; CharWidth = 5us } // Arbitrary default
         }
 
     let viewSizeInPixels viewSize = 
         {
-            Height = ceilingAsUInt16 (viewSize.FontMetrics.LineHeight * (float viewSize.Dimensions.Rows))
-            Width = ceilingAsUInt16 (viewSize.FontMetrics.CharWidth * (float viewSize.Dimensions.Columns))
+            Height = ceiling viewSize.FontMetrics.LineHeight * viewSize.Dimensions.Rows
+            Width = ceiling viewSize.FontMetrics.CharWidth * viewSize.Dimensions.Columns
         }

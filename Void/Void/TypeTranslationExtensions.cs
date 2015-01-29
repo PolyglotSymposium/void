@@ -15,7 +15,7 @@ namespace Void
             return Color.FromArgb(color.Red, color.Green, color.Blue);
         }
 
-        public static Size AsEtoSize(this PixelGrid.IntegerDimensions size)
+        public static Size AsEtoSize(this PixelGrid.Dimensions size)
         {
             return new Size(size.Width, size.Height);
         }
@@ -25,9 +25,9 @@ namespace Void
             return new PointF(Convert.ToSingle(point.X), Convert.ToSingle(point.Y));
         }
 
-        public static SizeF AsEtoSizeF(this PixelGrid.DimensionsF size)
+        public static SizeF AsEtoSizeF(this PixelGrid.Dimensions size)
         {
-            return new SizeF(Convert.ToSingle(size.WidthF), Convert.ToSingle(size.HeightF));
+            return new SizeF(Convert.ToSingle(size.Width), Convert.ToSingle(size.Height));
         }
 
         public static RectangleF AsEtoRectangleF(this PixelGrid.Block block)

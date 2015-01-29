@@ -24,9 +24,9 @@ namespace Void
         public PixelGrid.FontMetrics GetFontMetrics()
         {
             var verticalPadding = Platform.IsGtk ? 0 : 3;
-            var horizontalPadding = Platform.IsGtk ? 0.0 : 2.74;
-            var height = _font.LineHeight + verticalPadding;
-            var width = _font.XHeight + horizontalPadding;
+            var horizontalPadding = Platform.IsGtk ? 0 : 2;
+            var height = Convert.ToUInt16(Math.Ceiling(_font.LineHeight + verticalPadding));
+            var width = Convert.ToUInt16(Math.Ceiling(_font.XHeight + horizontalPadding));
             return new PixelGrid.FontMetrics(height, width);
         }
 
@@ -40,7 +40,7 @@ namespace Void
             _font = Fonts.Monospace(size);
         }
 
-        public void SetViewSize(PixelGrid.IntegerDimensions size)
+        public void SetViewSize(PixelGrid.Dimensions size)
         {
             ClientSize = size.AsEtoSize();
         }

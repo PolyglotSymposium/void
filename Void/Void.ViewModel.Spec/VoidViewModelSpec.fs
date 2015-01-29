@@ -12,5 +12,5 @@ type ``The view size in pixels calculated from rows and columns and font metrics
     member x.``should be rounded ``() =
         Sizing.viewSizeInPixels {
             Dimensions = { Rows = 25us; Columns = 80us }
-            FontMetrics = { LineHeight = 10.1; CharWidth = 5.51 }
-        } |> should equal { Height = 253us; Width = 441us }
+            FontMetrics = { LineHeight = 10us; CharWidth = 5us }
+        } |> should equal { Height = 250us; Width = 400us }

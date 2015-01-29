@@ -12,7 +12,7 @@ type MainView =
     abstract member GetFontMetrics : unit -> PixelGrid.FontMetrics
     abstract member SetBackgroundColor : RGBColor -> unit
     abstract member SetFontBySize : byte -> unit
-    abstract member SetViewSize : PixelGrid.IntegerDimensions -> unit
+    abstract member SetViewSize : PixelGrid.Dimensions -> unit
     abstract member SetViewTitle : string -> unit
     abstract member SubscribeToKeyUp : Action<KeyPress> -> unit
     abstract member SubscribeToDraw : Action<Artist> -> unit
@@ -37,10 +37,10 @@ type ViewController
 
         // TODO refactor to architecture
         _view.SubscribeToDraw(fun artist ->
-            let mutable i = 0
+            let mutable i = 0us
             for line in Editor.testFileBuffer().Contents.Split [|'\n'|] do
-                let offset = _viewSize.FontMetrics.LineHeight * (float i)
-                i <- i + 1
+                let offset = _viewSize.FontMetrics.LineHeight * i
+                i <- i + 1us
                 x.textOnRow artist line offset
         )
 
@@ -49,7 +49,7 @@ type ViewController
     member x.redrawEntireView() = _view.Redraw()
 
     member x.textOnRow artist text row =
-        artist.RenderText text { X = 0.0; Y = row } _colorscheme.Foreground
+        artist.RenderText text { X = 0us; Y = row } _colorscheme.Foreground
 
 type MainController
     (
