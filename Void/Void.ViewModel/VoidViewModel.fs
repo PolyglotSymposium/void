@@ -58,3 +58,27 @@ module Sizing =
             Height = ceiling viewSize.FontMetrics.LineHeight * viewSize.Dimensions.Rows
             Width = ceiling viewSize.FontMetrics.CharWidth * viewSize.Dimensions.Columns
         }
+
+type TextObject = {
+    Text : string
+    UpperLeftCorner : PixelGrid.Point
+    Background : RGBColor
+    Foreground : RGBColor
+}
+
+[<RequireQualifiedAccess>]
+type ViewObject =
+    | Cursor
+    | Text of TextObject
+
+module Render =
+    let private lineAsViewObject line =
+        ViewObject.Text {
+            Text = line
+            UpperLeftCorner = PixelGrid.origin
+            Background = Colors.defaultColorscheme.Background
+            Foreground = Colors.defaultColorscheme.Foreground
+        }
+
+    let linesAsViewObjects (viewSize : ViewSize) (lines : string list) =
+        List.map lineAsViewObject lines
