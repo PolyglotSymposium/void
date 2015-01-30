@@ -9,12 +9,14 @@ type RGBColor = {
 type Colorscheme = {
     Background : RGBColor
     Foreground : RGBColor
-    StatusLineEtc : RGBColor // TODO rename
+    DimForeground : RGBColor
+    WindowDecorations : RGBColor
     Error : RGBColor
 }
 
 module Colors =
     let white = { Red = 255uy; Green = 255uy; Blue = 255uy }
+    let lightGray = { Red = 192uy; Green = 192uy; Blue = 192uy }
     let black = { Red = 0uy; Green = 0uy; Blue = 0uy }
     let red = { Red = 255uy; Green = 0uy; Blue = 0uy }
     let green = { Red = 0uy; Green = 255uy; Blue = 0uy }
@@ -23,7 +25,8 @@ module Colors =
     let defaultColorscheme = {
         Background = black
         Foreground = white
-        StatusLineEtc = blue
+        DimForeground = lightGray
+        WindowDecorations = blue
         Error = red
     }
 

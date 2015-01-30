@@ -13,6 +13,10 @@ module CellGrid =
         UpperLeftCorner : Cell
         Dimensions : Dimensions
     }
+    let originCell = { Row = 1us; Column = 1us }
+
+    let rightOf cell count =
+        { Row = cell.Row; Column = cell.Column + count }
 
 module PixelGrid =
     type FontMetrics = {
@@ -29,10 +33,10 @@ module PixelGrid =
     }
     type Block = {
         UpperLeftCorner : Point
-        DimensionsF : Dimensions
+        Dimensions : Dimensions
     }
 
-    let origin = { X = 0us; Y = 0us }
+    let originPoint = { X = 0us; Y = 0us }
 
 type ViewSize = {
     Dimensions : CellGrid.Dimensions
@@ -59,26 +63,100 @@ module Sizing =
             Width = ceiling viewSize.FontMetrics.CharWidth * viewSize.Dimensions.Columns
         }
 
-type TextObject = {
-    Text : string
-    UpperLeftCorner : PixelGrid.Point
-    Background : RGBColor
-    Foreground : RGBColor
+[<RequireQualifiedAccess>]
+type CursorView =
+    | Block of CellGrid.Cell
+    | IBeam of PixelGrid.Point
+
+[<RequireQualifiedAccess>]
+type StatusLineView = // TODO much yet to be done here
+    | Unfocused
+    | Focused
+
+type UnfocusedWindowView = {
+    StatusLine : StatusLineView
+    Area : PixelGrid.Block
+}
+
+type FocusedWindowView = {
+    StatusLine : StatusLineView
+    Area : PixelGrid.Block
+    Cursor : CursorView
 }
 
 [<RequireQualifiedAccess>]
-type ViewObject =
-    | Cursor
-    | Text of TextObject
+type WindowView =
+    | Unfocused of UnfocusedWindowView
+    | Focused of FocusedWindowView
+
+(* "Command line" is too equivocal. I mean the ; (or : in Vim) bar at the
+ * bottom of the screen *)
+[<RequireQualifiedAccess>]
+type CommandBarView =
+    | Hidden
+    | Visible of string
+
+[<RequireQualifiedAccess>]
+type TabNameView =
+    | Unfocused of string
+    | Focused of string
+
+type ViewModel = {
+    TabBar : TabNameView list
+    VisibleWindows : WindowView list
+    CommandBar : CommandBarView
+    OutputMessages : string list // TODO that's not right...
+}
+
+type ScreenTextObject = {
+    Text : string
+    UpperLeftCorner : CellGrid.Cell
+    Color : RGBColor
+}
+
+type ScreenBlockObject = {
+    Area : CellGrid.Block
+    Color : RGBColor
+}
+
+[<RequireQualifiedAccess>]
+type DrawingObject =
+    | Line
+    | Text of ScreenTextObject
+    | Block of ScreenBlockObject
 
 module Render =
-    let private lineAsViewObject line =
-        ViewObject.Text {
+    let private lineAsDrawingObject line =
+        DrawingObject.Text {
             Text = line
-            UpperLeftCorner = PixelGrid.origin
-            Background = Colors.defaultColorscheme.Background
-            Foreground = Colors.defaultColorscheme.Foreground
+            UpperLeftCorner = CellGrid.originCell
+            Color = Colors.defaultColorscheme.Foreground
         }
 
-    let linesAsViewObjects (viewSize : ViewSize) (lines : string list) =
-        List.map lineAsViewObject lines
+    let commandBarPrompt = 
+        DrawingObject.Text {
+            Text = ";"
+            UpperLeftCorner = { Row = 25us; Column = 0us }
+            Color = Colors.defaultColorscheme.DimForeground
+        }
+
+    let commandBarAsDrawingObjects commandBar width upperLeft =
+        DrawingObject.Block {
+            Area =
+                {
+                    UpperLeftCorner = upperLeft
+                    Dimensions = { Rows = 1us; Columns = width }
+                }
+            Color = Colors.defaultColorscheme.Background
+        } :: match commandBar with
+             | CommandBarView.Hidden -> []
+             | CommandBarView.Visible "" -> [commandBarPrompt]
+             | CommandBarView.Visible text ->
+                 [commandBarPrompt; DrawingObject.Text {
+                    Text = text
+                    UpperLeftCorner = CellGrid.rightOf upperLeft 1us
+                    Color = Colors.defaultColorscheme.Foreground
+                 }]
+
+    let linesAsDrawingObjects (viewSize : ViewSize) (lines : string list) =
+        List.map lineAsDrawingObject lines

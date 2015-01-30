@@ -32,7 +32,7 @@ namespace Void
 
         public static RectangleF AsEtoRectangleF(this PixelGrid.Block block)
         {
-            return new RectangleF(block.UpperLeftCorner.AsEtoPointF(), block.DimensionsF.AsEtoSizeF());
+            return new RectangleF(block.UpperLeftCorner.AsEtoPointF(), block.Dimensions.AsEtoSizeF());
         }
 
         public static KeyPress AsVoidKeyPress(this KeyEventArgs keyEvent)
