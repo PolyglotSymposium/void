@@ -52,13 +52,13 @@ module Render =
 
     let private outputMessageAsDrawingObject outputMessage upperLeft =
         match outputMessage with
-        | OutputMessage.Text msg ->
+        | OutputMessageView.Text msg ->
             {
                 Text = msg
                 UpperLeftCorner = upperLeft
                 Color = Colors.defaultColorscheme.Foreground
             }
-        | OutputMessage.Error msg ->
+        | OutputMessageView.Error msg ->
             {
                 Text = msg
                 UpperLeftCorner = upperLeft

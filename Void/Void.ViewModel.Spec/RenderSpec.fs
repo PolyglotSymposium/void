@@ -60,7 +60,7 @@ type ``Rendering output messages``() =
 
     [<Test>]
     member x.``when there is one error renders it in error colors``() =
-        Render.outputMessagesAsDrawingObjects [OutputMessage.Error "Bad!"] 78us { Row = 24us; Column = 0us }
+        Render.outputMessagesAsDrawingObjects [OutputMessageView.Error "Bad!"] 78us { Row = 24us; Column = 0us }
         |> should equal [DrawingObject.Text {
             Text = "Bad!"
             UpperLeftCorner = { Row = 24us; Column = 0us }
@@ -69,7 +69,7 @@ type ``Rendering output messages``() =
 
     [<Test>]
     member x.``when there is one message renders it in regular colors``() =
-        Render.outputMessagesAsDrawingObjects [OutputMessage.Text "Good"] 80us { Row = 25us; Column = 0us }
+        Render.outputMessagesAsDrawingObjects [OutputMessageView.Text "Good"] 80us { Row = 25us; Column = 0us }
         |> should equal [DrawingObject.Text {
             Text = "Good"
             UpperLeftCorner = { Row = 25us; Column = 0us }

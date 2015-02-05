@@ -39,6 +39,9 @@ type EditorState = {
     Mode : Mode
 }
 
+module Errors =
+    let notImplemented = "This command is not yet implemented"
+
 module Editor = 
     let private startOfFile() =
         { Row = 0u; Column = 0u }

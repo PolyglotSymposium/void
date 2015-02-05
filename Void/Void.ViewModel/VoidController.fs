@@ -51,6 +51,9 @@ type ViewController
     member x.textOnRow artist text row =
         artist.RenderText text { X = 0us; Y = row } _colorscheme.Foreground
 
+    member x.displayError errorMsg =
+        () // TODO
+
 type MainController
     (
         _view : MainView
@@ -72,4 +75,5 @@ type MainController
         //| Command.ChangeToMode mode // TODO
         | Command.Quit -> _viewCtrl.closeView()
         | Command.Redraw -> _viewCtrl.redrawEntireView()
-        | _ -> () // TODO implement all command explicitly
+        | Command.FormatCurrentLine ->
+            _viewCtrl.displayError Errors.notImplemented

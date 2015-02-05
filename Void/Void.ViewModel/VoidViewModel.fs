@@ -102,13 +102,17 @@ type TabNameView =
     | Focused of string
 
 [<RequireQualifiedAccess>]
-type OutputMessage = // TODO should this be part of the model?
+type OutputMessageView =
     | Text of string
     | Error of string
 
-type ViewModel = {
+type TopLevelViewModel = {
     TabBar : TabNameView list
     VisibleWindows : WindowView list
     CommandBar : CommandBarView
-    OutputMessages : OutputMessage list
+    OutputMessages : OutputMessageView list
 }
+
+module ViewModel =
+    let addMessage viewModel msg =
+        { viewModel with OutputMessages = msg :: viewModel.OutputMessages }
