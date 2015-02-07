@@ -54,7 +54,6 @@
     <Content Include="packages.config" />
     <Content Include="app.config" />
     <Compile Include="VoidViewModelSpec.fs" />
-    <Compile Include="VoidControllerSpec.fs" />
     <Compile Include="RenderSpec.fs" />
   </ItemGroup>
   <ItemGroup>

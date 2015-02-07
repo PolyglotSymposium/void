@@ -1,15 +1,12 @@
 ﻿namespace Void.Core
 
 [<RequireQualifiedAccess>]
-type Mode =
-    | Insert
-    | Normal
-    | Command
-
-[<RequireQualifiedAccess>]
 type Command =
     | Noop
+    | Edit
     | FormatCurrentLine
     | ChangeToMode of Mode
+    | PublishEvent of Event
     | Quit
     | Redraw
+    | ViewTestBuffer

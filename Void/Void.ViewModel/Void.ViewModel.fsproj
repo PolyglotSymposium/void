@@ -45,7 +45,7 @@
     <Compile Include="Color.fs" />
     <Compile Include="VoidViewModel.fs" />
     <Compile Include="Render.fs" />
-    <Compile Include="ModeControllers.fs" />
+    <Compile Include="View.fs" />
     <Compile Include="VoidController.fs" />
   </ItemGroup>
   <ItemGroup>

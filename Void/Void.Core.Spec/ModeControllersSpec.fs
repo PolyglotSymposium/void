@@ -1,7 +1,6 @@
 ﻿namespace Void.ViewModel.Spec
 
 open Void.Core
-open Void.ViewModel
 open NUnit.Framework
 open FsUnit
 

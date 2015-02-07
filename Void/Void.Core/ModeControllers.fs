@@ -1,6 +1,4 @@
-﻿namespace Void.ViewModel
-
-open Void.Core
+﻿namespace Void.Core
 
 type NormalModeController() =
     let _bindings = NormalMode.defaultBindings

@@ -2,12 +2,12 @@
 
 type ScreenTextObject = {
     Text : string
-    UpperLeftCorner : CellGrid.Cell
+    UpperLeftCorner : PixelGrid.Point
     Color : RGBColor
 }
 
 type ScreenBlockObject = {
-    Area : CellGrid.Block
+    Area : PixelGrid.Block
     Color : RGBColor
 }
 
@@ -18,58 +18,71 @@ type DrawingObject =
     | Block of ScreenBlockObject
 
 module Render =
-    let private lineAsDrawingObject line =
+    open CellGrid
+
+    let private textLineAsDrawingObject cellToPoint x line =
         DrawingObject.Text {
             Text = line
-            UpperLeftCorner = CellGrid.originCell
+            UpperLeftCorner = cellToPoint <| below originCell (uint16 x)
             Color = Colors.defaultColorscheme.Foreground
         }
 
-    let commandBarPrompt = 
+    let textLinesAsDrawingObjects cellToPoint lines =
+        List.mapi (textLineAsDrawingObject cellToPoint) lines
+
+    let private commandBarPrompt cellToPoint = 
         DrawingObject.Text {
             Text = ";"
-            UpperLeftCorner = { Row = 25us; Column = 0us }
+            UpperLeftCorner = cellToPoint { Row = 25us; Column = 0us }
             Color = Colors.defaultColorscheme.DimForeground
         }
 
-    let commandBarAsDrawingObjects commandBar width upperLeft =
+    let commandBarAsDrawingObjects cellToPoint commandBar width upperLeft =
         DrawingObject.Block {
             Area =
                 {
-                    UpperLeftCorner = upperLeft
-                    Dimensions = { Rows = 1us; Columns = width }
+                    UpperLeftCorner = cellToPoint upperLeft
+                    Dimensions = { Height = 1us; Width = width } // TODO convert to pixels
                 }
             Color = Colors.defaultColorscheme.Background
         } :: match commandBar with
              | CommandBarView.Hidden -> []
-             | CommandBarView.Visible "" -> [commandBarPrompt]
+             | CommandBarView.Visible "" -> [commandBarPrompt cellToPoint]
              | CommandBarView.Visible text ->
-                 [commandBarPrompt; DrawingObject.Text {
+                 [commandBarPrompt cellToPoint; DrawingObject.Text {
                     Text = text
-                    UpperLeftCorner = CellGrid.rightOf upperLeft 1us
+                    UpperLeftCorner = cellToPoint <| rightOf upperLeft 1us
                     Color = Colors.defaultColorscheme.Foreground
                  }]
 
-    let private outputMessageAsDrawingObject outputMessage upperLeft =
+    let private outputMessageAsDrawingObject cellToPoint outputMessage upperLeft =
         match outputMessage with
         | OutputMessageView.Text msg ->
             {
                 Text = msg
-                UpperLeftCorner = upperLeft
+                UpperLeftCorner = cellToPoint upperLeft
                 Color = Colors.defaultColorscheme.Foreground
             }
         | OutputMessageView.Error msg ->
             {
                 Text = msg
-                UpperLeftCorner = upperLeft
+                UpperLeftCorner = cellToPoint upperLeft
                 Color = Colors.defaultColorscheme.Error
             }
         |> DrawingObject.Text
 
-    let outputMessagesAsDrawingObjects outputMessages width upperLeft =
+    let outputMessagesAsDrawingObjects cellToPoint outputMessages width upperLeft =
         let asDrawingObject outputMsg =
-            outputMessageAsDrawingObject outputMsg upperLeft
-        outputMessages |> Seq.map asDrawingObject
+            outputMessageAsDrawingObject cellToPoint outputMsg upperLeft
+        outputMessages |> List.map asDrawingObject
 
-    let linesAsDrawingObjects (viewSize : ViewSize) (lines : string list) =
-        List.map lineAsDrawingObject lines
+    let tabBarAsDrawingObjects x y z = []
+    let windowsAsDrawingObjects x y z = []
+
+    let viewModelAsDrawingObjects cellToPoint dimensionInPixels viewModel =
+        [
+            tabBarAsDrawingObjects cellToPoint dimensionInPixels viewModel.TabBar
+            windowsAsDrawingObjects cellToPoint dimensionInPixels viewModel.VisibleWindows
+            commandBarAsDrawingObjects cellToPoint viewModel.CommandBar viewModel.Size.Columns originCell
+            outputMessagesAsDrawingObjects cellToPoint viewModel.OutputMessages viewModel.Size.Columns originCell
+        ] |> Seq.concat

@@ -56,6 +56,7 @@
     <Compile Include="CommandLineSpec.fs" />
     <Compile Include="NormalModeSpec.fs" />
     <Compile Include="VoidCoreSpec.fs" />
+    <Compile Include="ModeControllersSpec.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FsUnit.NUnit">

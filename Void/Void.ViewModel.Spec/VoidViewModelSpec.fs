@@ -7,10 +7,21 @@ open NUnit.Framework
 open FsUnit
 
 [<TestFixture>]
-type ``The view size in pixels calculated from rows and columns and font metrics``() = 
+type ``When converting from cells to pixels``() = 
+    let fontMetrics = { LineHeight = 10us; CharWidth = 5us }
+    let pointAtUpperLeftOf = Sizing.pointAtUpperLeftOfCell fontMetrics
+    let cellDimenionsToPixels = Sizing.cellDimensionsToPixels fontMetrics
+
     [<Test>]
-    member x.``should be rounded ``() =
-        Sizing.viewSizeInPixels {
-            Dimensions = { Rows = 25us; Columns = 80us }
-            FontMetrics = { LineHeight = 10us; CharWidth = 5us }
-        } |> should equal { Height = 250us; Width = 400us }
+    member x.``the upper left corner of the origin cell is the origin point``() =
+        pointAtUpperLeftOf originCell |> should equal originPoint
+    [<Test>]
+    member x.``the upper left corner of a cell away from the origin should be computed with font metrics``() =
+        pointAtUpperLeftOf { Row = 1us; Column = 1us } |> should equal { X = 5us; Y = 10us }
+
+    [<Test>]
+    member x.``zero-sized cell dimensions should be zero-sized in pixels as well``() =
+        cellDimenionsToPixels { Rows = 0us; Columns = 0us } |> should equal { Height = 0us; Width = 0us }
+    [<Test>]
+    member x.``cell dimenions should be scaled by font metrics to produce pixel dimensions``() =
+        cellDimenionsToPixels { Rows = 25us; Columns = 80us } |> should equal { Height = 250us; Width = 400us }

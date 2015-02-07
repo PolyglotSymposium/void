@@ -14,14 +14,14 @@ namespace Void
             _font = font;
         }
 
-        public void RenderText(string text, PixelGrid.Point startingPoint, RGBColor color)
+        public void RenderText(ScreenTextObject obj)
         {
-            _graphics.DrawText(_font, color.AsEtoColor(), startingPoint.AsEtoPointF(), text);
+            _graphics.DrawText(_font, obj.Color.AsEtoColor(), obj.UpperLeftCorner.AsEtoPointF(), obj.Text);
         }
 
-        public void RenderBlock(PixelGrid.Block block, RGBColor color)
+        public void RenderBlock(ScreenBlockObject obj)
         {
-            _graphics.FillRectangle(color.AsEtoColor(), block.AsEtoRectangleF());
+            _graphics.FillRectangle(obj.Color.AsEtoColor(), obj.Area.AsEtoRectangleF());
         }
     }
 }

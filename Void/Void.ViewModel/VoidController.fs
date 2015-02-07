@@ -1,79 +1,91 @@
 ﻿namespace Void.ViewModel
 
-open System
 open Void.Core
-
-type Artist =
-    abstract member RenderText : string -> PixelGrid.Point -> RGBColor -> unit
-    abstract member RenderBlock : PixelGrid.Block -> RGBColor -> unit
-
-type MainView =
-    abstract member Close : unit -> unit
-    abstract member GetFontMetrics : unit -> PixelGrid.FontMetrics
-    abstract member SetBackgroundColor : RGBColor -> unit
-    abstract member SetFontBySize : byte -> unit
-    abstract member SetViewSize : PixelGrid.Dimensions -> unit
-    abstract member SetViewTitle : string -> unit
-    abstract member SubscribeToKeyUp : Action<KeyPress> -> unit
-    abstract member SubscribeToDraw : Action<Artist> -> unit
-    abstract member Redraw : unit -> unit
-
 open CellGrid
 
 type ViewController
     (
         _view : MainView
     ) =
+    let mutable _fontMetrics = Sizing.defaultFontMetrics
     let mutable _viewSize = Sizing.defaultViewSize
     let _colorscheme = Colors.defaultColorscheme
 
     member x.initializeView() =
-        _view.SetViewTitle "Void - A text editor in the spirit of Vim"
-        _view.SetBackgroundColor Colors.black
-        _view.SetFontBySize 9uy;
+        _view.SetViewTitle ViewModel.defaultTitle
+        _view.SetBackgroundColor Colors.defaultColorscheme.Background
+        _view.SetFontBySize ViewModel.defaultFontSize
+        _view.SetViewSize <| Sizing.cellDimensionsToPixels _fontMetrics _viewSize
+        _view.SubscribeToDraw(fun artist -> x.draw artist)
 
-        _viewSize <- { _viewSize with FontMetrics = _view.GetFontMetrics() }
-        Sizing.viewSizeInPixels _viewSize |> _view.SetViewSize 
+    // TODO refactor to architecture
+    member private x.draw artist =
+        let mutable i = 0us
+        for line in ["a"; "b"; "c"] do
+            let offset = _fontMetrics.LineHeight * i
+            i <- i + 1us
+            x.textOnRow artist line offset
 
-        // TODO refactor to architecture
-        _view.SubscribeToDraw(fun artist ->
-            let mutable i = 0us
-            for line in Editor.testFileBuffer().Contents.Split [|'\n'|] do
-                let offset = _viewSize.FontMetrics.LineHeight * i
-                i <- i + 1us
-                x.textOnRow artist line offset
-        )
+    member private x.textOnRow artist text row =
+        artist.RenderText { Text = text; UpperLeftCorner = { X = 0us; Y = row }; Color = _colorscheme.Foreground }
 
-    member x.closeView() = _view.Close()
+    member private x.render (artist : Artist) drawingObject =
+        match drawingObject with
+        | DrawingObject.Line -> () // TODO
+        | DrawingObject.Block block -> artist.RenderBlock block
+        | DrawingObject.Text text -> artist.RenderText text
 
-    member x.redrawEntireView() = _view.Redraw()
+    member x.handleCommand command =
+        match command with
+        | Command.Quit -> _view.Close()
+        | Command.Redraw -> _view.Redraw()
+        | _ -> ()
+        Command.Noop
 
-    member x.textOnRow artist text row =
-        artist.RenderText text { X = 0us; Y = row } _colorscheme.Foreground
-
-    member x.displayError errorMsg =
-        () // TODO
+    member x.handleEvent event =
+        match event with
+        | Event.MessageAdded msg ->
+            Command.Noop // TODO
+        | Event.BufferLoadedIntoWindow buffer ->
+            // TODO Editor.readLines buffer 1
+            Command.Redraw
+        | _ -> Command.Noop
 
 type MainController
     (
         _view : MainView
     ) =
     let _normalCtrl = NormalModeController()
+    let _coreCtrl = CoreController()
     let _viewCtrl = ViewController(_view)
+    let _eventHandlers = [_coreCtrl.handleEvent; _viewCtrl.handleEvent]
 
     member x.initializeVoid() =
         _viewCtrl.initializeView()
         // In general, ViewController should operate on the view, not MainController.
         // However, the lines below are input, not painting/drawing/displaying...
         _view.SubscribeToKeyUp (fun keyPress ->
-            _normalCtrl.handle keyPress |> x.handle
+            _normalCtrl.handle keyPress |> x.handleCommand
         )
+        x.handleCommand Command.ViewTestBuffer
 
-    member x.handle command =
+    member private x.handleCommand command =
+        let notImplemented() =
+            Event.ErrorOccurred Error.NotImplemented
+            |> Command.PublishEvent
+            |> x.handleCommand
+
         match command with
-        | Command.Noop -> ()
-        //| Command.ChangeToMode mode // TODO
-        | Command.Quit -> _viewCtrl.closeView()
-        | Command.Redraw -> _viewCtrl.redrawEntireView()
+        | Command.ChangeToMode _
+        | Command.Edit
         | Command.FormatCurrentLine ->
-            _viewCtrl.displayError Errors.notImplemented
+            notImplemented()
+        | Command.PublishEvent event ->
+            for handle in _eventHandlers do
+                handle event |> x.handleCommand
+        | Command.Quit
+        | Command.Redraw ->
+            _viewCtrl.handleCommand command |> x.handleCommand
+        | Command.ViewTestBuffer -> 
+            _coreCtrl.handleCommand command |> x.handleCommand
+        | Command.Noop -> ()
