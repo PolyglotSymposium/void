@@ -2,18 +2,18 @@
 
 module CellGrid =
     type Cell = {
-        Row : uint16
-        Column : uint16
+        Row : int
+        Column : int
     }
     type Dimensions = {
-        Rows : uint16
-        Columns : uint16
+        Rows : int
+        Columns : int
     }
     type Block = {
         UpperLeftCorner : Cell
         Dimensions : Dimensions
     }
-    let originCell = { Row = 0us; Column = 0us }
+    let originCell = { Row = 0; Column = 0 }
 
     let rightOf cell count =
         { Row = cell.Row; Column = cell.Column + count }
@@ -23,31 +23,31 @@ module CellGrid =
 
 module PixelGrid =
     type FontMetrics = {
-        LineHeight : uint16
-        CharWidth : uint16
+        LineHeight : int
+        CharWidth : int
     }
     type Point = {
-        X : uint16
-        Y : uint16
+        X : int
+        Y : int
     }
     type Dimensions = {
-        Height : uint16
-        Width : uint16
+        Height : int
+        Width : int
     }
     type Block = {
         UpperLeftCorner : Point
         Dimensions : Dimensions
     }
 
-    let originPoint = { X = 0us; Y = 0us }
+    let originPoint = { X = 0; Y = 0 }
 
 module Sizing =
     open System
     open PixelGrid
     open CellGrid
 
-    let defaultViewSize = { Rows = 26us; Columns = 80us }
-    let defaultFontMetrics = { LineHeight = 10us; CharWidth = 5us } // Arbitrary default
+    let defaultViewSize = { Rows = 26; Columns = 80 }
+    let defaultFontMetrics = { LineHeight = 10; CharWidth = 5 } // Arbitrary default
 
     let pointAtUpperLeftOfCell fontMetrics cell =
         {
@@ -119,8 +119,19 @@ type MainViewModel = {
 }
 
 module ViewModel =
+    open Void.Util
+
     let defaultTitle = "Void - A text editor in the spirit of Vim"
     let defaultFontSize = 9uy
+
+    let bufferFrom (windowSize : CellGrid.Dimensions) lines =
+        let truncateToWindowWidth = StringUtil.noLongerThan windowSize.Columns
+        {
+            Contents = lines
+            |> SeqUtil.notMoreThan windowSize.Rows
+            |> Seq.map truncateToWindowWidth
+            |> Seq.toList
+        }
 
     let addMessage viewModel msg =
         { viewModel with OutputMessages = msg :: viewModel.OutputMessages }

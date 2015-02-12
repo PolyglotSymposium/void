@@ -52,6 +52,7 @@
     <Compile Include="VoidCore.fs" />
     <Compile Include="ModeControllers.fs" />
     <Compile Include="CoreController.fs" />
+    <Compile Include="FSharpUtil.fs" />
   </ItemGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>

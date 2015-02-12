@@ -20,14 +20,14 @@ type ViewController
 
     // TODO refactor to architecture
     member private x.draw artist =
-        let mutable i = 0us
+        let mutable i = 0
         for line in ["a"; "b"; "c"] do
             let offset = _fontMetrics.LineHeight * i
-            i <- i + 1us
+            i <- i + 1
             x.textOnRow artist line offset
 
     member private x.textOnRow artist text row =
-        artist.RenderText { Text = text; UpperLeftCorner = { X = 0us; Y = row }; Color = _colorscheme.Foreground }
+        artist.RenderText { Text = text; UpperLeftCorner = { X = 0; Y = row }; Color = _colorscheme.Foreground }
 
     member private x.render (artist : Artist) drawingObject =
         match drawingObject with

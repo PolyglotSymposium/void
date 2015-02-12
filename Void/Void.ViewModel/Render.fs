@@ -23,7 +23,7 @@ module Render =
     let private textLineAsDrawingObject cellToPoint x line =
         DrawingObject.Text {
             Text = line
-            UpperLeftCorner = cellToPoint <| below originCell (uint16 x)
+            UpperLeftCorner = cellToPoint <| below originCell x
             Color = Colors.defaultColorscheme.Foreground
         }
 
@@ -33,7 +33,7 @@ module Render =
     let private commandBarPrompt cellToPoint = 
         DrawingObject.Text {
             Text = ";"
-            UpperLeftCorner = cellToPoint { Row = 25us; Column = 0us }
+            UpperLeftCorner = cellToPoint { Row = 25; Column = 0 }
             Color = Colors.defaultColorscheme.DimForeground
         }
 
@@ -42,7 +42,7 @@ module Render =
             Area =
                 {
                     UpperLeftCorner = cellToPoint upperLeft
-                    Dimensions = { Height = 1us; Width = width } // TODO convert to pixels
+                    Dimensions = { Height = 1; Width = width } // TODO convert to pixels
                 }
             Color = Colors.defaultColorscheme.Background
         } :: match commandBar with
@@ -51,7 +51,7 @@ module Render =
              | CommandBarView.Visible text ->
                  [commandBarPrompt cellToPoint; DrawingObject.Text {
                     Text = text
-                    UpperLeftCorner = cellToPoint <| rightOf upperLeft 1us
+                    UpperLeftCorner = cellToPoint <| rightOf upperLeft 1
                     Color = Colors.defaultColorscheme.Foreground
                  }]
 
