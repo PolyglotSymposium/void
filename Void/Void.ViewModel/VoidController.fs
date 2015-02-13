@@ -7,15 +7,18 @@ type ViewController
     (
         _view : MainView
     ) =
-    let mutable _fontMetrics = Sizing.defaultFontMetrics
-    let mutable _viewSize = Sizing.defaultViewSize
+    let _fontMetrics = _view.GetFontMetrics()
+    let _convert = Sizing.Convert _fontMetrics
+    let _viewSize = Sizing.defaultViewSize
     let _colorscheme = Colors.defaultColorscheme
 
+    // Subscribe to some init event on the view instead of exposing this as a
+    // public method?
     member x.initializeView() =
         _view.SetViewTitle ViewModel.defaultTitle
         _view.SetBackgroundColor Colors.defaultColorscheme.Background
         _view.SetFontBySize ViewModel.defaultFontSize
-        _view.SetViewSize <| Sizing.cellDimensionsToPixels _fontMetrics _viewSize
+        _view.SetViewSize <| _convert.cellDimensionsToPixels _viewSize
         _view.SubscribeToDraw(fun artist -> x.draw artist)
 
     // TODO refactor to architecture

@@ -10,7 +10,7 @@ module CellGrid =
         Columns : int
     }
     type Block = {
-        UpperLeftCorner : Cell
+        UpperLeftCell : Cell
         Dimensions : Dimensions
     }
     let originCell = { Row = 0; Column = 0 }
@@ -49,17 +49,22 @@ module Sizing =
     let defaultViewSize = { Rows = 26; Columns = 80 }
     let defaultFontMetrics = { LineHeight = 10; CharWidth = 5 } // Arbitrary default
 
-    let pointAtUpperLeftOfCell fontMetrics cell =
-        {
-            X = cell.Row * fontMetrics.CharWidth
-            Y = cell.Column * fontMetrics.LineHeight
-        }
-
-    let cellDimensionsToPixels fontMetrics dimensions =
-        {
-            Height = fontMetrics.LineHeight * dimensions.Rows
-            Width = fontMetrics.CharWidth * dimensions.Columns
-        }
+    type Convert(_fontMetrics : FontMetrics) =
+        member this.cellToUpperLeftPoint cell =
+            {
+                X = cell.Column * _fontMetrics.CharWidth
+                Y = cell.Row * _fontMetrics.LineHeight
+            }
+        member this.cellDimensionsToPixels dimensions =
+            {
+                Height = _fontMetrics.LineHeight * dimensions.Rows
+                Width = _fontMetrics.CharWidth * dimensions.Columns
+            }
+        member this.cellBlockToPixels block =
+            {
+                UpperLeftCorner = this.cellToUpperLeftPoint block.UpperLeftCell
+                Dimensions = this.cellDimensionsToPixels block.Dimensions
+            }
 
 [<RequireQualifiedAccess>]
 type CursorView =

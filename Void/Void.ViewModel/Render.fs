@@ -20,80 +20,76 @@ type DrawingObject =
 module Render =
     open CellGrid
 
-    let private textLineAsDrawingObject cellToPoint x line =
+    let private textLineAsDrawingObject (convert : Sizing.Convert) x line =
         DrawingObject.Text {
             Text = line
-            UpperLeftCorner = cellToPoint <| below originCell x
+            UpperLeftCorner = convert.cellToUpperLeftPoint <| below originCell x
             Color = Colors.defaultColorscheme.Foreground
         }
 
-    let textLinesAsDrawingObjects cellToPoint lines =
-        List.mapi (textLineAsDrawingObject cellToPoint) lines
+    let textLinesAsDrawingObjects convert lines =
+        List.mapi (textLineAsDrawingObject convert) lines
 
-    let private commandBarPrompt cellToPoint = 
+    let private commandBarPrompt (convert : Sizing.Convert) = 
         DrawingObject.Text {
             Text = ";"
-            UpperLeftCorner = cellToPoint { Row = 25; Column = 0 }
+            UpperLeftCorner = convert.cellToUpperLeftPoint { Row = 25; Column = 0 }
             Color = Colors.defaultColorscheme.DimForeground
         }
 
-    let commandBarAsDrawingObjects cellToPoint commandBar width upperLeft =
+    let commandBarAsDrawingObjects (convert : Sizing.Convert) commandBar width upperLeft =
         DrawingObject.Block {
             Area =
                 {
-                    UpperLeftCorner = cellToPoint upperLeft
+                    UpperLeftCorner = convert.cellToUpperLeftPoint upperLeft
                     Dimensions = { Height = 1; Width = width } // TODO convert to pixels
                 }
             Color = Colors.defaultColorscheme.Background
         } :: match commandBar with
              | CommandBarView.Hidden -> []
-             | CommandBarView.Visible "" -> [commandBarPrompt cellToPoint]
+             | CommandBarView.Visible "" -> [commandBarPrompt convert]
              | CommandBarView.Visible text ->
-                 [commandBarPrompt cellToPoint; DrawingObject.Text {
+                 [commandBarPrompt convert; DrawingObject.Text {
                     Text = text
-                    UpperLeftCorner = cellToPoint <| rightOf upperLeft 1
+                    UpperLeftCorner = convert.cellToUpperLeftPoint <| rightOf upperLeft 1
                     Color = Colors.defaultColorscheme.Foreground
                  }]
 
-    let private outputMessageAsDrawingObject cellToPoint outputMessage upperLeft =
+    let private outputMessageAsDrawingObject (convert : Sizing.Convert) outputMessage upperLeft =
         match outputMessage with
         | OutputMessageView.Text msg ->
             {
                 Text = msg
-                UpperLeftCorner = cellToPoint upperLeft
+                UpperLeftCorner = convert.cellToUpperLeftPoint upperLeft
                 Color = Colors.defaultColorscheme.Foreground
             }
         | OutputMessageView.Error msg ->
             {
                 Text = msg
-                UpperLeftCorner = cellToPoint upperLeft
+                UpperLeftCorner = convert.cellToUpperLeftPoint upperLeft
                 Color = Colors.defaultColorscheme.Error
             }
         |> DrawingObject.Text
 
-    let outputMessagesAsDrawingObjects cellToPoint outputMessages width upperLeft =
+    let outputMessagesAsDrawingObjects convert outputMessages width upperLeft =
         let asDrawingObject outputMsg =
-            outputMessageAsDrawingObject cellToPoint outputMsg upperLeft
+            outputMessageAsDrawingObject convert outputMsg upperLeft
         outputMessages |> List.map asDrawingObject
 
-    let tabBarAsDrawingObjects x y z = []
+    let tabBarAsDrawingObjects convert tabBar = []
 
-    let bufferAsDrawingObjects cellToPoint dimensionsInPixels windowArea buffer =
+    let bufferAsDrawingObjects (convert : Sizing.Convert) windowArea buffer =
         [DrawingObject.Block {
-            Area =
-                {
-                    UpperLeftCorner = cellToPoint windowArea.UpperLeftCorner
-                    Dimensions = dimensionsInPixels windowArea.Dimensions
-                }
+            Area = convert.cellBlockToPixels windowArea
             Color = Colors.defaultColorscheme.Background
         }]
 
-    let windowsAsDrawingObjects x y z = []
+    let windowsAsDrawingObjects convert window = []
 
-    let viewModelAsDrawingObjects cellToPoint dimensionInPixels viewModel =
+    let viewModelAsDrawingObjects convert viewModel =
         [
-            tabBarAsDrawingObjects cellToPoint dimensionInPixels viewModel.TabBar
-            windowsAsDrawingObjects cellToPoint dimensionInPixels viewModel.VisibleWindows
-            commandBarAsDrawingObjects cellToPoint viewModel.CommandBar viewModel.Size.Columns originCell
-            outputMessagesAsDrawingObjects cellToPoint viewModel.OutputMessages viewModel.Size.Columns originCell
+            tabBarAsDrawingObjects convert viewModel.TabBar
+            windowsAsDrawingObjects convert viewModel.VisibleWindows
+            commandBarAsDrawingObjects convert viewModel.CommandBar viewModel.Size.Columns originCell
+            outputMessagesAsDrawingObjects convert viewModel.OutputMessages viewModel.Size.Columns originCell
         ] |> Seq.concat
