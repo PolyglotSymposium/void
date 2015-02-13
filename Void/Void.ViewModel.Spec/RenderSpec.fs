@@ -81,3 +81,18 @@ type ``Rendering output messages``() =
         }]
 
     // TODO multiple lines
+
+[<TestFixture>]
+type ``Rendering buffers``() = 
+    let windowArea = {
+        UpperLeftCorner = originCell
+        Dimensions = { Rows = 25; Columns = 80 }
+    }
+
+    [<Test>]
+    member x.``when the buffer is empty it renders as an empty background-colored area``() =
+        Render.bufferAsDrawingObjects Stubs.cellToPoint Stubs.dimensionsInPixels windowArea { Contents = [] }
+        |> should equal [DrawingObject.Block {
+            Area = { UpperLeftCorner = originPoint; Dimensions = { Height = 25; Width = 80 } }
+            Color = Colors.defaultColorscheme.Background
+        }]

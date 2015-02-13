@@ -77,6 +77,17 @@ module Render =
         outputMessages |> List.map asDrawingObject
 
     let tabBarAsDrawingObjects x y z = []
+
+    let bufferAsDrawingObjects cellToPoint dimensionsInPixels windowArea buffer =
+        [DrawingObject.Block {
+            Area =
+                {
+                    UpperLeftCorner = cellToPoint windowArea.UpperLeftCorner
+                    Dimensions = dimensionsInPixels windowArea.Dimensions
+                }
+            Color = Colors.defaultColorscheme.Background
+        }]
+
     let windowsAsDrawingObjects x y z = []
 
     let viewModelAsDrawingObjects cellToPoint dimensionInPixels viewModel =
