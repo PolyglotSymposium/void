@@ -47,7 +47,6 @@ module Sizing =
     open CellGrid
 
     let defaultViewSize = { Rows = 26; Columns = 80 }
-    let defaultFontMetrics = { LineHeight = 10; CharWidth = 5 } // Arbitrary default
 
     type Convert(_fontMetrics : FontMetrics) =
         member this.cellToUpperLeftPoint cell =
