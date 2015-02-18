@@ -1,0 +1,18 @@
+At least a substantial subset of the features of these plugins should be
+included in Void as default built-in behavior:
+ + Fugitive
+ + Conque - you will be able to run a terminal within Void
+ + AnsiEsc - ASCII escape codes should work in terminal buffers
+ + G - You should be able to `:google` from Void
+ + Airline
+ + Syntastic
+ + Surround
+ + NerdTree
+ + MatchIt
+
+Also worthy of consideration:
+ + CtrlP
+ + Abolish
+ + Endwise
+ + Gist
+ + Manhunt
