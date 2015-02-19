@@ -88,6 +88,8 @@ type ``Rendering buffers``() =
         Dimensions = { Rows = 25; Columns = 80 }
     }
 
+    let render = Render.bufferAsDrawingObjects Stubs.convert windowArea
+
     let shouldBeAllTildes drawingObjects =
         drawingObjects |> Seq.mapi (fun i drawingObject ->
             drawingObject |> should equal [DrawingObject.Text {
@@ -96,29 +98,45 @@ type ``Rendering buffers``() =
                 Color = Colors.defaultColorscheme.DimForeground
             }]
         )
+    let shouldBeBackgroundBlock drawingObject =
+        drawingObject |> should equal (DrawingObject.Block {
+            Area = { UpperLeftCorner = originPoint; Dimensions = { Height = 25; Width = 80 } }
+            Color = Colors.defaultColorscheme.Background
+        })
 
     [<Test>]
     member x.``when the buffer is empty it renders as a background-colored area with muted tildes on each line except the first``() =
         // TODO when you open an empty buffer in Vim, why is there no tilde in the first line?
-        let drawingObjects = Render.bufferAsDrawingObjects Stubs.convert windowArea { Contents = [] }
+        let drawingObjects =  render { Contents = [] }
         drawingObjects.Length |> should equal 25
-        drawingObjects.[0] |> should equal (DrawingObject.Block {
-            Area = { UpperLeftCorner = originPoint; Dimensions = { Height = 25; Width = 80 } }
-            Color = Colors.defaultColorscheme.Background
-        })
+        drawingObjects.[0] |> shouldBeBackgroundBlock
         drawingObjects.Tail |> shouldBeAllTildes
 
     [<Test>]
     member x.``when the buffer has one line it renders that line and but otherwise is like an empty buffer``() =
-        let drawingObjects = Render.bufferAsDrawingObjects Stubs.convert windowArea { Contents = ["only one line"] }
+        let drawingObjects = render { Contents = ["only one line"] }
         drawingObjects.Length |> should equal 26
-        drawingObjects.[0] |> should equal (DrawingObject.Block {
-            Area = { UpperLeftCorner = originPoint; Dimensions = { Height = 25; Width = 80 } }
-            Color = Colors.defaultColorscheme.Background
-        })
+        drawingObjects.[0] |> shouldBeBackgroundBlock
         drawingObjects.[1] |> should equal (DrawingObject.Text {
             Text = "only one line"
             UpperLeftCorner = originPoint
             Color = Colors.defaultColorscheme.Foreground
         })
         drawingObjects |> Seq.skip 2 |> shouldBeAllTildes
+
+    [<Test>]
+    member x.``when the buffer has multple lines, but less than the rows that are available in the window``() =
+        let drawingObjects = render { Contents = ["line 1"; "line 2"] }
+        drawingObjects.Length |> should equal 26
+        drawingObjects.[0] |> shouldBeBackgroundBlock
+        drawingObjects.[1] |> should equal (DrawingObject.Text {
+            Text = "line 1"
+            UpperLeftCorner = originPoint
+            Color = Colors.defaultColorscheme.Foreground
+        })
+        drawingObjects.[2] |> should equal (DrawingObject.Text {
+            Text = "line 2"
+            UpperLeftCorner = { X = 0; Y = 1 }
+            Color = Colors.defaultColorscheme.Foreground
+        })
+        drawingObjects |> Seq.skip 3 |> shouldBeAllTildes
