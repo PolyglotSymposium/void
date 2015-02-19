@@ -92,10 +92,12 @@ module Render =
             Color = Colors.defaultColorscheme.Background
         }
 
-        let foreground =
+        let foreground = textLinesAsDrawingObjects convert buffer.Contents
+
+        let rowsNotInBuffer =
             [1..windowArea.Dimensions.Rows-1] |> List.map lineNotInBufferAsDrawingObject
 
-        background :: foreground
+        List.append (background :: foreground) rowsNotInBuffer
 
     let windowsAsDrawingObjects convert window = []
 

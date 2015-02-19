@@ -88,6 +88,15 @@ type ``Rendering buffers``() =
         Dimensions = { Rows = 25; Columns = 80 }
     }
 
+    let shouldBeAllTildes drawingObjects =
+        drawingObjects |> Seq.mapi (fun i drawingObject ->
+            drawingObject |> should equal [DrawingObject.Text {
+                Text = "~"
+                UpperLeftCorner = Stubs.convert.cellToUpperLeftPoint { Row = i+1; Column = 0 }
+                Color = Colors.defaultColorscheme.DimForeground
+            }]
+        )
+
     [<Test>]
     member x.``when the buffer is empty it renders as a background-colored area with muted tildes on each line except the first``() =
         // TODO when you open an empty buffer in Vim, why is there no tilde in the first line?
@@ -97,10 +106,19 @@ type ``Rendering buffers``() =
             Area = { UpperLeftCorner = originPoint; Dimensions = { Height = 25; Width = 80 } }
             Color = Colors.defaultColorscheme.Background
         })
-        drawingObjects.Tail |> Seq.mapi (fun i drawingObject ->
-            drawingObject |> should equal [DrawingObject.Text {
-                Text = "~"
-                UpperLeftCorner = Stubs.convert.cellToUpperLeftPoint { Row = i+1; Column = 0 }
-                Color = Colors.defaultColorscheme.DimForeground
-            }]
-        )
+        drawingObjects.Tail |> shouldBeAllTildes
+
+    [<Test>]
+    member x.``when the buffer has one line it renders that line and but otherwise is like an empty buffer``() =
+        let drawingObjects = Render.bufferAsDrawingObjects Stubs.convert windowArea { Contents = ["only one line"] }
+        drawingObjects.Length |> should equal 26
+        drawingObjects.[0] |> should equal (DrawingObject.Block {
+            Area = { UpperLeftCorner = originPoint; Dimensions = { Height = 25; Width = 80 } }
+            Color = Colors.defaultColorscheme.Background
+        })
+        drawingObjects.[1] |> should equal (DrawingObject.Text {
+            Text = "only one line"
+            UpperLeftCorner = originPoint
+            Color = Colors.defaultColorscheme.Foreground
+        })
+        drawingObjects |> Seq.skip 2 |> shouldBeAllTildes
