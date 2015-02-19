@@ -97,7 +97,7 @@ type ``Rendering buffers``() =
                 Text = "~"
                 UpperLeftCorner = Stubs.convert.cellToUpperLeftPoint { Row = i+1; Column = 0 }
                 Color = Colors.defaultColorscheme.DimForeground
-            }])
+            }]) |> ignore
 
     let shouldBeBackgroundBlock drawingObject =
         drawingObject |> should equal (DrawingObject.Block {
@@ -153,4 +153,4 @@ type ``Rendering buffers``() =
                 Text = "line"
                 UpperLeftCorner = Stubs.convert.cellToUpperLeftPoint { Row = i+1; Column = 0 }
                 Color = Colors.defaultColorscheme.DimForeground
-            }])
+            }]) |> ignore
