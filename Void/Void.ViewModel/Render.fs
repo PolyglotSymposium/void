@@ -78,15 +78,7 @@ module Render =
 
     let tabBarAsDrawingObjects convert tabBar = []
 
-
     let bufferAsDrawingObjects (convert : Sizing.Convert) windowArea buffer =
-        let lineNotInBufferAsDrawingObject i =
-            DrawingObject.Text {
-                Text = "~"
-                UpperLeftCorner = convert.cellToUpperLeftPoint { Row = i; Column = 0 }
-                Color = Colors.defaultColorscheme.DimForeground
-            }
-
         let background = DrawingObject.Block {
             Area = convert.cellBlockToPixels windowArea
             Color = Colors.defaultColorscheme.Background
@@ -94,12 +86,17 @@ module Render =
 
         let bufferLines = textLinesAsDrawingObjects convert buffer.Contents
 
-        let linesWithNoTilde =
-            if bufferLines.Length = 0
-            then 1
-            else bufferLines.Length
-
         let rowsNotInBuffer =
+            let lineNotInBufferAsDrawingObject i =
+                DrawingObject.Text {
+                    Text = "~"
+                    UpperLeftCorner = convert.cellToUpperLeftPoint { Row = i; Column = 0 }
+                    Color = Colors.defaultColorscheme.DimForeground
+                }
+            let linesWithNoTilde =
+                if bufferLines.Length = 0
+                then 1
+                else bufferLines.Length
             [linesWithNoTilde..windowArea.Dimensions.Rows-1]
             |> List.map lineNotInBufferAsDrawingObject
 

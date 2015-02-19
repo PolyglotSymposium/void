@@ -3,6 +3,7 @@
 open Void.ViewModel
 open Void.ViewModel.PixelGrid
 open Void.ViewModel.CellGrid
+open System.Linq
 open NUnit.Framework
 open FsUnit
 
@@ -90,14 +91,14 @@ type ``Rendering buffers``() =
 
     let render = Render.bufferAsDrawingObjects Stubs.convert windowArea
 
-    let shouldBeAllTildes drawingObjects =
+    let shouldAllBeTildes drawingObjects =
         drawingObjects |> Seq.mapi (fun i drawingObject ->
             drawingObject |> should equal [DrawingObject.Text {
                 Text = "~"
                 UpperLeftCorner = Stubs.convert.cellToUpperLeftPoint { Row = i+1; Column = 0 }
                 Color = Colors.defaultColorscheme.DimForeground
-            }]
-        )
+            }])
+
     let shouldBeBackgroundBlock drawingObject =
         drawingObject |> should equal (DrawingObject.Block {
             Area = { UpperLeftCorner = originPoint; Dimensions = { Height = 25; Width = 80 } }
@@ -110,7 +111,7 @@ type ``Rendering buffers``() =
         let drawingObjects =  render { Contents = [] }
         drawingObjects.Length |> should equal 25
         drawingObjects.[0] |> shouldBeBackgroundBlock
-        drawingObjects.Tail |> shouldBeAllTildes
+        drawingObjects.Tail |> shouldAllBeTildes
 
     [<Test>]
     member x.``when the buffer has one line it renders that line and but otherwise is like an empty buffer``() =
@@ -122,7 +123,7 @@ type ``Rendering buffers``() =
             UpperLeftCorner = originPoint
             Color = Colors.defaultColorscheme.Foreground
         })
-        drawingObjects |> Seq.skip 2 |> shouldBeAllTildes
+        drawingObjects |> Seq.skip 2 |> shouldAllBeTildes
 
     [<Test>]
     member x.``when the buffer has multple lines, but less than the rows that are available in the window``() =
@@ -139,4 +140,17 @@ type ``Rendering buffers``() =
             UpperLeftCorner = { X = 0; Y = 1 }
             Color = Colors.defaultColorscheme.Foreground
         })
-        drawingObjects |> Seq.skip 3 |> shouldBeAllTildes
+        drawingObjects |> Seq.skip 3 |> shouldAllBeTildes
+
+    [<Test>]
+    member x.``when the buffer has as many lines as the rows in the window, no tildes show``() =
+        // There should never be more because of the way that the buffer view model gets constructed
+        let drawingObjects = render { Contents = Enumerable.Repeat("line", 25) |> List.ofSeq }
+        drawingObjects.Length |> should equal 26
+        drawingObjects.[0] |> shouldBeBackgroundBlock
+        drawingObjects |> Seq.mapi (fun i drawingObject ->
+            drawingObject |> should equal [DrawingObject.Text {
+                Text = "line"
+                UpperLeftCorner = Stubs.convert.cellToUpperLeftPoint { Row = i+1; Column = 0 }
+                Color = Colors.defaultColorscheme.DimForeground
+            }])
