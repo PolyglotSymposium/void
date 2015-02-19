@@ -89,9 +89,18 @@ type ``Rendering buffers``() =
     }
 
     [<Test>]
-    member x.``when the buffer is empty it renders as an empty background-colored area``() =
-        Render.bufferAsDrawingObjects Stubs.convert windowArea { Contents = [] }
-        |> should equal [DrawingObject.Block {
+    member x.``when the buffer is empty it renders as a background-colored area with muted tildes on each line except the first``() =
+        // TODO when you open an empty buffer in Vim, why is there no tilde in the first line?
+        let drawingObjects = Render.bufferAsDrawingObjects Stubs.convert windowArea { Contents = [] }
+        drawingObjects.Length |> should equal 25
+        drawingObjects.[0] |> should equal (DrawingObject.Block {
             Area = { UpperLeftCorner = originPoint; Dimensions = { Height = 25; Width = 80 } }
             Color = Colors.defaultColorscheme.Background
-        }]
+        })
+        drawingObjects.Tail |> Seq.mapi (fun i drawingObject ->
+            drawingObject |> should equal [DrawingObject.Text {
+                Text = "~"
+                UpperLeftCorner = Stubs.convert.cellToUpperLeftPoint { Row = i+1; Column = 0 }
+                Color = Colors.defaultColorscheme.DimForeground
+            }]
+        )
