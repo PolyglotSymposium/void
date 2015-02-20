@@ -1,8 +1,0 @@
-*.[cC]onfig     linguist-documentation
-*.sln           linguist-documentation
-*.fsproj        linguist-documentation
-*.csproj        linguist-documentation
-*.shproj        linguist-documentation
-*.projitems     linguist-documentation
-*.targets       linguist-documentation
-*.plist         linguist-documentation
