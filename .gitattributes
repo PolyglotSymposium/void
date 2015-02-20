@@ -1,0 +1,7 @@
+*.[cC]onfig     linguist-type=data
+*.sln           linguist-type=data
+*.fsproj        linguist-type=data
+*.csproj        linguist-type=data
+*.shproj        linguist-type=data
+*.projitems     linguist-type=data
+*.targets       linguist-type=data
