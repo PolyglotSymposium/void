@@ -1,4 +1,5 @@
-*.[cC]onfig     linguist-documentation
+*.config     linguist-documentation
+*.Config     linguist-documentation
 *.sln           linguist-documentation
 *.fsproj        linguist-documentation
 *.csproj        linguist-documentation
