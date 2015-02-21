@@ -1,0 +1,21 @@
+### Working decisions between Gilli and Kazark
+ + Use issues to track the state of the project
+ + Use our own develop branches and send each other pull requests to integrate
+   to master
+ + Once we actually have enough features to release v0.0.0 (i.e. view a file?),
+   then introduce a `develop` branch and only merge to master when ready to
+   release (a la Git Flow)
+
+## Other people
+*TODO*: We need to flesh out what the standards here are.
+
+Fork and send us pull requests! Kazark is the primary owner since the project is
+his brainchild, but Gilli is a secondary owner will power to merge pull
+requests. It would be good if you are familiar with the
+[architecture](Architecture.mkd)
+
+Before implementing something that is in Vim, submit an issue where we can
+discuss what you want to do. Not all features from Vim are going to be included,
+though of course if you are willing to implement it, we are willing to consider
+merging it. In particular, we are going to shy back from having quite as many
+options and as much VI-compatibility as Vim.
