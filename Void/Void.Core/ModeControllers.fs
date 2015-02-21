@@ -1,14 +1,16 @@
 ﻿namespace Void.Core
 
+open NormalMode
+
 type NormalModeController() =
-    let _bindings = NormalMode.defaultBindings
-    let mutable _state = NormalMode.noKeysYet
+    let mutable _bindings = defaultBindings
+    let mutable _state = noKeysYet
 
     member x.handle keyPress =
-        match NormalMode.parse _bindings keyPress _state with
-        | NormalMode.ParseResult.AwaitingKeyPress prevKeys ->
+        match parse _bindings keyPress _state with
+        | ParseResult.AwaitingKeyPress prevKeys ->
             _state <- prevKeys
             Command.Noop
-        | NormalMode.ParseResult.Command command ->
-            _state <- NormalMode.noKeysYet
+        | ParseResult.Command command ->
+            _state <- noKeysYet
             command

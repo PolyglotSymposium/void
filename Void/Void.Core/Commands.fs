@@ -3,10 +3,13 @@
 [<RequireQualifiedAccess>]
 type Command =
     | Noop
+    | PublishEvent of Event
+    //
+    | ChangeToMode of Mode
     | Edit
     | FormatCurrentLine
-    | ChangeToMode of Mode
-    | PublishEvent of Event
+    | Put
     | Quit
     | Redraw
-    | ViewTestBuffer
+    | ViewTestBuffer // TODO for Debug/Test only
+    | Yank
