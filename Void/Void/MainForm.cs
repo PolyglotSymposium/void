@@ -11,7 +11,7 @@ namespace Void
     {
         private readonly MainController _controller;
         private Drawable _drawable;
-        private Font _font;
+        private Font _font = Fonts.Monospace(9);
 
         public MainForm()
         {
@@ -23,8 +23,8 @@ namespace Void
 
         public PixelGrid.FontMetrics GetFontMetrics()
         {
-            var verticalPadding = Platform.IsGtk ? 0 : 3;
-            var horizontalPadding = Platform.IsGtk ? 0 : 2;
+            var verticalPadding = Platform.IsGtk ? 0 : 3; // TODO obviously, this is a pretty heinous hack
+            var horizontalPadding = Platform.IsGtk ? 0 : 3; // TODO obviously, this is a pretty heinous hack
             var height = Convert.ToUInt16(Math.Ceiling(_font.LineHeight + verticalPadding));
             var width = Convert.ToUInt16(Math.Ceiling(_font.XHeight + horizontalPadding));
             return new PixelGrid.FontMetrics(height, width);
