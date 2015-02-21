@@ -3,10 +3,6 @@
 open Void.Core
 open System
 
-type Artist =
-    abstract member RenderText : ScreenTextObject -> unit
-    abstract member RenderBlock : ScreenBlockObject -> unit
-
 type MainView =
     abstract member Close : unit -> unit
     abstract member GetFontMetrics : unit -> PixelGrid.FontMetrics
@@ -15,5 +11,5 @@ type MainView =
     abstract member SetViewSize : PixelGrid.Dimensions -> unit
     abstract member SetViewTitle : string -> unit
     abstract member SubscribeToKeyUp : Action<KeyPress> -> unit
-    abstract member SubscribeToDraw : Action<Artist> -> unit
-    abstract member Redraw : unit -> unit
+    abstract member SubscribeToDraw : Action<Action<DrawingObject>> -> unit
+    abstract member TriggerDraw : unit -> unit

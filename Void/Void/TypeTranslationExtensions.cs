@@ -35,6 +35,21 @@ namespace Void
             return new RectangleF(block.UpperLeftCorner.AsEtoPointF(), block.Dimensions.AsEtoSizeF());
         }
 
+        public static ScreenLineObject AsLine(this DrawingObject drawing)
+        {
+            return ((DrawingObject.Line) drawing).Item;
+        }
+
+        public static ScreenTextObject AsText(this DrawingObject drawing)
+        {
+            return ((DrawingObject.Text) drawing).Item;
+        }
+
+        public static ScreenBlockObject AsBlock(this DrawingObject drawing)
+        {
+            return ((DrawingObject.Block) drawing).Item;
+        }
+
         public static KeyPress AsVoidKeyPress(this KeyEventArgs keyEvent)
         {
             KeyPress keyPress = null;

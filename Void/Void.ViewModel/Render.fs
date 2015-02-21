@@ -1,5 +1,10 @@
 ﻿namespace Void.ViewModel
 
+type ScreenLineObject = {
+    StartingPoint : PixelGrid.Point
+    EndingPoint : PixelGrid.Point
+}
+
 type ScreenTextObject = {
     Text : string
     UpperLeftCorner : PixelGrid.Point
@@ -13,7 +18,7 @@ type ScreenBlockObject = {
 
 [<RequireQualifiedAccess>]
 type DrawingObject =
-    | Line
+    | Line of ScreenLineObject
     | Text of ScreenTextObject
     | Block of ScreenBlockObject
 

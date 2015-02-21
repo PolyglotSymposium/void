@@ -1,5 +1,7 @@
 ﻿namespace Void.ViewModel
 
+open Void.Core
+
 module CellGrid =
     type Cell = {
         Row : int
@@ -136,6 +138,12 @@ module ViewModel =
             |> Seq.map truncateToWindowWidth
             |> Seq.toList
         }
+
+    let toScreenBuffer windowSize buffer =
+        match buffer with
+        | Buffer.File { Contents = lines } -> lines
+        | _ -> []
+        |> bufferFrom windowSize
 
     let addMessage viewModel msg =
         { viewModel with OutputMessages = msg :: viewModel.OutputMessages }

@@ -62,15 +62,15 @@ namespace Void
             };
         }
 
-        public void SubscribeToDraw(Action<Artist> handler)
+        public void SubscribeToDraw(Action<Action<DrawingObject>> handler)
         {
             _drawable.Paint += (sender, eventArgs) =>
             {
-                handler(new EtoArtist(eventArgs.Graphics, _font));
+                handler(new EtoArtist(eventArgs.Graphics, _font).Draw);
             };
         }
 
-        public void Redraw()
+        public void TriggerDraw()
         {
             _drawable.Update(new Rectangle(ClientSize));
         }

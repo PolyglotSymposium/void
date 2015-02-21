@@ -3,7 +3,7 @@ using Void.ViewModel;
 
 namespace Void
 {
-    public class EtoArtist : Artist
+    public class EtoArtist
     {
         private readonly Graphics _graphics;
         private readonly Font _font;
@@ -14,14 +14,35 @@ namespace Void
             _font = font;
         }
 
-        public void RenderText(ScreenTextObject obj)
+        public void Draw(DrawingObject drawing)
         {
-            _graphics.DrawText(_font, obj.Color.AsEtoColor(), obj.UpperLeftCorner.AsEtoPointF(), obj.Text);
+            if (drawing.IsLine)
+            {
+                RenderLine(drawing.AsLine());
+            }
+            else if (drawing.IsText)
+            {
+                RenderText(drawing.AsText());
+            }
+            else if (drawing.IsBlock)
+            {
+                RenderBlock(drawing.AsBlock());
+            }
         }
 
-        public void RenderBlock(ScreenBlockObject obj)
+        private void RenderLine(ScreenLineObject drawing)
         {
-            _graphics.FillRectangle(obj.Color.AsEtoColor(), obj.Area.AsEtoRectangleF());
+            throw new System.NotImplementedException();
+        }
+
+        private void RenderText(ScreenTextObject drawing)
+        {
+            _graphics.DrawText(_font, drawing.Color.AsEtoColor(), drawing.UpperLeftCorner.AsEtoPointF(), drawing.Text);
+        }
+
+        private void RenderBlock(ScreenBlockObject drawing)
+        {
+            _graphics.FillRectangle(drawing.Color.AsEtoColor(), drawing.Area.AsEtoRectangleF());
         }
     }
 }

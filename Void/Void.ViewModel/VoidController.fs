@@ -11,6 +11,7 @@ type ViewController
     let _convert = Sizing.Convert _fontMetrics
     let _viewSize = Sizing.defaultViewSize
     let _colorscheme = Colors.defaultColorscheme
+    let mutable _bufferedDrawings = []
 
     // Subscribe to some init event on the view instead of exposing this as a
     // public method?
@@ -19,29 +20,12 @@ type ViewController
         _view.SetBackgroundColor Colors.defaultColorscheme.Background
         _view.SetFontBySize ViewModel.defaultFontSize
         _view.SetViewSize <| _convert.cellDimensionsToPixels _viewSize
-        _view.SubscribeToDraw(fun artist -> x.draw artist)
-
-    // TODO refactor to architecture
-    member private x.draw artist =
-        let mutable i = 0
-        for line in ["a"; "b"; "c"] do
-            let offset = _fontMetrics.LineHeight * i
-            i <- i + 1
-            x.textOnRow artist line offset
-
-    member private x.textOnRow artist text row =
-        artist.RenderText { Text = text; UpperLeftCorner = { X = 0; Y = row }; Color = _colorscheme.Foreground }
-
-    member private x.render (artist : Artist) drawingObject =
-        match drawingObject with
-        | DrawingObject.Line -> () // TODO
-        | DrawingObject.Block block -> artist.RenderBlock block
-        | DrawingObject.Text text -> artist.RenderText text
+        _view.SubscribeToDraw(fun draw -> for drawing in _bufferedDrawings do draw.Invoke drawing)
 
     member x.handleCommand command =
         match command with
         | Command.Quit -> _view.Close()
-        | Command.Redraw -> _view.Redraw()
+        | Command.Redraw -> _view.TriggerDraw()
         | _ -> ()
         Command.Noop
 
@@ -50,7 +34,8 @@ type ViewController
         | Event.MessageAdded msg ->
             Command.Noop // TODO
         | Event.BufferLoadedIntoWindow buffer ->
-            // TODO Editor.readLines buffer 1
+            _bufferedDrawings <- ViewModel.toScreenBuffer _viewSize buffer
+                                 |> Render.bufferAsDrawingObjects _convert { UpperLeftCell = originCell;  Dimensions = _viewSize }
             Command.Redraw
         | _ -> Command.Noop
 
