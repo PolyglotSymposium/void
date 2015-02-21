@@ -10,4 +10,5 @@ type NormalModeController() =
             _state <- prevKeys
             Command.Noop
         | NormalMode.ParseResult.Command command ->
+            _state <- NormalMode.noKeysYet
             command

@@ -23,8 +23,8 @@ namespace Void
 
         public PixelGrid.FontMetrics GetFontMetrics()
         {
-            var verticalPadding = Platform.IsGtk ? 0 : 3; // TODO obviously, this is a pretty heinous hack
-            var horizontalPadding = Platform.IsGtk ? 0 : 3; // TODO obviously, this is a pretty heinous hack
+            var verticalPadding = Platform.IsGtk ? 0 : 3; // TODO obviously, this is a pretty egregious hack
+            var horizontalPadding = Platform.IsGtk ? 0 : 3; // TODO obviously, this is a pretty egregious hack
             var height = Convert.ToUInt16(Math.Ceiling(_font.LineHeight + verticalPadding));
             var width = Convert.ToUInt16(Math.Ceiling(_font.XHeight + horizontalPadding));
             return new PixelGrid.FontMetrics(height, width);

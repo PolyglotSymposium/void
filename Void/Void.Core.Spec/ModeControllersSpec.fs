@@ -6,8 +6,16 @@ open FsUnit
 
 [<TestFixture>]
 type ``Normal mode controller``() = 
-    [<Test>]
-    member x.``should return the appropriate command once a mapping is completed``() =
-        let controller = NormalModeController()
+    let handleAndVerifyZQ (controller : NormalModeController) = 
         controller.handle KeyPress.ShiftZ |> should equal Command.Noop
         controller.handle KeyPress.ShiftQ |> should equal Command.Quit
+
+    [<Test>]
+    member x.``should return the appropriate command once a mapping is completed``() =
+        NormalModeController() |> handleAndVerifyZQ
+
+    [<Test>]
+    member x.``should clear out buffered keys once a mapping is completed``() =
+        let controller = NormalModeController()
+        handleAndVerifyZQ controller
+        handleAndVerifyZQ controller

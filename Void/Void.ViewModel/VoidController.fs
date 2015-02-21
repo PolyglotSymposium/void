@@ -11,7 +11,7 @@ type ViewController
     let mutable _convert = Sizing.Convert _fontMetrics
     let _viewArea = { UpperLeftCell = originCell; Dimensions = Sizing.defaultViewSize }
     let _colorscheme = Colors.defaultColorscheme
-    let mutable _bufferedDrawings = []
+    let mutable _bufferedDrawings = Seq.empty
 
     // Subscribe to some init event on the view instead of exposing this as a
     // public method?
@@ -28,6 +28,12 @@ type ViewController
         _fontMetrics <- _view.GetFontMetrics()
         _convert <- Sizing.Convert _fontMetrics
 
+    member private x.bufferDrawings drawings =
+        _bufferedDrawings <- Seq.append _bufferedDrawings drawings
+
+    member private x.bufferDrawing drawing =
+        x.bufferDrawings [drawing] // TODO is there a better way to do this?
+
     member x.handleCommand command =
         match command with
         | Command.Quit -> _view.Close()
@@ -38,12 +44,16 @@ type ViewController
     member x.handleEvent event =
         match event with
         | Event.MessageAdded msg ->
-            Command.Noop // TODO
-        | Event.BufferLoadedIntoWindow buffer ->
-            _bufferedDrawings <- ViewModel.toScreenBuffer _viewArea.Dimensions buffer
-                                 |> Render.bufferAsDrawingObjects _convert _viewArea
+            ViewModel.toScreenMessage msg
+            |> Render.outputMessageAsDrawingObject _convert { Row = lastRow _viewArea; Column = 0 }
+            |> x.bufferDrawing
             Command.Redraw
-        | Event.CoreInitialized ->x.initializeView()
+        | Event.BufferLoadedIntoWindow buffer ->
+            ViewModel.toScreenBuffer _viewArea.Dimensions buffer
+            |> Render.bufferAsDrawingObjects _convert _viewArea
+            |> x.bufferDrawings
+            Command.Redraw
+        | Event.CoreInitialized -> x.initializeView()
         | _ -> Command.Noop
 
 type MainController

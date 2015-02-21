@@ -23,6 +23,9 @@ module CellGrid =
     let below cell count =
         { Row = cell.Row + count; Column = cell.Column }
 
+    let lastRow block =
+        block.Dimensions.Rows - 1
+
 module PixelGrid =
     type FontMetrics = {
         LineHeight : int
@@ -144,6 +147,11 @@ module ViewModel =
         | Buffer.File { Contents = lines } -> lines
         | _ -> []
         |> bufferFrom windowSize
+
+    let toScreenMessage msg =
+        match msg with
+        | Message.Output msgText -> OutputMessageView.Text msgText
+        | Message.Error error -> OutputMessageView.Error <| Errors.message error
 
     let addMessage viewModel msg =
         { viewModel with OutputMessages = msg :: viewModel.OutputMessages }

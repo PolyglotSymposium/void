@@ -60,7 +60,7 @@ module Render =
                     Color = Colors.defaultColorscheme.Foreground
                  }]
 
-    let private outputMessageAsDrawingObject (convert : Sizing.Convert) outputMessage upperLeft =
+    let outputMessageAsDrawingObject (convert : Sizing.Convert) upperLeft outputMessage =
         match outputMessage with
         | OutputMessageView.Text msg ->
             {
@@ -76,9 +76,9 @@ module Render =
             }
         |> DrawingObject.Text
 
-    let outputMessagesAsDrawingObjects convert outputMessages width upperLeft =
-        let asDrawingObject outputMsg =
-            outputMessageAsDrawingObject convert outputMsg upperLeft
+    let outputMessagesAsDrawingObjects convert width upperLeft outputMessages =
+        let asDrawingObject =
+            outputMessageAsDrawingObject convert upperLeft
         outputMessages |> List.map asDrawingObject
 
     let tabBarAsDrawingObjects convert tabBar = []
@@ -114,5 +114,5 @@ module Render =
             tabBarAsDrawingObjects convert viewModel.TabBar
             windowsAsDrawingObjects convert viewModel.VisibleWindows
             commandBarAsDrawingObjects convert viewModel.CommandBar viewModel.Size.Columns originCell
-            outputMessagesAsDrawingObjects convert viewModel.OutputMessages viewModel.Size.Columns originCell
+            outputMessagesAsDrawingObjects convert viewModel.Size.Columns originCell viewModel.OutputMessages 
         ] |> Seq.concat

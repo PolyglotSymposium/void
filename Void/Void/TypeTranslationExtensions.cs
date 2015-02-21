@@ -55,37 +55,64 @@ namespace Void
             KeyPress keyPress = null;
             if (keyEvent.Shift)
             {
-                if (keyEvent.Key == Keys.Q)
+                if (keyEvent.Key == Keys.G)
                 {
-                    keyPress = KeyPress.ShiftQ;
+                    keyPress = KeyPress.ShiftG;
                 }
                 else if (keyEvent.Key == Keys.L)
                 {
                     keyPress = KeyPress.ShiftL;
+                }
+                if (keyEvent.Key == Keys.Q)
+                {
+                    keyPress = KeyPress.ShiftQ;
                 }
                 else if (keyEvent.Key == Keys.Z)
                 {
                     keyPress = KeyPress.ShiftZ;
                 }
             } 
-            if (keyEvent.Control)
+            else if (keyEvent.Control)
             {
-                if (keyEvent.Key == Keys.Q)
+                if (keyEvent.Key == Keys.G)
                 {
-                    keyPress = KeyPress.ShiftQ;
-                }  
+                    keyPress = KeyPress.ControlG;
+                }
                 else if (keyEvent.Key == Keys.L)
                 {
-                    keyPress = KeyPress.ShiftL;
+                    keyPress = KeyPress.ControlL;
                 }
+                if (keyEvent.Key == Keys.Q)
+                {
+                    keyPress = KeyPress.ControlQ;
+                }  
                 else if (keyEvent.Key == Keys.Z)
                 {
-                    keyPress = KeyPress.ShiftZ;
+                    keyPress = KeyPress.ControlZ;
                 }
             } 
-            if (keyEvent.Key == Keys.Escape)
+            else if (keyEvent.Key == Keys.Escape)
             {
                 keyPress = KeyPress.Escape;
+            }
+            else
+            {
+                if (keyEvent.Key == Keys.G)
+                {
+                    keyPress = KeyPress.G;
+                }
+                else if (keyEvent.Key == Keys.L)
+                {
+                    keyPress = KeyPress.L;
+                }
+                if (keyEvent.Key == Keys.Q)
+                {
+                    keyPress = KeyPress.Q;
+                }  
+                else if (keyEvent.Key == Keys.Z)
+                {
+                    keyPress = KeyPress.Z;
+                }
             }
             return keyPress;
         }

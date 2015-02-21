@@ -57,14 +57,15 @@ type ``Rendering the command bar``() =
 
 [<TestFixture>]
 type ``Rendering output messages``() = 
+    let render = Render.outputMessagesAsDrawingObjects Stubs.convert
     [<Test>]
     member x.``when there are none results in no drawing objects``() =
-        Render.outputMessagesAsDrawingObjects Stubs.convert [] 78 { Row = 24; Column = 0 }
+        render 78 { Row = 24; Column = 0 } [] 
         |> should equal []
 
     [<Test>]
     member x.``when there is one error renders it in error colors``() =
-        Render.outputMessagesAsDrawingObjects Stubs.convert [OutputMessageView.Error "Bad!"] 78 { Row = 24; Column = 0 }
+        render 78 { Row = 24; Column = 0 } [OutputMessageView.Error "Bad!"]
         |> should equal [DrawingObject.Text {
             Text = "Bad!"
             UpperLeftCorner = { Y = 24; X = 0 }
@@ -73,7 +74,7 @@ type ``Rendering output messages``() =
 
     [<Test>]
     member x.``when there is one message renders it in regular colors``() =
-        Render.outputMessagesAsDrawingObjects Stubs.convert [OutputMessageView.Text "Good"] 80 { Row = 25; Column = 0 }
+        render 80 { Row = 25; Column = 0 } [OutputMessageView.Text "Good"]
         |> should equal [DrawingObject.Text {
             Text = "Good"
             UpperLeftCorner = { Y = 25; X = 0 }
