@@ -140,6 +140,7 @@ type KeyPress =
     | Tab
     | Semicolon
     | Colon
+    | ControlSemicolon
     | SingleQuote
     | DoubleQuote
     | Comma
@@ -149,7 +150,7 @@ type KeyPress =
     | Slash
     | QuestionMark
     | ShiftTab
-    | CtrlTab
+    | ControlTab
     | AltTab
     | F1
     | F2
