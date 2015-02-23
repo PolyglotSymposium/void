@@ -8,9 +8,12 @@ module NormalMode =
         | AwaitingKeyPress of KeyPress list
         | Command of Command
 
-    let defaultBindings = 
+    let defaultBindings = // TODO split out into "Vim default bindings" and "Void default bindings"
         [
             [KeyPress.Semicolon], Command.ChangeToMode Mode.Command
+            [KeyPress.ControlC], Command.Yank
+            [KeyPress.ControlV], Command.Put
+            [KeyPress.ControlB], Command.ChangeToMode Mode.VisualBlock
             [KeyPress.ControlL], Command.Redraw
             [KeyPress.ShiftZ; KeyPress.ShiftQ], Command.Quit
             [KeyPress.G; KeyPress.Q; KeyPress.Q], Command.FormatCurrentLine

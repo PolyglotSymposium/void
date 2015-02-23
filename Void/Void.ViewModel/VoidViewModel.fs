@@ -123,7 +123,7 @@ type MainViewModel = {
     Size : CellGrid.Dimensions
     TabBar : TabNameView list
     VisibleWindows : WindowView list
-    CommandBar : CommandBarView
+    CommandBar : CommandBarView // for command mode
     OutputMessages : OutputMessageView list
 }
 

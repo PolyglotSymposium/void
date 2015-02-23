@@ -72,7 +72,7 @@ type MainController
             _normalCtrl.handle keyPress |> x.handleCommand
         )
         x.handleCommand <| Command.PublishEvent Event.CoreInitialized
-        x.handleCommand Command.ViewTestBuffer
+        x.handleCommand Command.ViewTestBuffer // for debugging
 
     member private x.handleCommand command =
         let notImplemented() =
@@ -83,6 +83,8 @@ type MainController
         match command with
         | Command.ChangeToMode _
         | Command.Edit
+        | Command.Yank
+        | Command.Put
         | Command.FormatCurrentLine ->
             notImplemented()
         | Command.PublishEvent event ->
