@@ -1,0 +1,19 @@
+## Vim features which we do not intend to support in Void
+This is of course open to discussion.
+
++ Ex mode (<kbd>Q</kbd>)
++ Macro recording (</kbd>q</kbd>)
++ Vi-compatibility options
+
+## VimL/VimScript features we do not intend to support in VoidScript
+VoidScript is intended to be a sane subset of VimL, trying to avoid the pitfall
+of jamming quick-to-type commands, some casual minor scripting and a serious
+scripting language into one package, and also trying to avoid the decades of
+cruft.
+
+It will not support:
+
++ Digits in identifiers (i.e. the `nr2char()` function from VimL is not a legal
+  VoidScript name). This is to simplify the tokenizing since commands like
+  `:2y2` are legal commands.
++ Comments using the quote mark `"`. This also makes for parsing hell.
