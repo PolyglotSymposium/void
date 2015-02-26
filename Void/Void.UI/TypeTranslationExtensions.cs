@@ -1,38 +1,38 @@
 ﻿using System;
-using Eto.Forms;
-using Eto.Drawing;
+using System.Drawing;
+using System.Windows.Forms;
 using Void.Core;
 using Void.ViewModel;
 
-namespace Void
+namespace Void.UI
 {
     // This class exists to protect the View and the View Model from each other,
     // so that each can be built the way it wants to be built
     public static class TypeTranslationExtensions
     {
-        public static Color AsEtoColor(this RGBColor color)
+        public static Color AsWinFormsColor(this RGBColor color)
         {
             return Color.FromArgb(color.Red, color.Green, color.Blue);
         }
 
-        public static Size AsEtoSize(this PixelGrid.Dimensions size)
+        public static Size AsWinFormsSize(this PixelGrid.Dimensions size)
         {
             return new Size(size.Width, size.Height);
         }
 
-        public static PointF AsEtoPointF(this PixelGrid.Point point)
+        public static PointF AsWinFormsPointF(this PixelGrid.Point point)
         {
             return new PointF(Convert.ToSingle(point.X), Convert.ToSingle(point.Y));
         }
 
-        public static SizeF AsEtoSizeF(this PixelGrid.Dimensions size)
+        public static SizeF AsWinFormsSizeF(this PixelGrid.Dimensions size)
         {
             return new SizeF(Convert.ToSingle(size.Width), Convert.ToSingle(size.Height));
         }
 
-        public static RectangleF AsEtoRectangleF(this PixelGrid.Block block)
+        public static RectangleF AsWinFormsRectangleF(this PixelGrid.Block block)
         {
-            return new RectangleF(block.UpperLeftCorner.AsEtoPointF(), block.Dimensions.AsEtoSizeF());
+            return new RectangleF(block.UpperLeftCorner.AsWinFormsPointF(), block.Dimensions.AsWinFormsSizeF());
         }
 
         public static ScreenLineObject AsLine(this DrawingObject drawing)
@@ -55,7 +55,7 @@ namespace Void
             KeyPress keyPress = null;
             if (keyEvent.Shift)
             {
-                switch (keyEvent.Key)
+                switch (keyEvent.KeyCode)
                 {
                     case Keys.A:
                         keyPress = KeyPress.ShiftA;
@@ -135,14 +135,14 @@ namespace Void
                     case Keys.Z:
                         keyPress = KeyPress.ShiftZ;
                         break;
-                    case Keys.Semicolon:
+                    case Keys.OemSemicolon /* TODO is this right? */:
                         keyPress = KeyPress.Colon;
                         break;
                 }
             } 
             else if (keyEvent.Control)
             {
-                switch (keyEvent.Key)
+                switch (keyEvent.KeyCode)
                 {
                     case Keys.A:
                         keyPress = KeyPress.ControlA;
@@ -222,18 +222,18 @@ namespace Void
                     case Keys.Z:
                         keyPress = KeyPress.ControlZ;
                         break;
-                    case Keys.Semicolon:
+                    case Keys.OemSemicolon /* TODO is this right? */:
                         keyPress = KeyPress.ControlSemicolon;
                         break;
                 }
             } 
-            else if (keyEvent.Key == Keys.Escape)
+            else if (keyEvent.KeyCode == Keys.Escape)
             {
                 keyPress = KeyPress.Escape;
             }
             else
             {
-                switch (keyEvent.Key)
+                switch (keyEvent.KeyCode)
                 {
                     case Keys.A:
                         keyPress = KeyPress.A;
@@ -313,16 +313,12 @@ namespace Void
                     case Keys.Z:
                         keyPress = KeyPress.Z;
                         break;
-                    case Keys.Semicolon:
+                    case Keys.OemSemicolon /* TODO is this right? */:
                         keyPress = KeyPress.Semicolon;
                         break;
                     default:
                         #if DEBUG
                         Console.WriteLine("Warning: failed to translate key stroke");
-                        if (keyEvent.IsChar)
-                        {
-                            Console.WriteLine("Character was: " + keyEvent.KeyChar);
-                        }
                         #endif
                         break;
                 }

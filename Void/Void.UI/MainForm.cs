@@ -1,17 +1,15 @@
 ﻿using System;
-using System.Linq;
-using Eto.Forms;
-using Eto.Drawing;
-using Void.Core;
+using System.Drawing;
+using System.Windows.Forms;
 using Void.ViewModel;
 
-namespace Void
+namespace Void.UI
 {
     public class MainForm : Form, MainView
     {
         private readonly MainController _controller;
-        private Drawable _drawable;
-        private Font _font = Fonts.Monospace(9);
+        private readonly Drawable _drawable;
+        private Font _font = Font.Monospace(9);
 
         public MainForm()
         {
@@ -29,22 +27,20 @@ namespace Void
             };
             _drawable.Paint += (sender, eventArgs) =>
             {
-                _controller.handleViewEvent(ViewEvent.NewPaintInitiated(new EtoArtist(eventArgs.Graphics, _font).Draw));
+                _controller.handleViewEvent(ViewEvent.NewPaintInitiated(new WinFormsArtist(eventArgs.Graphics, _font).Draw));
             };
         }
 
         public PixelGrid.FontMetrics GetFontMetrics()
         {
-            var verticalPadding = Platform.IsGtk ? 0 : 3; // TODO obviously, this is a pretty egregious hack
-            var horizontalPadding = Platform.IsGtk ? 0 : 3; // TODO obviously, this is a pretty egregious hack
-            var height = Convert.ToUInt16(Math.Ceiling(_font.LineHeight + verticalPadding));
-            var width = Convert.ToUInt16(Math.Ceiling(_font.XHeight + horizontalPadding));
+            var height = Convert.ToUInt16(Math.Ceiling(_font.LineHeight + 3));
+            var width = Convert.ToUInt16(Math.Ceiling(_font.XHeight + 3));
             return new PixelGrid.FontMetrics(height, width);
         }
 
         public void SetBackgroundColor(RGBColor color)
         {
-            BackgroundColor = color.AsEtoColor();
+            BackgroundColor = color.AsWinFormsColor();
         }
 
         public void SetFontBySize(byte size)
@@ -54,7 +50,7 @@ namespace Void
 
         public void SetViewSize(PixelGrid.Dimensions size)
         {
-            ClientSize = size.AsEtoSize();
+            ClientSize = size.AsWinFormsSize();
         }
 
         public void SetViewTitle(string title)

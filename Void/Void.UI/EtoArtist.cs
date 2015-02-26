@@ -1,14 +1,14 @@
-﻿using Eto.Drawing;
+﻿using System.Drawing;
 using Void.ViewModel;
 
-namespace Void
+namespace Void.UI
 {
-    public class EtoArtist
+    public class WinFormsArtist
     {
         private readonly Graphics _graphics;
         private readonly Font _font;
 
-        public EtoArtist(Graphics graphics, Font font)
+        public WinFormsArtist(Graphics graphics, Font font)
         {
             _graphics = graphics;
             _font = font;
@@ -37,12 +37,12 @@ namespace Void
 
         private void RenderText(ScreenTextObject drawing)
         {
-            _graphics.DrawText(_font, drawing.Color.AsEtoColor(), drawing.UpperLeftCorner.AsEtoPointF(), drawing.Text);
+            _graphics.DrawString(_font, drawing.Color.AsWinFormsColor(), drawing.UpperLeftCorner.AsWinFormsPointF(), drawing.Text);
         }
 
         private void RenderBlock(ScreenBlockObject drawing)
         {
-            _graphics.FillRectangle(drawing.Color.AsEtoColor(), drawing.Area.AsEtoRectangleF());
+            _graphics.FillRectangle(drawing.Color.AsWinFormsColor(), drawing.Area.AsWinFormsRectangleF());
         }
     }
 }
