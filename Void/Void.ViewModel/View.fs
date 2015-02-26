@@ -10,6 +10,10 @@ type MainView =
     abstract member SetFontBySize : byte -> unit
     abstract member SetViewSize : PixelGrid.Dimensions -> unit
     abstract member SetViewTitle : string -> unit
-    abstract member SubscribeToKeyUp : Action<KeyPress> -> unit
-    abstract member SubscribeToDraw : Action<Action<DrawingObject>> -> unit
     abstract member TriggerDraw : unit -> unit
+
+[<RequireQualifiedAccess>]
+type ViewEvent =
+    | KeyPressed of KeyPress
+    | TextEntered of string
+    | PaintInitiated of Action<DrawingObject>

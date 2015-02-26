@@ -2,6 +2,7 @@
 
 open Void.Core
 open CellGrid
+open System
 
 type ViewController
     (
@@ -20,8 +21,10 @@ type ViewController
         _view.SetBackgroundColor Colors.defaultColorscheme.Background
         x.setFont()
         _view.SetViewSize <| _convert.cellDimensionsToPixels _viewArea.Dimensions
-        _view.SubscribeToDraw(fun draw -> for drawing in _bufferedDrawings do draw.Invoke drawing)
         Command.PublishEvent Event.ViewInitialized
+
+    member x.paint (draw : Action<DrawingObject>) =
+        for drawing in _bufferedDrawings do draw.Invoke drawing
 
     member private x.setFont() =
         _view.SetFontBySize ViewModel.defaultFontSize
@@ -66,13 +69,17 @@ type MainController
     let _eventHandlers = [_coreCtrl.handleEvent; _viewCtrl.handleEvent]
 
     member x.initializeVoid() =
-        // In general, ViewController should operate on the view, not MainController.
-        // However, the lines below are input, not painting/drawing/displaying...
-        _view.SubscribeToKeyUp (fun keyPress ->
-            _normalCtrl.handle keyPress |> x.handleCommand
-        )
         x.handleCommand <| Command.PublishEvent Event.CoreInitialized
         x.handleCommand Command.ViewTestBuffer // for debugging
+
+    member x.handleViewEvent viewEvent =
+        match viewEvent with
+        | ViewEvent.PaintInitiated draw ->
+            _viewCtrl.paint draw
+        | ViewEvent.KeyPressed keyPress ->
+            _normalCtrl.handle keyPress |> x.handleCommand
+        | ViewEvent.TextEntered text ->
+            () // TODO implement input and command modes, etc
 
     member private x.handleCommand command =
         let notImplemented() =
