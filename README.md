@@ -3,6 +3,9 @@
 [![Mono Build Status](https://travis-ci.org/PolyglotSymposium/void.svg?branch=master)](https://travis-ci.org/PolyglotSymposium/void)
 [![.NET Build Status](https://ci.appveyor.com/api/projects/status/whn1xp1y06viy6t8/branch/master?svg=true)](https://ci.appveyor.com/project/Kazark/void/branch/master)
 
+## Nota Bene
+This project is still in early development!
+
 ### What?
 A text editor that is not afraid to break compatibility with Vim, but is
 fundamentally inspired by it and dedicated to the spirit of Vim.
