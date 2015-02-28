@@ -1,20 +1,19 @@
 ﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
+using System.Windows.Forms.VisualStyles;
 using Void.ViewModel;
 
 namespace Void.UI
 {
-    public class MainForm : Form, MainView
+    public partial class MainForm : Form, MainView
     {
         private readonly MainController _controller;
-        private readonly Drawable _drawable;
-        private Font _font = Font.Monospace(9);
+        private Font _font = new Font(FontFamily.GenericMonospace, 9);
 
         public MainForm()
         {
-            _drawable = new Drawable();
-            Content = _drawable;
+            InitializeComponent();
             _controller = new MainController(this);
             _controller.initializeVoid();
             KeyUp += (sender, eventArgs) =>
@@ -25,27 +24,28 @@ namespace Void.UI
                     _controller.handleViewEvent(ViewEvent.NewKeyPressed(keyPress));
                 }
             };
-            _drawable.Paint += (sender, eventArgs) =>
-            {
-                _controller.handleViewEvent(ViewEvent.NewPaintInitiated(new WinFormsArtist(eventArgs.Graphics, _font).Draw));
-            };
+            Paint += (sender, eventArgs) => _controller.handleViewEvent(ViewEvent.NewPaintInitiated(new WinFormsArtist(eventArgs.Graphics, _font).Draw));
         }
 
         public PixelGrid.FontMetrics GetFontMetrics()
         {
-            var height = Convert.ToUInt16(Math.Ceiling(_font.LineHeight + 3));
-            var width = Convert.ToUInt16(Math.Ceiling(_font.XHeight + 3));
-            return new PixelGrid.FontMetrics(height, width);
+            return new PixelGrid.FontMetrics(_font.Height, MeasureFontWidth());
+        }
+
+        private int MeasureFontWidth()
+        {
+            // TODO this isn't working 100% well
+            return Convert.ToInt32(Math.Ceiling(CreateGraphics().MeasureString(new string('X', 80), _font).Width / 80));
         }
 
         public void SetBackgroundColor(RGBColor color)
         {
-            BackgroundColor = color.AsWinFormsColor();
+            BackColor = color.AsWinFormsColor();
         }
 
         public void SetFontBySize(byte size)
         {
-            _font = Fonts.Monospace(size);
+            _font = new Font(FontFamily.GenericMonospace, 9);
         }
 
         public void SetViewSize(PixelGrid.Dimensions size)
@@ -55,12 +55,12 @@ namespace Void.UI
 
         public void SetViewTitle(string title)
         {
-            Title = title;
+            Text = title;
         }
 
         public void TriggerDraw()
         {
-            _drawable.Update(new Rectangle(ClientSize));
+            Update();
         }
     }
 }

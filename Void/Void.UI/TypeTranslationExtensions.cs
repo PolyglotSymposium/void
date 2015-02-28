@@ -15,6 +15,11 @@ namespace Void.UI
             return Color.FromArgb(color.Red, color.Green, color.Blue);
         }
 
+        public static SolidBrush AsWinFormsSolidBrush(this RGBColor color)
+        {
+            return new SolidBrush(color.AsWinFormsColor());
+        }
+
         public static Size AsWinFormsSize(this PixelGrid.Dimensions size)
         {
             return new Size(size.Width, size.Height);

@@ -37,12 +37,12 @@ namespace Void.UI
 
         private void RenderText(ScreenTextObject drawing)
         {
-            _graphics.DrawString(_font, drawing.Color.AsWinFormsColor(), drawing.UpperLeftCorner.AsWinFormsPointF(), drawing.Text);
+            _graphics.DrawString(drawing.Text, _font, drawing.Color.AsWinFormsSolidBrush(), drawing.UpperLeftCorner.AsWinFormsPointF());
         }
 
         private void RenderBlock(ScreenBlockObject drawing)
         {
-            _graphics.FillRectangle(drawing.Color.AsWinFormsColor(), drawing.Area.AsWinFormsRectangleF());
+            _graphics.FillRectangle(drawing.Color.AsWinFormsSolidBrush(), drawing.Area.AsWinFormsRectangleF());
         }
     }
 }
