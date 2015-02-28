@@ -25,6 +25,7 @@ type ViewController
 
     member x.paint (draw : Action<DrawingObject>) =
         for drawing in _bufferedDrawings do draw.Invoke drawing
+        _bufferedDrawings <- []
 
     member private x.setFont() =
         _view.SetFontBySize ViewModel.defaultFontSize
@@ -40,7 +41,8 @@ type ViewController
     member x.handleCommand command =
         match command with
         | Command.Quit -> _view.Close()
-        | Command.Redraw -> _view.TriggerDraw()
+        | Command.Redraw ->
+            _convert.cellBlockToPixels _viewArea |> _view.TriggerDraw
         | _ -> ()
         Command.Noop
 
@@ -50,12 +52,15 @@ type ViewController
             ViewModel.toScreenMessage msg
             |> Render.outputMessageAsDrawingObject _convert { Row = lastRow _viewArea; Column = 0 }
             |> x.bufferDrawing
-            Command.Redraw
+            // TODO this is just hacked together for the moment
+            _convert.cellBlockToPixels { UpperLeftCell = { Row = lastRow _viewArea; Column = 0 }; Dimensions = { Rows = 1; Columns = _viewArea.Dimensions.Columns }} |> _view.TriggerDraw
+            Command.Noop
         | Event.BufferLoadedIntoWindow buffer ->
             ViewModel.toScreenBuffer _viewArea.Dimensions buffer
             |> Render.bufferAsDrawingObjects _convert _viewArea
             |> x.bufferDrawings
-            Command.Redraw
+            _convert.cellBlockToPixels _viewArea |> _view.TriggerDraw // TODO shouldn't redraw the whole UI
+            Command.Noop
         | Event.CoreInitialized -> x.initializeView()
         | _ -> Command.Noop
 
@@ -97,7 +102,7 @@ type MainController
         | Command.PublishEvent event ->
             for handle in _eventHandlers do
                 handle event |> x.handleCommand
-        | Command.Quit
+        | Command.Quit // TODO Ultimately this go to the core, not the view model; the window should close off an event, not a command
         | Command.Redraw ->
             _viewCtrl.handleCommand command |> x.handleCommand
         | Command.ViewTestBuffer -> 

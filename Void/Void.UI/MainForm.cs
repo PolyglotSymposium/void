@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
-using System.Windows.Forms.VisualStyles;
 using Void.ViewModel;
 
 namespace Void.UI
@@ -58,9 +57,9 @@ namespace Void.UI
             Text = title;
         }
 
-        public void TriggerDraw()
+        public void TriggerDraw(PixelGrid.Block block)
         {
-            Update();
+            Invalidate(block.AsWinFormsRectangle());
         }
     }
 }

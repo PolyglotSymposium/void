@@ -25,6 +25,11 @@ namespace Void.UI
             return new Size(size.Width, size.Height);
         }
 
+        public static Point AsWinFormsPoint(this PixelGrid.Point point)
+        {
+            return new Point(point.X, point.Y);
+        }
+
         public static PointF AsWinFormsPointF(this PixelGrid.Point point)
         {
             return new PointF(Convert.ToSingle(point.X), Convert.ToSingle(point.Y));
@@ -33,6 +38,11 @@ namespace Void.UI
         public static SizeF AsWinFormsSizeF(this PixelGrid.Dimensions size)
         {
             return new SizeF(Convert.ToSingle(size.Width), Convert.ToSingle(size.Height));
+        }
+
+        public static Rectangle AsWinFormsRectangle(this PixelGrid.Block block)
+        {
+            return new Rectangle(block.UpperLeftCorner.AsWinFormsPoint(), block.Dimensions.AsWinFormsSize());
         }
 
         public static RectangleF AsWinFormsRectangleF(this PixelGrid.Block block)
@@ -140,7 +150,7 @@ namespace Void.UI
                     case Keys.Z:
                         keyPress = KeyPress.ShiftZ;
                         break;
-                    case Keys.OemSemicolon /* TODO is this right? */:
+                    case Keys.OemSemicolon:
                         keyPress = KeyPress.Colon;
                         break;
                 }
@@ -227,7 +237,7 @@ namespace Void.UI
                     case Keys.Z:
                         keyPress = KeyPress.ControlZ;
                         break;
-                    case Keys.OemSemicolon /* TODO is this right? */:
+                    case Keys.OemSemicolon:
                         keyPress = KeyPress.ControlSemicolon;
                         break;
                 }
@@ -318,7 +328,7 @@ namespace Void.UI
                     case Keys.Z:
                         keyPress = KeyPress.Z;
                         break;
-                    case Keys.OemSemicolon /* TODO is this right? */:
+                    case Keys.OemSemicolon:
                         keyPress = KeyPress.Semicolon;
                         break;
                     default:
