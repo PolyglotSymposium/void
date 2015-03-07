@@ -60,8 +60,19 @@ type DataOperations =
     | Down
     | Escape // TODO Is there a better word for this?
 
+type Window = {
+    CurrentBuffer : int
+}
+
+type Tab = {
+    Windows : Window list
+}
+
+type EditorLayout = {
+    Tabs : Tab list
+}
+
 type EditorState = {
     CurrentBuffer : int
     BufferList : BufferType list
 }
-

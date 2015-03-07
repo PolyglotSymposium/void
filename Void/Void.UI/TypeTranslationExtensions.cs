@@ -331,11 +331,6 @@ namespace Void.UI
                     case Keys.OemSemicolon:
                         keyPress = KeyPress.Semicolon;
                         break;
-                    default:
-                        #if DEBUG
-                        Console.WriteLine("Warning: failed to translate key stroke");
-                        #endif
-                        break;
                 }
             }
             return keyPress;

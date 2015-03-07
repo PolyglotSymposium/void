@@ -18,7 +18,11 @@ namespace Void.UI
             KeyUp += (sender, eventArgs) =>
             {
                 var keyPress = eventArgs.AsVoidKeyPress();
-                if (keyPress != null)
+                if (keyPress == null)
+                {
+                    Console.WriteLine("Warning: failed to translate key stroke");
+                }
+                else
                 {
                     _handleViewEvent.Invoke(ViewEvent.NewKeyPressed(keyPress));
                 }

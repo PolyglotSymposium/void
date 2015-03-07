@@ -60,14 +60,13 @@ type ViewController
             |> x.bufferDrawing
             // TODO this is just hacked together for the moment
             _convert.cellBlockToPixels { UpperLeftCell = { Row = lastRow _viewArea; Column = 0 }; Dimensions = { Rows = 1; Columns = _viewArea.Dimensions.Columns }} |> _view.TriggerDraw
-            Command.Noop
         | Event.BufferLoadedIntoWindow buffer ->
             ViewModel.toScreenBuffer _viewArea.Dimensions buffer
             |> Render.bufferAsDrawingObjects _convert _viewArea
             |> x.bufferDrawings
             _convert.cellBlockToPixels _viewArea |> _view.TriggerDraw // TODO shouldn't redraw the whole UI
-            Command.Noop
-        | _ -> Command.Noop
+        | _ -> ()
+        Command.Noop
 
 type Broker
     (
@@ -77,24 +76,24 @@ type Broker
         _normalCtrl : NormalModeController
     ) =
 
-    member x.handleViewEvent viewEvent =
+    member x.brokerViewEvent viewEvent =
         match viewEvent with
         | ViewEvent.PaintInitiated draw ->
             _viewCtrl.paint draw
         | ViewEvent.KeyPressed keyPress ->
-            _normalCtrl.handleKeyPress keyPress |> x.handleCommand
+            _normalCtrl.handleKeyPress keyPress |> x.brokerCommand
         | ViewEvent.TextEntered text ->
             () // TODO implement input and command modes, etc
 
-    member x.handleCommand command =
+    member x.brokerCommand command =
         match command with
         | Command.PublishEvent event ->
             for handle in _eventHandlers do
-                handle event |> x.handleCommand
+                handle event |> x.brokerCommand
         | Command.Noop -> ()
         | _ ->
             for handle in _commandHandlers do
-                handle command |> x.handleCommand
+                handle command |> x.brokerCommand
 
 module Init =
     let initializeVoid view =
@@ -114,5 +113,6 @@ module Init =
             viewCtrl.handleEvent
         ]
         let broker = Broker(commandHandlers, eventHandlers, viewCtrl, normalCtrl)
-        broker.handleCommand Command.InitializeVoid
-        broker.handleViewEvent
+        broker.brokerCommand Command.InitializeVoid
+        broker.brokerCommand Command.ViewTestBuffer // TODO for testing and debugging only
+        broker.brokerViewEvent
