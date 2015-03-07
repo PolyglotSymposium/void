@@ -2,12 +2,12 @@
 
 type CoreController() =
     let mutable _messages = []
-    let mutable _buffer = Buffer.Empty
+    let mutable _buffer = Buffer.empty
 
     member x.handleCommand command =
         match command with
         | Command.ViewTestBuffer ->
-            _buffer <- Editor.testFileBuffer()
+            _buffer <- Buffer.testFile
             // TODO Should controllers create the events?...
             Event.BufferLoadedIntoWindow _buffer |> Command.PublishEvent
         | _ -> Command.Noop

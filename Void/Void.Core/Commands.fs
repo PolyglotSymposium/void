@@ -8,6 +8,7 @@ type Command =
     | ChangeToMode of Mode
     | Edit
     | FormatCurrentLine
+    | InitializeVoid
     | Put
     | Quit
     | Redraw

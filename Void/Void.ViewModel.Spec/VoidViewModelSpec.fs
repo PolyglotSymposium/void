@@ -2,7 +2,7 @@
 
 open Void.ViewModel
 open Void.ViewModel.PixelGrid
-open Void.ViewModel.CellGrid
+open Void.Core.CellGrid
 open System
 open System.Linq
 open NUnit.Framework

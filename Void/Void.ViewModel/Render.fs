@@ -23,7 +23,7 @@ type DrawingObject =
     | Block of ScreenBlockObject
 
 module Render =
-    open CellGrid
+    open Void.Core.CellGrid
 
     let private textLineAsDrawingObject (convert : Sizing.Convert) x line =
         DrawingObject.Text {

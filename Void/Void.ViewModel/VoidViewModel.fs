@@ -2,30 +2,6 @@
 
 open Void.Core
 
-module CellGrid =
-    type Cell = {
-        Row : int
-        Column : int
-    }
-    type Dimensions = {
-        Rows : int
-        Columns : int
-    }
-    type Block = {
-        UpperLeftCell : Cell
-        Dimensions : Dimensions
-    }
-    let originCell = { Row = 0; Column = 0 }
-
-    let rightOf cell count =
-        { Row = cell.Row; Column = cell.Column + count }
-
-    let below cell count =
-        { Row = cell.Row + count; Column = cell.Column }
-
-    let lastRow block =
-        block.Dimensions.Rows - 1
-
 module PixelGrid =
     type FontMetrics = {
         LineHeight : int
@@ -49,7 +25,7 @@ module PixelGrid =
 module Sizing =
     open System
     open PixelGrid
-    open CellGrid
+    open Void.Core.CellGrid
 
     let defaultViewSize = { Rows = 26; Columns = 80 }
 
@@ -144,7 +120,7 @@ module ViewModel =
 
     let toScreenBuffer windowSize buffer =
         match buffer with
-        | Buffer.File { Contents = lines } -> lines
+        | BufferType.File { Contents = lines } -> lines
         | _ -> []
         |> bufferFrom windowSize
 

@@ -21,28 +21,22 @@ type DataOperations =
     | Down
     | Escape // TODO Is there a better word for this?
 
-type Coordinate = {
-    Row : uint32
-    Column : uint32
-}
-
-type ScreenBuffer = {
-    Buffer : Buffer
-    ScreenPosition : Coordinate
-    BufferPosition : Coordinate
-}
-
 type EditorState = {
-    CurrentBuffer : ScreenBuffer
-    BufferList : Buffer list
+    CurrentBuffer : int
+    BufferList : BufferType list
     Mode : Mode
 }
 
-module Editor = 
-    let private startOfFile() =
-        { Row = 0u; Column = 0u }
+module Buffer =
+    open CellGrid
 
-    let testFileBuffer() =
+    let emptyFile =
+        { Filepath = None; Contents = []; CursorPosition = originCell }
+
+    let empty =
+        BufferType.File emptyFile
+
+    let testFile =
         let text = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n\
                     X Line #1                                                                      X\n\
                     X Line #2                                                                      X\n\
@@ -68,25 +62,19 @@ module Editor =
                     X Line #22                                                                     X\n\
                     X Line #23                                                                     X\n\
                     XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
-        Buffer.File { Filepath = None; Contents = text.Split [|'\n'|] |> Array.toList }
+        BufferType.File { emptyFile with Contents = text.Split [|'\n'|] |> Array.toList }
 
-    let private emptyScreenBuffer() =
-        {
-            Buffer = Buffer.Empty
-            ScreenPosition = startOfFile()
-            BufferPosition = startOfFile()
-        }
 
+module Editor = 
     let init (commands : CommandLine.Arguments) =
-        let currentBuffer = emptyScreenBuffer()
         {
-            CurrentBuffer = currentBuffer
-            BufferList = [currentBuffer.Buffer]
+            CurrentBuffer = 0
+            BufferList = [Buffer.empty]
             Mode = Mode.Normal
         }
 
     let readLines buffer start =
         match buffer with
-        | Buffer.File fileBuffer ->
+        | BufferType.File fileBuffer ->
             fileBuffer.Contents |> Seq.skip (start - 1) // Line numbers start at 1
         | _ -> Seq.empty

@@ -1,7 +1,7 @@
 ﻿namespace Void.ViewModel
 
 open Void.Core
-open CellGrid
+open Void.Core.CellGrid
 open System
 
 type ViewController
@@ -74,8 +74,8 @@ type MainController
     let _eventHandlers = [_coreCtrl.handleEvent; _viewCtrl.handleEvent]
 
     member x.initializeVoid() =
-        x.handleCommand <| Command.PublishEvent Event.CoreInitialized
-        x.handleCommand Command.ViewTestBuffer // for debugging
+        x.handleCommand Command.InitializeVoid
+        //x.handleCommand Command.ViewTestBuffer // for debugging
 
     member x.handleViewEvent viewEvent =
         match viewEvent with
@@ -105,6 +105,7 @@ type MainController
         | Command.Quit // TODO Ultimately this go to the core, not the view model; the window should close off an event, not a command
         | Command.Redraw ->
             _viewCtrl.handleCommand command |> x.handleCommand
+        | Command.InitializeVoid
         | Command.ViewTestBuffer -> 
             _coreCtrl.handleCommand command |> x.handleCommand
         | Command.Noop -> ()
