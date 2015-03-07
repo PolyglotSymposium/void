@@ -40,11 +40,17 @@ type ViewController
 
     member x.handleCommand command =
         match command with
-        | Command.Quit -> _view.Close()
+        | Command.Quit -> // TODO Ultimately this go to the core, not the view model; the window should close off an event, not a command
+            _view.Close()
+            Command.Noop
+        | Command.InitializeVoid -> x.initializeView()
+        | Command.Display _ ->
+            notImplemented
         | Command.Redraw ->
             _convert.cellBlockToPixels _viewArea |> _view.TriggerDraw
-        | _ -> ()
-        Command.Noop
+            Command.Noop
+        | _ ->
+            Command.Noop
 
     member x.handleEvent event =
         match event with
@@ -61,51 +67,52 @@ type ViewController
             |> x.bufferDrawings
             _convert.cellBlockToPixels _viewArea |> _view.TriggerDraw // TODO shouldn't redraw the whole UI
             Command.Noop
-        | Event.CoreInitialized -> x.initializeView()
         | _ -> Command.Noop
 
-type MainController
+type Broker
     (
-        _view : MainView
+        _commandHandlers : (Command -> Command) list,
+        _eventHandlers : (Event -> Command) list,
+        _viewCtrl : ViewController,
+        _normalCtrl : NormalModeController
     ) =
-    let _normalCtrl = NormalModeController()
-    let _coreCtrl = CoreController()
-    let _viewCtrl = ViewController(_view)
-    let _eventHandlers = [_coreCtrl.handleEvent; _viewCtrl.handleEvent]
-
-    member x.initializeVoid() =
-        x.handleCommand Command.InitializeVoid
-        //x.handleCommand Command.ViewTestBuffer // for debugging
 
     member x.handleViewEvent viewEvent =
         match viewEvent with
         | ViewEvent.PaintInitiated draw ->
             _viewCtrl.paint draw
         | ViewEvent.KeyPressed keyPress ->
-            _normalCtrl.handle keyPress |> x.handleCommand
+            _normalCtrl.handleKeyPress keyPress |> x.handleCommand
         | ViewEvent.TextEntered text ->
             () // TODO implement input and command modes, etc
 
-    member private x.handleCommand command =
-        let notImplemented() =
-            Event.ErrorOccurred Error.NotImplemented
-            |> Command.PublishEvent
-            |> x.handleCommand
-
+    member x.handleCommand command =
         match command with
-        | Command.ChangeToMode _
-        | Command.Edit
-        | Command.Yank
-        | Command.Put
-        | Command.FormatCurrentLine ->
-            notImplemented()
         | Command.PublishEvent event ->
             for handle in _eventHandlers do
                 handle event |> x.handleCommand
-        | Command.Quit // TODO Ultimately this go to the core, not the view model; the window should close off an event, not a command
-        | Command.Redraw ->
-            _viewCtrl.handleCommand command |> x.handleCommand
-        | Command.InitializeVoid
-        | Command.ViewTestBuffer -> 
-            _coreCtrl.handleCommand command |> x.handleCommand
         | Command.Noop -> ()
+        | _ ->
+            for handle in _commandHandlers do
+                handle command |> x.handleCommand
+
+module Init =
+    let initializeVoid view =
+        let modeCtrl = ModeController()
+        let messageCtrl = MessageController()
+        let normalCtrl = NormalModeController()
+        let editorCtrl = EditorController()
+        let viewCtrl = ViewController view
+        let commandHandlers = [
+            messageCtrl.handleCommand
+            modeCtrl.handleCommand
+            viewCtrl.handleCommand
+            editorCtrl.handleCommand
+        ]
+        let eventHandlers = [
+            messageCtrl.handleEvent
+            viewCtrl.handleEvent
+        ]
+        let broker = Broker(commandHandlers, eventHandlers, viewCtrl, normalCtrl)
+        broker.handleCommand Command.InitializeVoid
+        broker.handleViewEvent

@@ -1,50 +1,67 @@
 ﻿namespace Void.Core
 
-// TODO be very careful to get the abstractions right here!
-// TODO could be very easy to shoot oneself in the foot with the wrong abstraction!
-[<RequireQualifiedAccess>]
-type Mode =
-    | Insert
-    | Normal
-    | Command
-    | Visual
-    | VisualBlock // TODO should this be subsumed under Visual?
-    | OperatorPending
-    // TODO there are many more modes
+module Messages =
+    let private addMessage msg messages = 
+        (msg :: messages), Event.MessageAdded msg
+    let addError error messages =
+        let msg = Message.Error error
+        in addMessage msg messages
+    let addOutput text messages =
+        let msg = Message.Output text
+        in addMessage msg messages
 
-module CellGrid =
-    type Cell = {
-        Row : int
-        Column : int
-    }
-    type Dimensions = {
-        Rows : int
-        Columns : int
-    }
-    type Block = {
-        UpperLeftCell : Cell
-        Dimensions : Dimensions
-    }
-    let originCell = { Row = 0; Column = 0 }
+module Buffer =
+    open CellGrid
 
-    let rightOf cell count =
-        { Row = cell.Row; Column = cell.Column + count }
+    let emptyFile =
+        { Filepath = None; Contents = []; CursorPosition = originCell }
 
-    let below cell count =
-        { Row = cell.Row + count; Column = cell.Column }
+    let empty =
+        BufferType.File emptyFile
 
-    let lastRow block =
-        block.Dimensions.Rows - 1
+    let testFile =
+        let text = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n\
+                    X Line #1                                                                      X\n\
+                    X Line #2                                                                      X\n\
+                    X Line #3                                                                      X\n\
+                    X Line #4                                                                      X\n\
+                    X Line #5                                                                      X\n\
+                    X Line #6                                                                      X\n\
+                    X Line #7                                                                      X\n\
+                    X Line #8                                                                      X\n\
+                    X Line #9                                                                      X\n\
+                    X Line #10                                                                     X\n\
+                    X Line #11                                                                     X\n\
+                    X Line #12                                                                     X\n\
+                    X Line #13                                                                     X\n\
+                    X Line #14                                                                     X\n\
+                    X Line #15                                                                     X\n\
+                    X Line #16                                                                     X\n\
+                    X Line #17                                                                     X\n\
+                    X Line #18                                                                     X\n\
+                    X Line #19                                                                     X\n\
+                    X Line #20                                                                     X\n\
+                    X Line #21                                                                     X\n\
+                    X Line #22                                                                     X\n\
+                    X Line #23                                                                     X\n\
+                    XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+        BufferType.File { emptyFile with Contents = text.Split [|'\n'|] |> Array.toList }
 
-// TODO This is naive, obviously
-type FileBuffer = {
-    Filepath : string option
-    Contents : string list
-    CursorPosition : CellGrid.Cell
-}
+module Editor = 
+    let defaultState =
+        {
+            CurrentBuffer = 0
+            BufferList = [Buffer.empty]
+        }
 
-[<RequireQualifiedAccess>]
-type BufferType =
-    | File of FileBuffer
-    | Scratch
-    | Shell
+    let viewFile editor file =
+        { editor with BufferList = [file] }
+
+    let init (commands : CommandLine.Arguments) =
+        defaultState
+
+    let readLines buffer start =
+        match buffer with
+        | BufferType.File fileBuffer ->
+            fileBuffer.Contents |> Seq.skip (start - 1) // Line numbers start at 1
+        | _ -> Seq.empty

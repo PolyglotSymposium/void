@@ -2,28 +2,28 @@
 using System.Drawing;
 using System.Windows.Forms;
 using Void.ViewModel;
+using Microsoft.FSharp.Core;
 
 namespace Void.UI
 {
     public partial class MainForm : Form, MainView
     {
-        private readonly MainController _controller;
+        private readonly FSharpFunc<ViewEvent,Unit> _handleViewEvent;
         private Font _font = new Font(FontFamily.GenericMonospace, 9);
 
         public MainForm()
         {
             InitializeComponent();
-            _controller = new MainController(this);
-            _controller.initializeVoid();
+            _handleViewEvent = Init.initializeVoid(this);
             KeyUp += (sender, eventArgs) =>
             {
                 var keyPress = eventArgs.AsVoidKeyPress();
                 if (keyPress != null)
                 {
-                    _controller.handleViewEvent(ViewEvent.NewKeyPressed(keyPress));
+                    _handleViewEvent.Invoke(ViewEvent.NewKeyPressed(keyPress));
                 }
             };
-            Paint += (sender, eventArgs) => _controller.handleViewEvent(ViewEvent.NewPaintInitiated(new WinFormsArtist(eventArgs.Graphics, _font).Draw));
+            Paint += (sender, eventArgs) => _handleViewEvent.Invoke(ViewEvent.NewPaintInitiated(new WinFormsArtist(eventArgs.Graphics, _font).Draw));
         }
 
         public PixelGrid.FontMetrics GetFontMetrics()
