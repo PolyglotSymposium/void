@@ -40,9 +40,6 @@ type ViewController
 
     member x.handleCommand command =
         match command with
-        | Command.Quit -> // TODO Ultimately this go to the core, not the view model; the window should close off an event, not a command
-            _view.Close()
-            Command.Noop
         | Command.InitializeVoid -> x.initializeView()
         | Command.Display _ ->
             notImplemented
@@ -54,17 +51,19 @@ type ViewController
 
     member x.handleEvent event =
         match event with
+        | Event.BufferLoadedIntoWindow buffer ->
+            ViewModel.toScreenBuffer _viewArea.Dimensions buffer
+            |> Render.bufferAsDrawingObjects _convert _viewArea
+            |> x.bufferDrawings
+            _convert.cellBlockToPixels _viewArea |> _view.TriggerDraw // TODO shouldn't redraw the whole UI
         | Event.MessageAdded msg ->
             ViewModel.toScreenMessage msg
             |> Render.outputMessageAsDrawingObject _convert { Row = lastRow _viewArea; Column = 0 }
             |> x.bufferDrawing
             // TODO this is just hacked together for the moment
             _convert.cellBlockToPixels { UpperLeftCell = { Row = lastRow _viewArea; Column = 0 }; Dimensions = { Rows = 1; Columns = _viewArea.Dimensions.Columns }} |> _view.TriggerDraw
-        | Event.BufferLoadedIntoWindow buffer ->
-            ViewModel.toScreenBuffer _viewArea.Dimensions buffer
-            |> Render.bufferAsDrawingObjects _convert _viewArea
-            |> x.bufferDrawings
-            _convert.cellBlockToPixels _viewArea |> _view.TriggerDraw // TODO shouldn't redraw the whole UI
+        | Event.LastWindowClosed ->
+            _view.Close()
         | _ -> ()
         Command.Noop
 
