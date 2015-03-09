@@ -60,6 +60,9 @@ module Editor =
     let init (commands : CommandLine.Arguments) =
         defaultState
 
+    let currentBuffer editor =
+        editor.BufferList.[editor.CurrentBuffer]
+
     let readLines buffer start =
         match buffer with
         | BufferType.File fileBuffer ->

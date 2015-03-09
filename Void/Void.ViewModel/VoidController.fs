@@ -52,8 +52,9 @@ type ViewController
     member x.handleEvent event =
         match event with
         | Event.BufferLoadedIntoWindow buffer ->
-            _windowView <- { _windowView with Buffer = ViewModel.toScreenBuffer _windowView.Area.Dimensions buffer }
-            _windowView.Buffer |> Render.bufferAsDrawingObjects _convert _windowView.Area
+            _windowView <- ViewModel.loadBufferInto buffer _windowView
+            _windowView.Buffer
+            |> Render.bufferAsDrawingObjects _convert _windowView.Area
             |> x.bufferDrawings
             _convert.cellBlockToPixels _windowView.Area |> _view.TriggerDraw // TODO shouldn't redraw the whole UI
         | Event.MessageAdded msg ->
@@ -65,7 +66,12 @@ type ViewController
         | Event.LastWindowClosed ->
             _view.Close()
         | Event.EditorInitialized editor ->
-            ()
+            _windowView <- ViewModel.loadBufferInto (Editor.currentBuffer editor) _windowView 
+            // TODO duplication of BufferLoadedIntoWindow below
+            _windowView.Buffer
+            |> Render.bufferAsDrawingObjects _convert _windowView.Area
+            |> x.bufferDrawings
+            _convert.cellBlockToPixels _windowView.Area |> _view.TriggerDraw // TODO shouldn't redraw the whole UI
         | _ -> ()
         Command.Noop
 
@@ -115,5 +121,5 @@ module Init =
         ]
         let broker = Broker(commandHandlers, eventHandlers, viewCtrl, normalCtrl)
         broker.brokerCommand Command.InitializeVoid
-        broker.brokerCommand Command.ViewTestBuffer // TODO for testing and debugging only
+        //broker.brokerCommand Command.ViewTestBuffer // TODO for testing and debugging only
         broker.brokerViewEvent

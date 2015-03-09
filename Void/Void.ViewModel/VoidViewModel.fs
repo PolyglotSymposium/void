@@ -134,6 +134,10 @@ module ViewModel =
         | _ -> []
         |> bufferFrom windowSize
 
+    // TODO should just be operating on WindowView
+    let loadBufferInto buffer (window : FocusedWindowView) =
+        { window with Buffer = toScreenBuffer window.Area.Dimensions buffer }
+
     let toScreenMessage msg =
         match msg with
         | Message.Output msgText -> OutputMessageView.Text msgText
