@@ -10,7 +10,7 @@ type ViewController
     ) =
     let mutable _fontMetrics = _view.GetFontMetrics()
     let mutable _convert = Sizing.Convert _fontMetrics
-    let mutable _windowView = ViewModel.defaultFocusedWindowView
+    let mutable _viewModel = ViewModel.defaultViewModel
     let _colorscheme = Colors.defaultColorscheme
     let mutable _bufferedDrawings = Seq.empty
 
@@ -20,7 +20,7 @@ type ViewController
         _view.SetViewTitle ViewModel.defaultTitle
         _view.SetBackgroundColor Colors.defaultColorscheme.Background
         x.setFont()
-        _view.SetViewSize <| _convert.cellDimensionsToPixels _windowView.Area.Dimensions
+        _view.SetViewSize <| _convert.cellDimensionsToPixels _viewModel.Size
         Command.PublishEvent Event.ViewInitialized
 
     member x.paint (draw : Action<DrawingObject>) =
@@ -44,7 +44,7 @@ type ViewController
         | Command.Display _ ->
             notImplemented
         | Command.Redraw ->
-            _convert.cellBlockToPixels _windowView.Area |> _view.TriggerDraw
+            _convert.cellBlockToPixels (ViewModel.wholeArea _viewModel) |> _view.TriggerDraw
             Command.Noop
         | _ ->
             Command.Noop
@@ -52,26 +52,30 @@ type ViewController
     member x.handleEvent event =
         match event with
         | Event.BufferLoadedIntoWindow buffer ->
-            _windowView <- ViewModel.loadBufferInto buffer _windowView
-            _windowView.Buffer
-            |> Render.bufferAsDrawingObjects _convert _windowView.Area
+            _viewModel <- ViewModel.loadBuffer buffer _viewModel
+            match _viewModel.VisibleWindows.[0] with
+            | WindowView.Focused window -> window.Buffer
+            | WindowView.Unfocused window -> window.Buffer
+            |> Render.bufferAsDrawingObjects _convert (ViewModel.wholeArea _viewModel)
             |> x.bufferDrawings
-            _convert.cellBlockToPixels _windowView.Area |> _view.TriggerDraw // TODO shouldn't redraw the whole UI
+            _convert.cellBlockToPixels (ViewModel.wholeArea _viewModel) |> _view.TriggerDraw // TODO shouldn't redraw the whole UI
         | Event.MessageAdded msg ->
             ViewModel.toScreenMessage msg
-            |> Render.outputMessageAsDrawingObject _convert { Row = lastRow _windowView.Area; Column = 0 }
+            |> Render.outputMessageAsDrawingObject _convert { Row = lastRow (ViewModel.wholeArea _viewModel); Column = 0 }
             |> x.bufferDrawing
             // TODO this is just hacked together for the moment
-            _convert.cellBlockToPixels { UpperLeftCell = { Row = lastRow _windowView.Area; Column = 0 }; Dimensions = { Rows = 1; Columns = _windowView.Area.Dimensions.Columns }} |> _view.TriggerDraw
+            _convert.cellBlockToPixels { UpperLeftCell = { Row = lastRow (ViewModel.wholeArea _viewModel); Column = 0 }; Dimensions = { Rows = 1; Columns = _viewModel.Size.Columns }} |> _view.TriggerDraw
         | Event.LastWindowClosed ->
             _view.Close()
         | Event.EditorInitialized editor ->
-            _windowView <- ViewModel.loadBufferInto (Editor.currentBuffer editor) _windowView 
+            _viewModel <- ViewModel.loadBuffer (Editor.currentBuffer editor) _viewModel 
             // TODO duplication of BufferLoadedIntoWindow below
-            _windowView.Buffer
-            |> Render.bufferAsDrawingObjects _convert _windowView.Area
+            match _viewModel.VisibleWindows.[0] with
+            | WindowView.Focused window -> window.Buffer
+            | WindowView.Unfocused window -> window.Buffer
+            |> Render.bufferAsDrawingObjects _convert (ViewModel.wholeArea _viewModel)
             |> x.bufferDrawings
-            _convert.cellBlockToPixels _windowView.Area |> _view.TriggerDraw // TODO shouldn't redraw the whole UI
+            _convert.cellBlockToPixels (ViewModel.wholeArea _viewModel) |> _view.TriggerDraw // TODO shouldn't redraw the whole UI
         | _ -> ()
         Command.Noop
 

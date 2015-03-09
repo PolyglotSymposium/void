@@ -62,12 +62,14 @@ type BufferView = {
     Contents: string list // TODO this is naive obviously
 }
 
+// TODO the abstractions are wrong here. The only different is the cursor. I need to rethink this.
 type UnfocusedWindowView = {
     StatusLine : StatusLineView
     Area : CellGrid.Block
     Buffer : BufferView
 }
 
+// TODO the abstractions are wrong here. The only different is the cursor. I need to rethink this.
 type FocusedWindowView = {
     StatusLine : StatusLineView
     Area : CellGrid.Block
@@ -75,6 +77,7 @@ type FocusedWindowView = {
     Cursor : CursorView
 }
 
+// TODO the abstractions are wrong here. The only different is the cursor. I need to rethink this.
 [<RequireQualifiedAccess>]
 type WindowView =
     | Unfocused of UnfocusedWindowView
@@ -107,19 +110,30 @@ type MainViewModel = {
 
 module ViewModel =
     open Void.Util
+    open Void.Core.CellGrid
 
     let defaultTitle = "Void - A text editor in the spirit of Vim"
     let defaultFontSize = 9uy
+    let defaultBuffer = { Contents = [] }
 
-    let defaultFocusedWindowView =
-        {
+    let defaultWindowView =
+        WindowView.Focused {
             StatusLine = StatusLineView.Focused
-            Buffer = { Contents = [] }
+            Buffer = defaultBuffer
             Area = Sizing.defaultViewArea
-            Cursor = CursorView.Block CellGrid.originCell
+            Cursor = CursorView.Block originCell
         }
 
-    let bufferFrom (windowSize : CellGrid.Dimensions) lines =
+    let defaultViewModel =
+        {
+            Size = Sizing.defaultViewSize
+            TabBar = []
+            VisibleWindows = [defaultWindowView]
+            CommandBar = CommandBarView.Hidden
+            OutputMessages = []
+        }
+
+    let bufferFrom (windowSize : Dimensions) lines =
         let truncateToWindowWidth = StringUtil.noLongerThan windowSize.Columns
         {
             Contents = lines
@@ -134,9 +148,21 @@ module ViewModel =
         | _ -> []
         |> bufferFrom windowSize
 
-    // TODO should just be operating on WindowView
-    let loadBufferInto buffer (window : FocusedWindowView) =
-        { window with Buffer = toScreenBuffer window.Area.Dimensions buffer }
+    let private loadBufferIntoWindow buffer window =
+        match window with
+        | WindowView.Focused view ->
+            WindowView.Focused { view with Buffer = toScreenBuffer view.Area.Dimensions buffer }
+        | WindowView.Unfocused view ->
+            WindowView.Unfocused { view with Buffer = toScreenBuffer view.Area.Dimensions buffer }
+
+    let loadBuffer buffer view =
+        { view with VisibleWindows = [loadBufferIntoWindow buffer view.VisibleWindows.[0]] }
+
+    let wholeArea view =
+        {
+            UpperLeftCell = originCell
+            Dimensions = view.Size
+        }
 
     let toScreenMessage msg =
         match msg with

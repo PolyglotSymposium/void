@@ -38,6 +38,7 @@ namespace Void.UI
         private int MeasureFontWidth()
         {
             // TODO this isn't working 100% well
+            // Ironically, it seems to work better on Mono than .NET
             return Convert.ToInt32(Math.Ceiling(CreateGraphics().MeasureString(new string('X', 80), _font).Width / 80));
         }
 
