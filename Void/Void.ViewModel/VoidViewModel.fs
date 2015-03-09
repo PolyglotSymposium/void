@@ -29,6 +29,8 @@ module Sizing =
 
     let defaultViewSize = { Rows = 26; Columns = 80 }
 
+    let defaultViewArea = { UpperLeftCell = originCell; Dimensions = defaultViewSize }
+
     type Convert(_fontMetrics : FontMetrics) =
         member this.cellToUpperLeftPoint cell =
             {
@@ -62,13 +64,13 @@ type BufferView = {
 
 type UnfocusedWindowView = {
     StatusLine : StatusLineView
-    Area : PixelGrid.Block
+    Area : CellGrid.Block
     Buffer : BufferView
 }
 
 type FocusedWindowView = {
     StatusLine : StatusLineView
-    Area : PixelGrid.Block
+    Area : CellGrid.Block
     Buffer : BufferView
     Cursor : CursorView
 }
@@ -108,6 +110,14 @@ module ViewModel =
 
     let defaultTitle = "Void - A text editor in the spirit of Vim"
     let defaultFontSize = 9uy
+
+    let defaultFocusedWindowView =
+        {
+            StatusLine = StatusLineView.Focused
+            Buffer = { Contents = [] }
+            Area = Sizing.defaultViewArea
+            Cursor = CursorView.Block CellGrid.originCell
+        }
 
     let bufferFrom (windowSize : CellGrid.Dimensions) lines =
         let truncateToWindowWidth = StringUtil.noLongerThan windowSize.Columns

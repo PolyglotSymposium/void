@@ -10,7 +10,7 @@ type ViewController
     ) =
     let mutable _fontMetrics = _view.GetFontMetrics()
     let mutable _convert = Sizing.Convert _fontMetrics
-    let _viewArea = { UpperLeftCell = originCell; Dimensions = Sizing.defaultViewSize }
+    let mutable _windowView = ViewModel.defaultFocusedWindowView
     let _colorscheme = Colors.defaultColorscheme
     let mutable _bufferedDrawings = Seq.empty
 
@@ -20,7 +20,7 @@ type ViewController
         _view.SetViewTitle ViewModel.defaultTitle
         _view.SetBackgroundColor Colors.defaultColorscheme.Background
         x.setFont()
-        _view.SetViewSize <| _convert.cellDimensionsToPixels _viewArea.Dimensions
+        _view.SetViewSize <| _convert.cellDimensionsToPixels _windowView.Area.Dimensions
         Command.PublishEvent Event.ViewInitialized
 
     member x.paint (draw : Action<DrawingObject>) =
@@ -44,7 +44,7 @@ type ViewController
         | Command.Display _ ->
             notImplemented
         | Command.Redraw ->
-            _convert.cellBlockToPixels _viewArea |> _view.TriggerDraw
+            _convert.cellBlockToPixels _windowView.Area |> _view.TriggerDraw
             Command.Noop
         | _ ->
             Command.Noop
@@ -52,18 +52,20 @@ type ViewController
     member x.handleEvent event =
         match event with
         | Event.BufferLoadedIntoWindow buffer ->
-            ViewModel.toScreenBuffer _viewArea.Dimensions buffer
-            |> Render.bufferAsDrawingObjects _convert _viewArea
+            _windowView <- { _windowView with Buffer = ViewModel.toScreenBuffer _windowView.Area.Dimensions buffer }
+            _windowView.Buffer |> Render.bufferAsDrawingObjects _convert _windowView.Area
             |> x.bufferDrawings
-            _convert.cellBlockToPixels _viewArea |> _view.TriggerDraw // TODO shouldn't redraw the whole UI
+            _convert.cellBlockToPixels _windowView.Area |> _view.TriggerDraw // TODO shouldn't redraw the whole UI
         | Event.MessageAdded msg ->
             ViewModel.toScreenMessage msg
-            |> Render.outputMessageAsDrawingObject _convert { Row = lastRow _viewArea; Column = 0 }
+            |> Render.outputMessageAsDrawingObject _convert { Row = lastRow _windowView.Area; Column = 0 }
             |> x.bufferDrawing
             // TODO this is just hacked together for the moment
-            _convert.cellBlockToPixels { UpperLeftCell = { Row = lastRow _viewArea; Column = 0 }; Dimensions = { Rows = 1; Columns = _viewArea.Dimensions.Columns }} |> _view.TriggerDraw
+            _convert.cellBlockToPixels { UpperLeftCell = { Row = lastRow _windowView.Area; Column = 0 }; Dimensions = { Rows = 1; Columns = _windowView.Area.Dimensions.Columns }} |> _view.TriggerDraw
         | Event.LastWindowClosed ->
             _view.Close()
+        | Event.EditorInitialized editor ->
+            ()
         | _ -> ()
         Command.Noop
 
