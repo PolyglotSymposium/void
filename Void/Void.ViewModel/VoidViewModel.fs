@@ -52,6 +52,7 @@ module Sizing =
 type CursorView =
     | Block of CellGrid.Cell
     | IBeam of PixelGrid.Point
+    | Hidden
 
 [<RequireQualifiedAccess>]
 type StatusLineView = // TODO much yet to be done here
@@ -62,26 +63,12 @@ type BufferView = {
     Contents: string list // TODO this is naive obviously
 }
 
-// TODO the abstractions are wrong here. The only different is the cursor. I need to rethink this.
-type UnfocusedWindowView = {
-    StatusLine : StatusLineView
-    Area : CellGrid.Block
-    Buffer : BufferView
-}
-
-// TODO the abstractions are wrong here. The only different is the cursor. I need to rethink this.
-type FocusedWindowView = {
+type WindowView = {
     StatusLine : StatusLineView
     Area : CellGrid.Block
     Buffer : BufferView
     Cursor : CursorView
 }
-
-// TODO the abstractions are wrong here. The only different is the cursor. I need to rethink this.
-[<RequireQualifiedAccess>]
-type WindowView =
-    | Unfocused of UnfocusedWindowView
-    | Focused of FocusedWindowView
 
 (* "Command line" is too equivocal. I mean the ; (or : in Vim) bar at the
  * bottom of the screen *)
@@ -117,7 +104,7 @@ module ViewModel =
     let defaultBuffer = { Contents = [] }
 
     let defaultWindowView =
-        WindowView.Focused {
+        {
             StatusLine = StatusLineView.Focused
             Buffer = defaultBuffer
             Area = Sizing.defaultViewArea
@@ -149,11 +136,7 @@ module ViewModel =
         |> bufferFrom windowSize
 
     let private loadBufferIntoWindow buffer window =
-        match window with
-        | WindowView.Focused view ->
-            WindowView.Focused { view with Buffer = toScreenBuffer view.Area.Dimensions buffer }
-        | WindowView.Unfocused view ->
-            WindowView.Unfocused { view with Buffer = toScreenBuffer view.Area.Dimensions buffer }
+        { window with Buffer = toScreenBuffer window.Area.Dimensions buffer }
 
     let loadBuffer buffer view =
         { view with VisibleWindows = [loadBufferIntoWindow buffer view.VisibleWindows.[0]] }
