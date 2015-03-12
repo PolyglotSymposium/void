@@ -19,6 +19,18 @@ namespace Void
             Content = _drawable;
             _controller = new MainController(this);
             _controller.initializeVoid();
+            KeyUp += (sender, eventArgs) =>
+            {
+                var keyPress = eventArgs.AsVoidKeyPress();
+                if (keyPress != null)
+                {
+                    _controller.handleViewEvent(ViewEvent.NewKeyPressed(keyPress));
+                }
+            };
+            _drawable.Paint += (sender, eventArgs) =>
+            {
+                _controller.handleViewEvent(ViewEvent.NewPaintInitiated(new EtoArtist(eventArgs.Graphics, _font).Draw));
+            };
         }
 
         public PixelGrid.FontMetrics GetFontMetrics()
@@ -48,26 +60,6 @@ namespace Void
         public void SetViewTitle(string title)
         {
             Title = title;
-        }
-
-        public void SubscribeToKeyUp(Action<KeyPress> handler)
-        {
-            KeyUp += (sender, eventArgs) =>
-            {
-                var keyPress = eventArgs.AsVoidKeyPress();
-                if (keyPress != null)
-                {
-                    handler(keyPress);
-                }
-            };
-        }
-
-        public void SubscribeToDraw(Action<Action<DrawingObject>> handler)
-        {
-            _drawable.Paint += (sender, eventArgs) =>
-            {
-                handler(new EtoArtist(eventArgs.Graphics, _font).Draw);
-            };
         }
 
         public void TriggerDraw()
