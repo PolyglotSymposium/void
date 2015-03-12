@@ -24,7 +24,10 @@ type ViewController
         Command.PublishEvent Event.ViewInitialized
 
     member x.paint (draw : Action<DrawingObject>) =
-        for drawing in _bufferedDrawings do draw.Invoke drawing
+        let drawAll drawings = for drawing in drawings do draw.Invoke drawing
+        if Seq.isEmpty _bufferedDrawings
+        then drawAll <| Render.viewModelAsDrawingObjects _convert _viewModel
+        else drawAll _bufferedDrawings
         _bufferedDrawings <- []
 
     member private x.setFont() =

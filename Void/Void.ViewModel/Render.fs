@@ -107,7 +107,8 @@ module Render =
 
         List.append (background :: bufferLines) rowsNotInBuffer
 
-    let windowsAsDrawingObjects convert window = []
+    let windowsAsDrawingObjects convert (windows : WindowView list) =
+        bufferAsDrawingObjects convert windows.[0].Area windows.[0].Buffer
 
     let viewModelAsDrawingObjects convert viewModel =
         [
