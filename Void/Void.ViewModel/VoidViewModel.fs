@@ -2,30 +2,6 @@
 
 open Void.Core
 
-module CellGrid =
-    type Cell = {
-        Row : int
-        Column : int
-    }
-    type Dimensions = {
-        Rows : int
-        Columns : int
-    }
-    type Block = {
-        UpperLeftCell : Cell
-        Dimensions : Dimensions
-    }
-    let originCell = { Row = 0; Column = 0 }
-
-    let rightOf cell count =
-        { Row = cell.Row; Column = cell.Column + count }
-
-    let below cell count =
-        { Row = cell.Row + count; Column = cell.Column }
-
-    let lastRow block =
-        block.Dimensions.Rows - 1
-
 module PixelGrid =
     type FontMetrics = {
         LineHeight : int
@@ -49,9 +25,11 @@ module PixelGrid =
 module Sizing =
     open System
     open PixelGrid
-    open CellGrid
+    open Void.Core.CellGrid
 
     let defaultViewSize = { Rows = 26; Columns = 80 }
+
+    let defaultViewArea = { UpperLeftCell = originCell; Dimensions = defaultViewSize }
 
     type Convert(_fontMetrics : FontMetrics) =
         member this.cellToUpperLeftPoint cell =
@@ -74,6 +52,7 @@ module Sizing =
 type CursorView =
     | Block of CellGrid.Cell
     | IBeam of PixelGrid.Point
+    | Hidden
 
 [<RequireQualifiedAccess>]
 type StatusLineView = // TODO much yet to be done here
@@ -84,23 +63,12 @@ type BufferView = {
     Contents: string list // TODO this is naive obviously
 }
 
-type UnfocusedWindowView = {
+type WindowView = {
     StatusLine : StatusLineView
-    Area : PixelGrid.Block
-    Buffer : BufferView
-}
-
-type FocusedWindowView = {
-    StatusLine : StatusLineView
-    Area : PixelGrid.Block
+    Area : CellGrid.Block
     Buffer : BufferView
     Cursor : CursorView
 }
-
-[<RequireQualifiedAccess>]
-type WindowView =
-    | Unfocused of UnfocusedWindowView
-    | Focused of FocusedWindowView
 
 (* "Command line" is too equivocal. I mean the ; (or : in Vim) bar at the
  * bottom of the screen *)
@@ -129,11 +97,30 @@ type MainViewModel = {
 
 module ViewModel =
     open Void.Util
+    open Void.Core.CellGrid
 
     let defaultTitle = "Void - A text editor in the spirit of Vim"
     let defaultFontSize = 9uy
+    let defaultBuffer = { Contents = [] }
 
-    let bufferFrom (windowSize : CellGrid.Dimensions) lines =
+    let defaultWindowView =
+        {
+            StatusLine = StatusLineView.Focused
+            Buffer = defaultBuffer
+            Area = Sizing.defaultViewArea
+            Cursor = CursorView.Block originCell
+        }
+
+    let defaultViewModel =
+        {
+            Size = Sizing.defaultViewSize
+            TabBar = []
+            VisibleWindows = [defaultWindowView]
+            CommandBar = CommandBarView.Hidden
+            OutputMessages = []
+        }
+
+    let bufferFrom (windowSize : Dimensions) lines =
         let truncateToWindowWidth = StringUtil.noLongerThan windowSize.Columns
         {
             Contents = lines
@@ -144,9 +131,21 @@ module ViewModel =
 
     let toScreenBuffer windowSize buffer =
         match buffer with
-        | Buffer.File { Contents = lines } -> lines
+        | BufferType.File { Contents = lines } -> lines
         | _ -> []
         |> bufferFrom windowSize
+
+    let private loadBufferIntoWindow buffer window =
+        { window with Buffer = toScreenBuffer window.Area.Dimensions buffer }
+
+    let loadBuffer buffer view =
+        { view with VisibleWindows = [loadBufferIntoWindow buffer view.VisibleWindows.[0]] }
+
+    let wholeArea view =
+        {
+            UpperLeftCell = originCell
+            Dimensions = view.Size
+        }
 
     let toScreenMessage msg =
         match msg with

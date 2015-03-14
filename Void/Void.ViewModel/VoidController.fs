@@ -1,7 +1,7 @@
 ﻿namespace Void.ViewModel
 
 open Void.Core
-open CellGrid
+open Void.Core.CellGrid
 open System
 
 type ViewController
@@ -10,7 +10,7 @@ type ViewController
     ) =
     let mutable _fontMetrics = _view.GetFontMetrics()
     let mutable _convert = Sizing.Convert _fontMetrics
-    let _viewArea = { UpperLeftCell = originCell; Dimensions = Sizing.defaultViewSize }
+    let mutable _viewModel = ViewModel.defaultViewModel
     let _colorscheme = Colors.defaultColorscheme
     let mutable _bufferedDrawings = Seq.empty
 
@@ -20,11 +20,15 @@ type ViewController
         _view.SetViewTitle ViewModel.defaultTitle
         _view.SetBackgroundColor Colors.defaultColorscheme.Background
         x.setFont()
-        _view.SetViewSize <| _convert.cellDimensionsToPixels _viewArea.Dimensions
+        _view.SetViewSize <| _convert.cellDimensionsToPixels _viewModel.Size
         Command.PublishEvent Event.ViewInitialized
 
     member x.paint (draw : Action<DrawingObject>) =
-        for drawing in _bufferedDrawings do draw.Invoke drawing
+        let drawAll drawings = for drawing in drawings do draw.Invoke drawing
+        if Seq.isEmpty _bufferedDrawings
+        then drawAll <| Render.viewModelAsDrawingObjects _convert _viewModel
+        else drawAll _bufferedDrawings
+        _bufferedDrawings <- []
 
     member private x.setFont() =
         _view.SetFontBySize ViewModel.defaultFontSize
@@ -39,67 +43,86 @@ type ViewController
 
     member x.handleCommand command =
         match command with
-        | Command.Quit -> _view.Close()
-        | Command.Redraw -> _view.TriggerDraw()
-        | _ -> ()
-        Command.Noop
+        | Command.InitializeVoid -> x.initializeView()
+        | Command.Display _ ->
+            notImplemented
+        | Command.Redraw ->
+            _convert.cellBlockToPixels (ViewModel.wholeArea _viewModel) |> _view.TriggerDraw
+            Command.Noop
+        | _ ->
+            Command.Noop
 
     member x.handleEvent event =
         match event with
+        | Event.BufferLoadedIntoWindow buffer ->
+            _viewModel <- ViewModel.loadBuffer buffer _viewModel
+            _viewModel.VisibleWindows.[0].Buffer
+            |> Render.bufferAsDrawingObjects _convert (ViewModel.wholeArea _viewModel)
+            |> x.bufferDrawings
+            _convert.cellBlockToPixels (ViewModel.wholeArea _viewModel) |> _view.TriggerDraw // TODO shouldn't redraw the whole UI
         | Event.MessageAdded msg ->
             ViewModel.toScreenMessage msg
-            |> Render.outputMessageAsDrawingObject _convert { Row = lastRow _viewArea; Column = 0 }
+            |> Render.outputMessageAsDrawingObject _convert { Row = lastRow (ViewModel.wholeArea _viewModel); Column = 0 }
             |> x.bufferDrawing
-            Command.Redraw
-        | Event.BufferLoadedIntoWindow buffer ->
-            ViewModel.toScreenBuffer _viewArea.Dimensions buffer
-            |> Render.bufferAsDrawingObjects _convert _viewArea
+            // TODO this is just hacked together for the moment
+            _convert.cellBlockToPixels { UpperLeftCell = { Row = lastRow (ViewModel.wholeArea _viewModel); Column = 0 }; Dimensions = { Rows = 1; Columns = _viewModel.Size.Columns }} |> _view.TriggerDraw
+        | Event.LastWindowClosed ->
+            _view.Close()
+        | Event.EditorInitialized editor ->
+            _viewModel <- ViewModel.loadBuffer (Editor.currentBuffer editor) _viewModel 
+            // TODO duplication of BufferLoadedIntoWindow below
+            _viewModel.VisibleWindows.[0].Buffer
+            |> Render.bufferAsDrawingObjects _convert (ViewModel.wholeArea _viewModel)
             |> x.bufferDrawings
-            Command.Redraw
-        | Event.CoreInitialized -> x.initializeView()
-        | _ -> Command.Noop
+            _convert.cellBlockToPixels (ViewModel.wholeArea _viewModel) |> _view.TriggerDraw // TODO shouldn't redraw the whole UI
+        | _ -> ()
+        Command.Noop
 
-type MainController
+type Broker
     (
-        _view : MainView
+        _commandHandlers : (Command -> Command) list,
+        _eventHandlers : (Event -> Command) list,
+        _viewCtrl : ViewController,
+        _normalCtrl : NormalModeController
     ) =
-    let _normalCtrl = NormalModeController()
-    let _coreCtrl = CoreController()
-    let _viewCtrl = ViewController(_view)
-    let _eventHandlers = [_coreCtrl.handleEvent; _viewCtrl.handleEvent]
 
-    member x.initializeVoid() =
-        x.handleCommand <| Command.PublishEvent Event.CoreInitialized
-        x.handleCommand Command.ViewTestBuffer // for debugging
-
-    member x.handleViewEvent viewEvent =
+    member x.brokerViewEvent viewEvent =
         match viewEvent with
         | ViewEvent.PaintInitiated draw ->
             _viewCtrl.paint draw
         | ViewEvent.KeyPressed keyPress ->
-            _normalCtrl.handle keyPress |> x.handleCommand
+            _normalCtrl.handleKeyPress keyPress |> x.brokerCommand
         | ViewEvent.TextEntered text ->
             () // TODO implement input and command modes, etc
 
-    member private x.handleCommand command =
-        let notImplemented() =
-            Event.ErrorOccurred Error.NotImplemented
-            |> Command.PublishEvent
-            |> x.handleCommand
-
+    member x.brokerCommand command =
         match command with
-        | Command.ChangeToMode _
-        | Command.Edit
-        | Command.Yank
-        | Command.Put
-        | Command.FormatCurrentLine ->
-            notImplemented()
         | Command.PublishEvent event ->
             for handle in _eventHandlers do
-                handle event |> x.handleCommand
-        | Command.Quit
-        | Command.Redraw ->
-            _viewCtrl.handleCommand command |> x.handleCommand
-        | Command.ViewTestBuffer -> 
-            _coreCtrl.handleCommand command |> x.handleCommand
+                handle event |> x.brokerCommand
         | Command.Noop -> ()
+        | _ ->
+            for handle in _commandHandlers do
+                handle command |> x.brokerCommand
+
+module Init =
+    let initializeVoid view =
+        let modeCtrl = ModeController()
+        let messageCtrl = MessageController()
+        let normalCtrl = NormalModeController()
+        let editorCtrl = EditorController()
+        let viewCtrl = ViewController view
+        let commandHandlers = [
+            messageCtrl.handleCommand
+            modeCtrl.handleCommand
+            viewCtrl.handleCommand
+            editorCtrl.handleCommand
+        ]
+        let eventHandlers = [
+            messageCtrl.handleEvent
+            viewCtrl.handleEvent
+        ]
+        let broker = Broker(commandHandlers, eventHandlers, viewCtrl, normalCtrl)
+        broker.brokerCommand Command.InitializeVoid
+        //broker.brokerCommand Command.ViewTestBuffer // TODO for testing and debugging only
+        broker.brokerViewEvent

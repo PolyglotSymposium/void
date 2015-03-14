@@ -10,7 +10,7 @@ type MainView =
     abstract member SetFontBySize : byte -> unit
     abstract member SetViewSize : PixelGrid.Dimensions -> unit
     abstract member SetViewTitle : string -> unit
-    abstract member TriggerDraw : unit -> unit
+    abstract member TriggerDraw : PixelGrid.Block -> unit
 
 [<RequireQualifiedAccess>]
 type ViewEvent =
