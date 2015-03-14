@@ -50,10 +50,27 @@ type LineCommand = {
 }
 
 [<RequireQualifiedAccess>]
+type ParseError =
+    | Generic
+    | UnknownCommand of string
+
+[<RequireQualifiedAccess>]
 type LineCommandParse =
-    | Failed
+    | Failed of ParseError
     | Success of LineCommand
 
+module ParseErrors =
+    let message error =
+        match error with
+        | ParseError.Generic -> "Parse failed"
+        | ParseError.UnknownCommand name -> sprintf "Unknown command %s" name
+    let generic =
+        LineCommandParse.Failed ParseError.Generic
+    let unknownCommand name =
+        ParseError.UnknownCommand name |> LineCommandParse.Failed
+
 module LineCommands =
-    let parseLine line =
-        LineCommandParse.Failed
+    let parseLine line commands =
+        if line = "" || commands = [] // Why can't the type system do this for me?
+        then ParseErrors.generic
+        else ParseErrors.unknownCommand line
