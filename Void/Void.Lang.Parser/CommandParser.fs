@@ -52,7 +52,8 @@ type LineCommand = {
 [<RequireQualifiedAccess>]
 type ParseError =
     | Generic
-    | UnknownCommand of string
+    | UnknownCommand of string // In Vim: E492: Not an editor command: xyz
+    | NoBangAllowedFor of string // In Vim: E477: No ! allowed
 
 [<RequireQualifiedAccess>]
 type LineCommandParse =
@@ -64,14 +65,27 @@ module ParseErrors =
         match error with
         | ParseError.Generic -> "Parse failed"
         | ParseError.UnknownCommand name -> sprintf "Unknown command %s" name
+        | ParseError.NoBangAllowedFor name -> sprintf "No ! allowed for command %s" name
     let generic =
         LineCommandParse.Failed ParseError.Generic
     let unknownCommand name =
         ParseError.UnknownCommand name |> LineCommandParse.Failed
+    let noBangAllowedFor name =
+        ParseError.NoBangAllowedFor name |> LineCommandParse.Failed
 
 module LineCommands =
+    let private isCommandDeliminator char =
+        match char with
+        | '!' -> true
+        | _ -> false
+
     let private parseCommandName line =
-        (line, "")
+        let rec parse parsed rest =
+            if rest = "" || isCommandDeliminator rest.[0]
+            then (parsed, rest)
+            else parse (sprintf "%s%c" parsed rest.[0]) rest.[1..]
+        in parse "" line
+
     let parseLine line commandDefinitions =
         if line = "" || commandDefinitions = [] // Why can't the type system do this for me?
         then ParseErrors.generic
@@ -81,7 +95,9 @@ module LineCommands =
                 cmdDefinition.FullName = name || cmdDefinition.ShortName = name
             match List.tryFind nameMatches commandDefinitions with
             | Some commandDefinition ->
-                LineCommandParse.Succeeded {
+                if rest = "!"
+                then ParseErrors.noBangAllowedFor name
+                else LineCommandParse.Succeeded {
                     Range = None
                     Name = commandDefinition.FullName
                     PassedBang = false

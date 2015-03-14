@@ -50,3 +50,8 @@ type ``Parsing``() =
     member x.``should not interpolate between short and long command names for now, until that is determined to be valuable``() =
         LineCommands.parseLine "simpl" [CommandStubs.simplestDefinition]
         |> should equal (ParseErrors.unknownCommand "simpl")
+
+    [<Test>]
+    member x.``should give an error on a bang for a command that does not accept it``() =
+        LineCommands.parseLine "simple!" [CommandStubs.simplestDefinition]
+        |> should equal (ParseErrors.noBangAllowedFor "simple")
