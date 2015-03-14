@@ -5,7 +5,7 @@ open NUnit.Framework
 open FsUnit
 
 [<TestFixture>]
-type ``Parser``() = 
+type ``Parsing``() = 
     [<Test>]
-    member x.``should be bootstrapped``() =
-        Parser.bootstrapped |> should be True
+    member x.``should fail when given an empty string``() =
+        LineCommands.parseLine "" |> should equal LineCommandParse.Failed
