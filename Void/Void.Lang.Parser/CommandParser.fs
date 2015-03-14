@@ -35,12 +35,12 @@ type CommandDefinition = {
 }
 
 [<RequireQualifiedAccess>]
-type CommandArguments =
-    | Nullary // takes no arguments (other than perhaps a bang)
-    | Expression of Expression // takes an expression, like ;call, ;echo, ;execute
-    | Raw of string // takes the rest of the line as an unparsed blob, such as ;normal
-    | File of Filepath // like ;write or ;edit, takes a file argument with special meaning for %, #, $HOME, etc
-    | Regex of RegexArgs // Like ;global and ;substitute -- expect something of the form /<regex>/<regexy thing>/<options> etc
+type CommandArguments = // TODO don't like the exact parallel with CommandType... need to revisit
+    | None
+    | Expression of Expression
+    | Raw of string
+    | File of Filepath
+    | Regex of RegexArgs
 
 type LineCommand = {
     Range : Range option
@@ -57,7 +57,7 @@ type ParseError =
 [<RequireQualifiedAccess>]
 type LineCommandParse =
     | Failed of ParseError
-    | Success of LineCommand
+    | Succeeded of LineCommand
 
 module ParseErrors =
     let message error =
@@ -70,7 +70,21 @@ module ParseErrors =
         ParseError.UnknownCommand name |> LineCommandParse.Failed
 
 module LineCommands =
-    let parseLine line commands =
-        if line = "" || commands = [] // Why can't the type system do this for me?
+    let private parseCommandName line =
+        (line, "")
+    let parseLine line commandDefinitions =
+        if line = "" || commandDefinitions = [] // Why can't the type system do this for me?
         then ParseErrors.generic
-        else ParseErrors.unknownCommand line
+        else
+            let name, rest = parseCommandName line
+            let nameMatches cmdDefinition = 
+                cmdDefinition.FullName = name || cmdDefinition.ShortName = name
+            match List.tryFind nameMatches commandDefinitions with
+            | Some commandDefinition ->
+                LineCommandParse.Succeeded {
+                    Range = None
+                    Name = commandDefinition.FullName
+                    PassedBang = false
+                    Arguments = CommandArguments.None
+                }
+            | None -> ParseErrors.unknownCommand name
