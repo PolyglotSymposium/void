@@ -29,7 +29,7 @@ type ``Parsing``() =
     [<Test>]
     member x.``should fail when given no line command objects to look for``() =
         LineCommands.parseLine "unknown" []
-        |> should equal ParseErrors.generic
+        |> should equal (ParseErrors.unknownCommand "unknown")
 
     [<Test>]
     member x.``should fail on an unknown line command with no range, bang or arguments``() =

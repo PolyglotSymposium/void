@@ -87,7 +87,7 @@ module LineCommands =
         in parse "" line
 
     let parseLine line commandDefinitions =
-        if line = "" || commandDefinitions = [] // Why can't the type system do this for me?
+        if line = ""
         then ParseErrors.generic
         else
             let name, rest = parseCommandName line
