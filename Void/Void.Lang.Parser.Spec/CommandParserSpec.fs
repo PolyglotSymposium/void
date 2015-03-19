@@ -60,6 +60,16 @@ type ``Parsing``() =
         |> should equal (ParseErrors.unknownCommand "simpl")
 
     [<Test>]
+    member x.``should give an error if there are trailing characters after a nullary command``() =
+        LineCommands.parseLine "simple argument" CommandStubs.definitions
+        |> should equal (ParseErrors.trailingCharacters "simple")
+
+    [<Test>]
+    member x.``should not give an error if there is only trailing whitespace after a nullary command``() =
+        LineCommands.parseLine "simple         " CommandStubs.definitions
+        |> should equal (LineCommandParse.Succeeded CommandStubs.simplestParsed)
+
+    [<Test>]
     member x.``should parse args for command type of raw``() =
         LineCommands.parseLine "raw $ymb0lz & spacez & #s" CommandStubs.definitions
         |> should equal (LineCommandParse.Succeeded {

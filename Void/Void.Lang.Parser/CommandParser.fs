@@ -51,6 +51,7 @@ type LineCommand = {
 type ParseError =
     | Generic
     | UnknownCommand of string // In Vim: E492: Not an editor command: xyz
+    | TrailingCharacters of string // In Vim: E488: Trailing characters
 
 [<RequireQualifiedAccess>]
 type LineCommandParse =
@@ -62,10 +63,13 @@ module ParseErrors =
         match error with
         | ParseError.Generic -> "Parse failed"
         | ParseError.UnknownCommand name -> sprintf "Unknown command %s" name
+        | ParseError.TrailingCharacters name -> sprintf "Trailing characters after command %s" name
     let generic =
         LineCommandParse.Failed ParseError.Generic
     let unknownCommand name =
         ParseError.UnknownCommand name |> LineCommandParse.Failed
+    let trailingCharacters name =
+        ParseError.TrailingCharacters name |> LineCommandParse.Failed
 
 module LineCommands =
     let private isCommandDeliminator char =
@@ -80,6 +84,25 @@ module LineCommands =
             else parse (sprintf "%s%c" parsed rest.[0]) rest.[1..]
         in parse "" line
 
+    let private parseArguments commandDefinition restOfLine =
+        match commandDefinition.Type with
+        | CommandType.Raw ->
+            LineCommandParse.Succeeded {
+                Range = None
+                Name = commandDefinition.FullName
+                Arguments = CommandArguments.Raw restOfLine
+            }
+        | CommandType.Nullary ->
+            if System.String.IsNullOrWhiteSpace restOfLine
+            then
+                LineCommandParse.Succeeded {
+                    Range = None
+                    Name = commandDefinition.FullName
+                    Arguments = CommandArguments.None
+                }
+            else ParseErrors.trailingCharacters commandDefinition.FullName
+        | _ -> ParseErrors.generic
+
     let parseLine line commandDefinitions =
         if line = ""
         then ParseErrors.generic
@@ -88,19 +111,5 @@ module LineCommands =
             let nameMatches cmdDefinition = 
                 cmdDefinition.FullName = name || cmdDefinition.ShortName = name
             match List.tryFind nameMatches commandDefinitions with
-            | Some commandDefinition ->
-                match commandDefinition.Type with
-                | CommandType.Raw ->
-                    LineCommandParse.Succeeded {
-                        Range = None
-                        Name = commandDefinition.FullName
-                        Arguments = CommandArguments.Raw rest
-                    }
-                | CommandType.Nullary ->
-                    LineCommandParse.Succeeded {
-                        Range = None
-                        Name = commandDefinition.FullName
-                        Arguments = CommandArguments.None
-                    }
-                | _ -> ParseErrors.generic
+            | Some commandDefinition -> parseArguments commandDefinition rest
             | None -> ParseErrors.unknownCommand name
