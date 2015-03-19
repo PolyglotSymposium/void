@@ -16,12 +16,22 @@ module CommandStubs =
         Name = "simple"
         Arguments = CommandArguments.None
     }
+    let rawArgumentDefinition = {
+        ShortName = "raw"
+        FullName = "raw"
+        AcceptsRange = false
+        Type = CommandType.Raw
+    }
+    let definitions = [
+        simplestDefinition
+        rawArgumentDefinition
+    ]
 
 [<TestFixture>]
 type ``Parsing``() = 
     [<Test>]
     member x.``should fail when given an empty string``() =
-        LineCommands.parseLine "" [CommandStubs.simplestDefinition]
+        LineCommands.parseLine "" CommandStubs.definitions
         |> should equal ParseErrors.generic
 
     [<Test>]
@@ -31,20 +41,29 @@ type ``Parsing``() =
 
     [<Test>]
     member x.``should fail on an unknown line command with no range, bang or arguments``() =
-        LineCommands.parseLine "unknown" [CommandStubs.simplestDefinition]
+        LineCommands.parseLine "unknown" CommandStubs.definitions
         |> should equal (ParseErrors.unknownCommand "unknown")
 
     [<Test>]
     member x.``should parse long form of a command with no range, bang or arguments``() =
-        LineCommands.parseLine "simple" [CommandStubs.simplestDefinition]
+        LineCommands.parseLine "simple" CommandStubs.definitions
         |> should equal (LineCommandParse.Succeeded CommandStubs.simplestParsed)
 
     [<Test>]
     member x.``should parse short form of a command with no range, bang or arguments``() =
-        LineCommands.parseLine "simp" [CommandStubs.simplestDefinition]
+        LineCommands.parseLine "simp" CommandStubs.definitions
         |> should equal (LineCommandParse.Succeeded CommandStubs.simplestParsed)
 
     [<Test>]
     member x.``should not interpolate between short and long command names for now, until that is determined to be valuable``() =
-        LineCommands.parseLine "simpl" [CommandStubs.simplestDefinition]
+        LineCommands.parseLine "simpl" CommandStubs.definitions
         |> should equal (ParseErrors.unknownCommand "simpl")
+
+    [<Test>]
+    member x.``should parse args for command type of raw``() =
+        LineCommands.parseLine "raw $ymb0lz & spacez & #s" CommandStubs.definitions
+        |> should equal (LineCommandParse.Succeeded {
+            Range = None
+            Name = "raw"
+            Arguments = CommandArguments.Raw " $ymb0lz & spacez & #s" // TODO technically that space shouldn't be there at the beginning
+        })

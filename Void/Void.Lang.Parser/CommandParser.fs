@@ -70,7 +70,7 @@ module ParseErrors =
 module LineCommands =
     let private isCommandDeliminator char =
         match char with
-        | '!' -> true
+        | ' ' -> true
         | _ -> false
 
     let private parseCommandName line =
@@ -89,9 +89,18 @@ module LineCommands =
                 cmdDefinition.FullName = name || cmdDefinition.ShortName = name
             match List.tryFind nameMatches commandDefinitions with
             | Some commandDefinition ->
-                LineCommandParse.Succeeded {
-                    Range = None
-                    Name = commandDefinition.FullName
-                    Arguments = CommandArguments.None
-                }
+                match commandDefinition.Type with
+                | CommandType.Raw ->
+                    LineCommandParse.Succeeded {
+                        Range = None
+                        Name = commandDefinition.FullName
+                        Arguments = CommandArguments.Raw rest
+                    }
+                | CommandType.Nullary ->
+                    LineCommandParse.Succeeded {
+                        Range = None
+                        Name = commandDefinition.FullName
+                        Arguments = CommandArguments.None
+                    }
+                | _ -> ParseErrors.generic
             | None -> ParseErrors.unknownCommand name
