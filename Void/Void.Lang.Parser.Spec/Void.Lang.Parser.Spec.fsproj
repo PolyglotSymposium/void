@@ -58,7 +58,7 @@
     <Error Condition="!Exists('$(SolutionDir)\.nuget\NuGet.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\.nuget\NuGet.targets'))" />
   </Target>
   <ItemGroup>
-    <Compile Include="ParserSpec.fs" />
+    <Compile Include="CommandParserSpec.fs" />
     <Content Include="packages.config" />
     <Content Include="app.config" />
   </ItemGroup>
