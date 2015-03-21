@@ -5,4 +5,4 @@ install:
   - nuget install NUnit.Runners -Version 2.6.4 -OutputDirectory testrunner
 script:
   - xbuild /p:Configuration=Release Void/Void.sln
-  - mono ./testrunner/NUnit.Runners.2.6.4/tools/nunit-console.exe ./Void/Void.*.Spec/bin/Release/Void.*.Spec.dll
+  - mono ./testrunner/NUnit.Runners.2.6.4/tools/nunit-console.exe ./src/Void.*.Spec/bin/Release/Void.*.Spec.dll
