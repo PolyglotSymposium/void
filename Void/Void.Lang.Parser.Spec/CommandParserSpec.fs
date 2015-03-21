@@ -28,7 +28,7 @@ module CommandStubs =
     ]
 
 [<TestFixture>]
-type ``Parsing``() = 
+type ``Parsing commands``() = 
     [<Test>]
     member x.``should fail when given an empty string``() =
         LineCommands.parseLine "" CommandStubs.definitions
