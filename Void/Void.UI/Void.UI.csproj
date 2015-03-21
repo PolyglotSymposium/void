@@ -89,6 +89,10 @@
       <Project>{aba22359-eaf6-4604-82e2-977f816040ed}</Project>
       <Name>Void.ViewModel</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Void\Void.fsproj">
+      <Project>{2d947c67-01ff-48dc-a49d-a6dab40db497}</Project>
+      <Name>Void</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
