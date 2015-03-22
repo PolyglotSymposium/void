@@ -7,8 +7,8 @@ open FsUnit
 [<TestFixture>]
 type ``Normal mode controller``() = 
     let handleAndVerifyZQ (controller : NormalModeController) = 
-        controller.handle KeyPress.ShiftZ |> should equal Command.Noop
-        controller.handle KeyPress.ShiftQ |> should equal Command.Quit
+        controller.handleKeyPress KeyPress.ShiftZ |> should equal Command.Noop
+        controller.handleKeyPress KeyPress.ShiftQ |> should equal Command.Quit
 
     [<Test>]
     member x.``should return the appropriate command once a mapping is completed``() =
