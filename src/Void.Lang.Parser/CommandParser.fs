@@ -2,12 +2,6 @@
 
 open System
 
-[<RequireQualifiedAccess>]
-type Filepath = // TODO this is very sketchy right now
-    | Number of int // #1, #2 etc
-    | Current // %
-    | Path of string
-
 type RegexArgs = { // TODO this is very sketchy right now
     Match : string // should be Regex?
     Replace : string option
@@ -25,7 +19,6 @@ type ArgumentWrapper<'a> =
     | Nullary of (unit -> 'a) // takes no arguments (other than perhaps a bang)
     | Expression of (Expression list -> 'a) // takes an expression, like ;call, ;echo, ;execute
     | Raw of (string -> 'a) // takes the rest of the line as an unparsed blob, such as ;normal
-    | File of (Filepath -> 'a) // like ;write or ;edit, takes a file argument with special meaning for %, #, $HOME, etc
     | Regex of (RegexArgs -> 'a) // Like ;global and ;substitute -- expect something of the form /<regex>/<regexy thing>/<options> etc
 
 type CommandDefinition<'TArgWrapper> = {

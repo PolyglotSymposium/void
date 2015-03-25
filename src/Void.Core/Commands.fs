@@ -10,7 +10,7 @@ type Command =
     //
     | ChangeToMode of Mode
     | Display of Displayable
-    | Edit
+    | Edit of FileIdentifier
     | FormatCurrentLine
     | InitializeVoid
     | Put

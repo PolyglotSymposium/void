@@ -24,7 +24,7 @@ type EditorController() =
 
     member x.handleCommand command =
         match command with
-        | Command.Edit
+        | Command.Edit _
         | Command.Yank
         | Command.Put
         | Command.FormatCurrentLine ->
