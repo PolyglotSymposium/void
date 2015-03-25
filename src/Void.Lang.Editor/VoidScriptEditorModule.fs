@@ -1,21 +1,16 @@
 ﻿namespace Void.Lang.Editor
 
+open Void.Core
 open Void.Lang.Parser
 open Void.Lang.Interpreter
 
-module VoidScriptEditorModule =
+type VoidScriptEditorModule(publish : Command -> unit) =
+    let redraw _ execEnv =
+        publish Command.Redraw
     let commands = [
         {
-            Definition =
-                {
-                    ShortName = ""
-                    FullName = ""
-                    AcceptsRange = false
-                    Type = CommandType.Nullary
-                }
-            Execute = fun _ -> ()
+            ShortName = "redr"
+            FullName = "redraw"
+            WrapArguments = CommandType.Nullary redraw
         }
     ]
-
-type Class1() = 
-    member this.X = "F#"

@@ -3,24 +3,23 @@
 open Void.Lang.Parser
 open NUnit.Framework
 open FsUnit
+open System
 
 module CommandStubs =
     let simplestDefinition = {
         ShortName = "simp"
         FullName = "simple"
-        AcceptsRange = false
-        Type = CommandType.Nullary
+        WrapArguments = ArgumentWrapper.Nullary (fun () -> true :> Object)
     }
     let simplestParsed = {
         Range = None
         Name = "simple"
-        Arguments = CommandArguments.None
+        WrappedArguments = true :> Object
     }
     let rawArgumentDefinition = {
         ShortName = "raw"
         FullName = "raw"
-        AcceptsRange = false
-        Type = CommandType.Raw
+        WrapArguments = ArgumentWrapper.Raw (fun actualArgument -> actualArgument :> Object)
     }
     let definitions = [
         simplestDefinition
@@ -28,7 +27,7 @@ module CommandStubs =
     ]
 
 [<TestFixture>]
-type ``Parsing commands``() = 
+type ``Parsing commands``() =
     [<Test>]
     member x.``should fail when given an empty string``() =
         LineCommands.parseLine "" CommandStubs.definitions
@@ -75,5 +74,5 @@ type ``Parsing commands``() =
         |> should equal (LineCommandParse.Succeeded {
             Range = None
             Name = "raw"
-            Arguments = CommandArguments.Raw " $ymb0lz & spacez & #s" // TODO technically that space shouldn't be there at the beginning
+            WrappedArguments = " $ymb0lz & spacez & #s" :> Object // TODO technically that space shouldn't be there at the beginning
         })

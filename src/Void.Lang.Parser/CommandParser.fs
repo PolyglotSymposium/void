@@ -1,5 +1,7 @@
 ﻿namespace Void.Lang.Parser
 
+open System
+
 [<RequireQualifiedAccess>]
 type Filepath = // TODO this is very sketchy right now
     | Number of int // #1, #2 etc
@@ -19,32 +21,23 @@ type Range = // TODO this is very sketchy right now
     | All
 
 [<RequireQualifiedAccess>]
-type CommandType =
-    | Nullary // takes no arguments (other than perhaps a bang)
-    | Expression // takes an expression, like ;call, ;echo, ;execute
-    | Raw // takes the rest of the line as an unparsed blob, such as ;normal
-    | File // like ;write or ;edit, takes a file argument with special meaning for %, #, $HOME, etc
-    | Regex // Like ;global and ;substitute -- expect something of the form /<regex>/<regexy thing>/<options> etc
+type ArgumentWrapper<'a> =
+    | Nullary of (unit -> 'a) // takes no arguments (other than perhaps a bang)
+    | Expression of (Expression list -> 'a) // takes an expression, like ;call, ;echo, ;execute
+    | Raw of (string -> 'a) // takes the rest of the line as an unparsed blob, such as ;normal
+    | File of (Filepath -> 'a) // like ;write or ;edit, takes a file argument with special meaning for %, #, $HOME, etc
+    | Regex of (RegexArgs -> 'a) // Like ;global and ;substitute -- expect something of the form /<regex>/<regexy thing>/<options> etc
 
-type CommandDefinition = {
+type CommandDefinition<'TArgWrapper> = {
     ShortName : string
     FullName : string
-    AcceptsRange : bool
-    Type : CommandType
+    WrapArguments : ArgumentWrapper<'TArgWrapper>
 }
 
-[<RequireQualifiedAccess>]
-type CommandArguments = // TODO don't like the exact parallel with CommandType... need to revisit
-    | None
-    | Expressions of Expression list
-    | Raw of string
-    | File of Filepath
-    | Regex of RegexArgs
-
-type LineCommand = {
+type ParsedCommand<'TArgWrapper> = {
     Range : Range option
     Name : string
-    Arguments : CommandArguments
+    WrappedArguments : 'TArgWrapper
 }
 
 [<RequireQualifiedAccess>]
@@ -54,9 +47,9 @@ type ParseError =
     | TrailingCharacters of string // In Vim: E488: Trailing characters
 
 [<RequireQualifiedAccess>]
-type LineCommandParse =
+type LineCommandParse<'TArgWrapper> =
     | Failed of ParseError
-    | Succeeded of LineCommand
+    | Succeeded of ParsedCommand<'TArgWrapper>
 
 module ParseErrors =
     let message error =
@@ -85,20 +78,20 @@ module LineCommands =
         in parse "" line
 
     let private parseArguments commandDefinition restOfLine =
-        match commandDefinition.Type with
-        | CommandType.Raw ->
+        match commandDefinition.WrapArguments with
+        | ArgumentWrapper.Raw wrap ->
             LineCommandParse.Succeeded {
                 Range = None
                 Name = commandDefinition.FullName
-                Arguments = CommandArguments.Raw restOfLine
+                WrappedArguments = wrap restOfLine 
             }
-        | CommandType.Nullary ->
+        | ArgumentWrapper.Nullary wrap ->
             if System.String.IsNullOrWhiteSpace restOfLine
             then
                 LineCommandParse.Succeeded {
                     Range = None
                     Name = commandDefinition.FullName
-                    Arguments = CommandArguments.None
+                    WrappedArguments = wrap()
                 }
             else ParseErrors.trailingCharacters commandDefinition.FullName
         | _ -> ParseErrors.generic
