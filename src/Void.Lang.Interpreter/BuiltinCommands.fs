@@ -9,20 +9,34 @@ module BuiltinCommands =
         () // TODO
     let endIf _ execEnv =
         () // TODO
+    let echo expressions execEnv =
+        () // TODO
+    let execute expressions execEnv =
+        () // TODO
     let commands = [
         {
             ShortName = "cal"
             FullName = "call"
-            WrapArguments = CommandType.Expression call
+            WrapArguments = CommandType.Expressions call
         }
         {
-            ShortName = "if"
-            FullName = "if"
-            WrapArguments = CommandType.Expression beginIf
+            ShortName = "ec"
+            FullName = "echo"
+            WrapArguments = CommandType.Expressions echo
         }
         {
             ShortName = "en"
             FullName = "endif"
-            WrapArguments = CommandType.Nullary endIf
+            WrapArguments = CommandType.NoArgs endIf
+        }
+        {
+            ShortName = "exe"
+            FullName = "execute"
+            WrapArguments = CommandType.Expressions execute
+        }
+        {
+            ShortName = "if"
+            FullName = "if"
+            WrapArguments = CommandType.Expressions beginIf
         }
     ]

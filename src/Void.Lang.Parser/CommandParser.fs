@@ -16,9 +16,9 @@ type Range = // TODO this is very sketchy right now
 
 [<RequireQualifiedAccess>]
 type ArgumentWrapper<'a> =
-    | Nullary of (unit -> 'a) // takes no arguments (other than perhaps a bang)
-    | Expression of (Expression list -> 'a) // takes an expression, like ;call, ;echo, ;execute
-    | Raw of (string -> 'a) // takes the rest of the line as an unparsed blob, such as ;normal
+    | NoArgs of (unit -> 'a) // takes no arguments (other than perhaps a bang)
+    | Expressions of (Expression list -> 'a) // takes an expression, like ;call, ;echo, ;execute
+    | Unparsed of (string -> 'a) // takes the rest of the line as an unparsed blob, such as ;normal
     | Regex of (RegexArgs -> 'a) // Like ;global and ;substitute -- expect something of the form /<regex>/<regexy thing>/<options> etc
 
 type CommandDefinition<'TArgWrapper> = {
@@ -72,13 +72,13 @@ module LineCommands =
 
     let private parseArguments commandDefinition restOfLine =
         match commandDefinition.WrapArguments with
-        | ArgumentWrapper.Raw wrap ->
+        | ArgumentWrapper.Unparsed wrap ->
             LineCommandParse.Succeeded {
                 Range = None
                 Name = commandDefinition.FullName
                 WrappedArguments = wrap restOfLine 
             }
-        | ArgumentWrapper.Nullary wrap ->
+        | ArgumentWrapper.NoArgs wrap ->
             if System.String.IsNullOrWhiteSpace restOfLine
             then
                 LineCommandParse.Succeeded {

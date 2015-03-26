@@ -19,11 +19,12 @@ type VoidScriptEditorModule(publish : Command -> unit) =
         {
             ShortName = "redr"
             FullName = "redraw"
-            WrapArguments = CommandType.Nullary redraw
+            WrapArguments = CommandType.NoArgs redraw
         }
         {
             ShortName = "e"
             FullName = "edit"
-            WrapArguments = CommandType.Raw edit
+            // TODO Note that in Vim it can take optional ++opt and +cmd args
+            WrapArguments = CommandType.Unparsed edit
         }
     ]

@@ -9,7 +9,7 @@ module CommandStubs =
     let simplestDefinition = {
         ShortName = "simp"
         FullName = "simple"
-        WrapArguments = ArgumentWrapper.Nullary (fun () -> true :> Object)
+        WrapArguments = ArgumentWrapper.NoArgs (fun () -> true :> Object)
     }
     let simplestParsed = {
         Range = None
@@ -19,7 +19,7 @@ module CommandStubs =
     let rawArgumentDefinition = {
         ShortName = "raw"
         FullName = "raw"
-        WrapArguments = ArgumentWrapper.Raw (fun actualArgument -> actualArgument :> Object)
+        WrapArguments = ArgumentWrapper.Unparsed (fun actualArgument -> actualArgument :> Object)
     }
     let definitions = [
         simplestDefinition
