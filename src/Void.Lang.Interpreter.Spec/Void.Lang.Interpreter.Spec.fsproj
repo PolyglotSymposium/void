@@ -63,6 +63,11 @@
     <Compile Include="InterpreterSpec.fs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Void.Lang.Parser\Void.Lang.Parser.fsproj">
+      <Name>Void.Lang.Parser</Name>
+      <Project>{06bcbea6-c272-4591-bfe3-9dd6bbabea9e}</Project>
+      <Private>True</Private>
+    </ProjectReference>
     <Reference Include="FsUnit.NUnit">
       <HintPath>..\packages\FsUnit.1.3.0.1\Lib\Net40\FsUnit.NUnit.dll</HintPath>
       <Private>True</Private>
