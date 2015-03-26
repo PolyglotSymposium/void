@@ -43,6 +43,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Interpreter.fs" />
+    <Compile Include="BuiltinCommands.fs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Void.Lang.Parser\Void.Lang.Parser.fsproj">
