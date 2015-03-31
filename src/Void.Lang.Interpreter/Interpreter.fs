@@ -13,9 +13,16 @@ type ExecutionEnvironment() =
 type CommandType = ArgumentWrapper<ExecutionEnvironment -> unit>
 type ExecutableCommand = CommandDefinition<ExecutionEnvironment -> unit>
 
-type Interpreter = {
+type VoidScriptInterpreter = {
     Commands : ExecutableCommand list
 }
+
+module Interpreter =
+    let empty = { Commands = [] }
+    let importCommands interpreter commands = 
+        { interpreter with Commands = List.concat [interpreter.Commands; commands] }
+    let init commands =
+        { Commands = commands }
 
 module Run =
     let line interpreter lineText =

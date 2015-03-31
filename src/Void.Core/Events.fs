@@ -8,4 +8,5 @@ type Event =
     | LastWindowClosed
     | MessageAdded of Message
     | ModeSet of Mode
+    | ModeChanged of ModeChange
     | ViewInitialized // Vim equivalent: GUIEnter

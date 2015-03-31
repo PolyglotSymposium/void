@@ -13,6 +13,7 @@ type Command =
     | Edit of FileIdentifier
     | FormatCurrentLine
     | InitializeVoid
+    | InterpretCommandModeCommand of string
     | Put
     | Quit
     | Redraw

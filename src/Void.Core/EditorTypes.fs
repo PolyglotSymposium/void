@@ -19,6 +19,11 @@ type Mode =
     | OperatorPending
     // TODO there are many more modes
 
+type ModeChange = {
+    From : Mode
+    To : Mode
+}
+
 module CellGrid =
     type Cell = {
         Row : int

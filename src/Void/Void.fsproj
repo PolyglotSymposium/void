@@ -42,6 +42,8 @@
     <Reference Include="System.Numerics" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="VoidScriptController.fs" />
+    <Compile Include="Broker.fs" />
     <Compile Include="Init.fs" />
   </ItemGroup>
   <ItemGroup>
