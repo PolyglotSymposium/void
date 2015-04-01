@@ -8,7 +8,7 @@ type InputMode<'Output> =
     | TextAndHotKeys of (TextOrHotKey -> 'Output)
 
 type CommandModeInputHandler() =
-    member x.handleKeyboardInput input =
+    member x.handleTextOrHotKey input =
         match input with
         | TextOrHotKey.Text text -> ()
         | TextOrHotKey.HotKey hotKey -> ()
@@ -27,6 +27,14 @@ type NormalModeInputHandler() =
             _state <- noKeysYet
             command
 
+type VisualModeInputHandler() =
+    member x.handleKeyPress whatever =
+        notImplemented
+
+type InsertModeInputHandler() =
+    member x.handleTextOrHotKey whatever =
+        notImplemented
+
 type ModeNotImplementedYet_FakeInputHandler() =
     member x.handleAnything whatever =
         notImplemented
@@ -40,7 +48,13 @@ type ModeController(setInputMode : InputMode<Command> -> unit) =
             NormalModeInputHandler().handleKeyPress
             |> InputMode.KeyPresses
         | Mode.Command ->
-            CommandModeInputHandler().handleKeyboardInput
+            CommandModeInputHandler().handleTextOrHotKey
+            |> InputMode.TextAndHotKeys
+        | Mode.Visual ->
+            VisualModeInputHandler().handleKeyPress
+            |> InputMode.KeyPresses
+        | Mode.Insert ->
+            InsertModeInputHandler().handleTextOrHotKey
             |> InputMode.TextAndHotKeys
         | _ ->
             ModeNotImplementedYet_FakeInputHandler().handleAnything
