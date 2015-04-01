@@ -2,19 +2,19 @@
 
 open NormalMode
 
-type ModeController() =
-    let mutable _mode = Mode.Normal
+[<RequireQualifiedAccess>]
+type InputMode<'Output> =
+    | KeyPresses of (KeyPress -> 'Output)
+    | TextAndHotKeys of (TextOrHotKey -> 'Output)
 
-    member x.handleCommand command =
-        match command with
-        | Command.InitializeVoid ->
-            Command.PublishEvent <| Event.ModeSet _mode
-        | Command.ChangeToMode mode ->
-            _mode <- mode
-            Command.PublishEvent <| Event.ModeSet _mode
-        | _ -> Command.Noop
+type CommandModeInputHandler() =
+    member x.handleKeyboardInput input =
+        match input with
+        | TextOrHotKey.Text text -> ()
+        | TextOrHotKey.HotKey hotKey -> ()
+        Command.Noop
 
-type NormalModeController() =
+type NormalModeInputHandler() =
     let mutable _bindings = defaultBindings
     let mutable _state = noKeysYet
 
@@ -26,3 +26,34 @@ type NormalModeController() =
         | ParseResult.Command command ->
             _state <- noKeysYet
             command
+
+type ModeNotImplementedYet_FakeInputHandler() =
+    member x.handleAnything whatever =
+        notImplemented
+
+type ModeController(setInputMode : InputMode<Command> -> unit) =
+    let mutable _mode = Mode.Normal
+
+    let inputHandlerFor mode =
+        match mode with
+        | Mode.Normal ->
+            NormalModeInputHandler().handleKeyPress
+            |> InputMode.KeyPresses
+        | Mode.Command ->
+            CommandModeInputHandler().handleKeyboardInput
+            |> InputMode.TextAndHotKeys
+        | _ ->
+            ModeNotImplementedYet_FakeInputHandler().handleAnything
+            |> InputMode.KeyPresses
+
+    member x.handleCommand command =
+        match command with
+        | Command.InitializeVoid ->
+            setInputMode <| inputHandlerFor _mode
+            Command.PublishEvent <| Event.ModeSet _mode
+        | Command.ChangeToMode mode ->
+            let change = { From = _mode; To = mode }
+            _mode <- change.To
+            setInputMode <| inputHandlerFor change.To
+            Command.PublishEvent <| Event.ModeChanged change
+        | _ -> Command.Noop

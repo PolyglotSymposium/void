@@ -14,6 +14,4 @@ type MainView =
 
 [<RequireQualifiedAccess>]
 type ViewEvent =
-    | KeyPressed of KeyPress
-    | TextEntered of string
     | PaintInitiated of Action<DrawingObject>

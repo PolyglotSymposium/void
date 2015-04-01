@@ -171,3 +171,87 @@ type KeyPress =
     | End
     | PageUp
     | PageDown
+
+[<RequireQualifiedAccess>]
+type HotKey =
+    | ControlA
+    | ControlB
+    | ControlC
+    | ControlD
+    | ControlE
+    | ControlF
+    | ControlG
+    | ControlH
+    | ControlI
+    | ControlJ
+    | ControlK
+    | ControlL
+    | ControlM
+    | ControlN
+    | ControlO
+    | ControlP
+    | ControlQ
+    | ControlR
+    | ControlS
+    | ControlT
+    | ControlU
+    | ControlV
+    | ControlW
+    | ControlX
+    | ControlY
+    | ControlZ
+    | AltA
+    | AltB
+    | AltC
+    | AltD
+    | AltE
+    | AltF
+    | AltG
+    | AltH
+    | AltI
+    | AltJ
+    | AltK
+    | AltL
+    | AltM
+    | AltN
+    | AltO
+    | AltP
+    | AltQ
+    | AltR
+    | AltS
+    | AltT
+    | AltU
+    | AltV
+    | AltW
+    | AltX
+    | AltY
+    | AltZ
+    | Tab
+    | ControlSemicolon
+    | ShiftTab
+    | ControlTab
+    | AltTab
+    | F1
+    | F2
+    | F3
+    | F4
+    | F5
+    | F6
+    | F7
+    | F8
+    | F9
+    | F10
+    | F11
+    | F12
+    | Escape
+    | Insert
+    | Delete
+    | Home
+    | End
+    | PageUp
+    | PageDown
+
+[<RequireQualifiedAccess>]
+type TextOrHotKey =
+    | Text of string
+    | HotKey of HotKey

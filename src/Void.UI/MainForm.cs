@@ -1,15 +1,17 @@
 ﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
+using Void.Core;
 using Void.ViewModel;
 using Microsoft.FSharp.Core;
 
 namespace Void.UI
 {
-    public partial class MainForm : Form, MainView
+    public partial class MainForm : Form, MainView, InputModeChanger
     {
         private readonly FSharpFunc<ViewEvent,Unit> _handleViewEvent;
         private Font _font = new Font(FontFamily.GenericMonospace, 9);
+        private InputMode<Unit> _inputHandler;
 
         public MainForm()
         {
@@ -17,17 +19,41 @@ namespace Void.UI
             _handleViewEvent = Init.initializeVoid(this);
             KeyUp += (sender, eventArgs) =>
             {
-                var keyPress = eventArgs.AsVoidKeyPress();
-                if (keyPress == null)
+                if (_inputHandler.IsKeyPresses)
                 {
-                    Console.WriteLine("Warning: failed to translate key stroke");
+                    var keyPress = eventArgs.AsVoidKeyPress();
+                    if (keyPress == null)
+                    {
+                        Console.WriteLine("Warning: failed to translate key stroke");
+                    }
+                    else
+                    {
+                        _inputHandler.AsKeyPressesHandler()(keyPress);
+                    }
                 }
                 else
                 {
-                    _handleViewEvent.Invoke(ViewEvent.NewKeyPressed(keyPress));
+                    // TODO!!! This is a provisional hack; see GitHub issue #2
+                    // Should probably be attaching this to a TextInput event or
+                    // something instead, but those sort of events don't seem to just
+                    // be wired on on the Form level, only in actual text boxes...
+                    var textOrHotKey = eventArgs.AsVoidTextOrHotKeyProvisionalHack();
+                    if (textOrHotKey == null)
+                    {
+                        Console.WriteLine("Warning: failed to translate key stroke");
+                    }
+                    else
+                    {
+                        _inputHandler.AsTextAndHotKeysHandler()(textOrHotKey);
+                    }
                 }
             };
             Paint += (sender, eventArgs) => _handleViewEvent.Invoke(ViewEvent.NewPaintInitiated(new WinFormsArtist(eventArgs.Graphics, _font).Draw));
+        }
+
+        public void SetInputHandler(InputMode<Unit> handler)
+        {
+            _inputHandler = handler;
         }
 
         public PixelGrid.FontMetrics GetFontMetrics()

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
+using Microsoft.FSharp.Core;
 using Void.Core;
 using Void.ViewModel;
 
@@ -63,6 +64,16 @@ namespace Void.UI
         public static ScreenBlockObject AsBlock(this DrawingObject drawing)
         {
             return ((DrawingObject.Block) drawing).Item;
+        }
+
+        public static Func<KeyPress,Unit> AsKeyPressesHandler(this InputMode<Unit> inputMode)
+        {
+            return ((InputMode<Unit>.KeyPresses) inputMode).Item.Invoke;
+        }
+
+        public static Func<TextOrHotKey,Unit> AsTextAndHotKeysHandler(this InputMode<Unit> inputMode)
+        {
+            return ((InputMode<Unit>.TextAndHotKeys) inputMode).Item.Invoke;
         }
 
         public static KeyPress AsVoidKeyPress(this KeyEventArgs keyEvent)
@@ -334,6 +345,283 @@ namespace Void.UI
                 }
             }
             return keyPress;
+        }
+
+        public static TextOrHotKey AsVoidTextOrHotKeyProvisionalHack(this KeyEventArgs keyEvent)
+        {
+            TextOrHotKey textOrHotKey = null;
+            if (keyEvent.Shift)
+            {
+                var character = string.Empty;
+                switch (keyEvent.KeyCode)
+                {
+                    case Keys.A:
+                        character = "A";
+                        break;
+                    case Keys.B:
+                        character = "B";
+                        break;
+                    case Keys.C:
+                        character = "C";
+                        break;
+                    case Keys.D:
+                        character = "D";
+                        break;
+                    case Keys.E:
+                        character = "E";
+                        break;
+                    case Keys.F:
+                        character = "F";
+                        break;
+                    case Keys.G:
+                        character = "G";
+                        break;
+                    case Keys.H:
+                        character = "H";
+                        break;
+                    case Keys.I:
+                        character = "I";
+                        break;
+                    case Keys.J:
+                        character = "J";
+                        break;
+                    case Keys.K:
+                        character = "K";
+                        break;
+                    case Keys.L:
+                        character = "L";
+                        break;
+                    case Keys.M:
+                        character = "M";
+                        break;
+                    case Keys.N:
+                        character = "N";
+                        break;
+                    case Keys.O:
+                        character = "O";
+                        break;
+                    case Keys.P:
+                        character = "P";
+                        break;
+                    case Keys.Q:
+                        character = "Q";
+                        break;
+                    case Keys.R:
+                        character = "R";
+                        break;
+                    case Keys.S:
+                        character = "S";
+                        break;
+                    case Keys.T:
+                        character = "T";
+                        break;
+                    case Keys.U:
+                        character = "U";
+                        break;
+                    case Keys.V:
+                        character = "V";
+                        break;
+                    case Keys.W:
+                        character = "W";
+                        break;
+                    case Keys.X:
+                        character = "X";
+                        break;
+                    case Keys.Y:
+                        character = "Y";
+                        break;
+                    case Keys.Z:
+                        character = "Z";
+                        break;
+                    case Keys.OemSemicolon:
+                        character = ":";
+                        break;
+                }
+                textOrHotKey = TextOrHotKey.NewText(character);
+            } 
+            else if (keyEvent.Control)
+            {
+                HotKey hotKey = HotKey.Escape; // Random default
+                switch (keyEvent.KeyCode)
+                {
+                    case Keys.A:
+                        hotKey = HotKey.ControlA;
+                        break;
+                    case Keys.B:
+                        hotKey = HotKey.ControlB;
+                        break;
+                    case Keys.C:
+                        hotKey = HotKey.ControlC;
+                        break;
+                    case Keys.D:
+                        hotKey = HotKey.ControlD;
+                        break;
+                    case Keys.E:
+                        hotKey = HotKey.ControlE;
+                        break;
+                    case Keys.F:
+                        hotKey = HotKey.ControlF;
+                        break;
+                    case Keys.G:
+                        hotKey = HotKey.ControlG;
+                        break;
+                    case Keys.H:
+                        hotKey = HotKey.ControlH;
+                        break;
+                    case Keys.I:
+                        hotKey = HotKey.ControlI;
+                        break;
+                    case Keys.J:
+                        hotKey = HotKey.ControlJ;
+                        break;
+                    case Keys.K:
+                        hotKey = HotKey.ControlK;
+                        break;
+                    case Keys.L:
+                        hotKey = HotKey.ControlL;
+                        break;
+                    case Keys.M:
+                        hotKey = HotKey.ControlM;
+                        break;
+                    case Keys.N:
+                        hotKey = HotKey.ControlN;
+                        break;
+                    case Keys.O:
+                        hotKey = HotKey.ControlO;
+                        break;
+                    case Keys.P:
+                        hotKey = HotKey.ControlP;
+                        break;
+                    case Keys.Q:
+                        hotKey = HotKey.ControlQ;
+                        break;
+                    case Keys.R:
+                        hotKey = HotKey.ControlR;
+                        break;
+                    case Keys.S:
+                        hotKey = HotKey.ControlS;
+                        break;
+                    case Keys.T:
+                        hotKey = HotKey.ControlT;
+                        break;
+                    case Keys.U:
+                        hotKey = HotKey.ControlU;
+                        break;
+                    case Keys.V:
+                        hotKey = HotKey.ControlV;
+                        break;
+                    case Keys.W:
+                        hotKey = HotKey.ControlW;
+                        break;
+                    case Keys.X:
+                        hotKey = HotKey.ControlX;
+                        break;
+                    case Keys.Y:
+                        hotKey = HotKey.ControlY;
+                        break;
+                    case Keys.Z:
+                        hotKey = HotKey.ControlZ;
+                        break;
+                    case Keys.OemSemicolon:
+                        hotKey = HotKey.ControlSemicolon;
+                        break;
+                }
+                textOrHotKey = TextOrHotKey.NewHotKey(hotKey);
+            } 
+            else if (keyEvent.KeyCode == Keys.Escape)
+            {
+                textOrHotKey = TextOrHotKey.NewHotKey(HotKey.Escape);
+            }
+            else
+            {
+                string character = string.Empty;
+                switch (keyEvent.KeyCode)
+                {
+                    case Keys.A:
+                        character = "a";
+                        break;
+                    case Keys.B:
+                        character = "b";
+                        break;
+                    case Keys.C:
+                        character = "c";
+                        break;
+                    case Keys.D:
+                        character = "d";
+                        break;
+                    case Keys.E:
+                        character = "e";
+                        break;
+                    case Keys.F:
+                        character = "f";
+                        break;
+                    case Keys.G:
+                        character = "g";
+                        break;
+                    case Keys.H:
+                        character = "h";
+                        break;
+                    case Keys.I:
+                        character = "i";
+                        break;
+                    case Keys.J:
+                        character = "j";
+                        break;
+                    case Keys.K:
+                        character = "k";
+                        break;
+                    case Keys.L:
+                        character = "l";
+                        break;
+                    case Keys.M:
+                        character = "m";
+                        break;
+                    case Keys.N:
+                        character = "n";
+                        break;
+                    case Keys.O:
+                        character = "o";
+                        break;
+                    case Keys.P:
+                        character = "p";
+                        break;
+                    case Keys.Q:
+                        character = "q";
+                        break;
+                    case Keys.R:
+                        character = "r";
+                        break;
+                    case Keys.S:
+                        character = "s";
+                        break;
+                    case Keys.T:
+                        character = "t";
+                        break;
+                    case Keys.U:
+                        character = "u";
+                        break;
+                    case Keys.V:
+                        character = "v";
+                        break;
+                    case Keys.W:
+                        character = "w";
+                        break;
+                    case Keys.X:
+                        character = "x";
+                        break;
+                    case Keys.Y:
+                        character = "y";
+                        break;
+                    case Keys.Z:
+                        character = "z";
+                        break;
+                    case Keys.OemSemicolon:
+                        character = ";";
+                        break;
+                }
+                textOrHotKey = TextOrHotKey.NewText(character);
+            }
+            return textOrHotKey;
         }
     }
 }

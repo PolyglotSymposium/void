@@ -4,18 +4,28 @@ open Void.Core
 open Void.Lang.Interpreter
 open Void.ViewModel
 
+type InputModeChanger =
+    abstract member SetInputHandler : InputMode<unit> -> unit
+
 module Init =
+    let setInputMode (changer : InputModeChanger) (publishCommand : Command -> unit) (inputMode : InputMode<Command>) =
+        match inputMode with
+        | InputMode.KeyPresses handler ->
+            (fun keyPress -> handler keyPress |> publishCommand)
+            |> InputMode.KeyPresses
+        | InputMode.TextAndHotKeys handler ->
+            (fun textOrHotKey -> handler textOrHotKey |> publishCommand)
+            |> InputMode.TextAndHotKeys
+        |> changer.SetInputHandler
+
     let initializeVoid view =
-        let modeCtrl = ModeController()
         let messageCtrl = MessageController()
-        let normalCtrl = NormalModeController()
         let editorCtrl = EditorController()
         let viewCtrl = ViewController view
         let interpreter = Interpreter.empty
         let voidScriptCtrl = VoidScriptController interpreter
         let commandHandlers = [
             messageCtrl.handleCommand
-            modeCtrl.handleCommand
             viewCtrl.handleCommand
             editorCtrl.handleCommand
             voidScriptCtrl.handleCommand
@@ -24,7 +34,11 @@ module Init =
             messageCtrl.handleEvent
             viewCtrl.handleEvent
         ]
-        let broker = Broker(commandHandlers, eventHandlers, viewCtrl, normalCtrl)
-        broker.brokerCommand Command.InitializeVoid
+        let broker = Broker(commandHandlers, eventHandlers, viewCtrl)
+        let modeCtrl = ModeController(setInputMode view broker.publishCommand)
+        broker.addCommandHandler modeCtrl.handleCommand
+
+        broker.publishCommand Command.InitializeVoid
+
         //broker.brokerCommand Command.ViewTestBuffer // TODO for testing and debugging only
         broker.brokerViewEvent

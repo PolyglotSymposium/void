@@ -5,27 +5,28 @@ open Void.ViewModel
 
 type Broker
     (
-        _commandHandlers : (Command -> Command) list,
-        _eventHandlers : (Event -> Command) list,
-        _viewCtrl : ViewController,
-        _normalCtrl : NormalModeController
+        commandHandlers : (Command -> Command) list,
+        eventHandlers : (Event -> Command) list,
+        viewCtrl : ViewController
     ) =
+    let mutable _commandHandlers = commandHandlers
+    let mutable _eventHandlers = eventHandlers
 
+    member x.addCommandHandler commandHandler =
+        _commandHandlers <- commandHandler :: _commandHandlers
+
+    // TODO!!! Make this go away
     member x.brokerViewEvent viewEvent =
         match viewEvent with
         | ViewEvent.PaintInitiated draw ->
-            _viewCtrl.paint draw
-        | ViewEvent.KeyPressed keyPress ->
-            _normalCtrl.handleKeyPress keyPress |> x.brokerCommand
-        | ViewEvent.TextEntered text ->
-            () // TODO implement input and command modes, etc
+            viewCtrl.paint draw
 
-    member x.brokerCommand command =
+    member x.publishCommand command =
         match command with
         | Command.PublishEvent event ->
             for handle in _eventHandlers do
-                handle event |> x.brokerCommand
+                handle event |> x.publishCommand
         | Command.Noop -> ()
         | _ ->
             for handle in _commandHandlers do
-                handle command |> x.brokerCommand
+                handle command |> x.publishCommand
