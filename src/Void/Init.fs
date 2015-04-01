@@ -34,11 +34,9 @@ module Init =
             messageCtrl.handleEvent
             viewCtrl.handleEvent
         ]
-        let broker = Broker(commandHandlers, eventHandlers, viewCtrl)
+        let broker = Broker(commandHandlers, eventHandlers)
         let modeCtrl = ModeController(setInputMode view broker.publishCommand)
         broker.addCommandHandler modeCtrl.handleCommand
 
         broker.publishCommand Command.InitializeVoid
-
         //broker.brokerCommand Command.ViewTestBuffer // TODO for testing and debugging only
-        broker.brokerViewEvent

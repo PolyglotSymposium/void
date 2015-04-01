@@ -9,14 +9,13 @@ namespace Void.UI
 {
     public partial class MainForm : Form, MainView, InputModeChanger
     {
-        private readonly FSharpFunc<ViewEvent,Unit> _handleViewEvent;
         private Font _font = new Font(FontFamily.GenericMonospace, 9);
         private InputMode<Unit> _inputHandler;
 
         public MainForm()
         {
             InitializeComponent();
-            _handleViewEvent = Init.initializeVoid(this);
+            Init.initializeVoid(this);
             KeyUp += (sender, eventArgs) =>
             {
                 if (_inputHandler.IsKeyPresses)
@@ -48,7 +47,6 @@ namespace Void.UI
                     }
                 }
             };
-            Paint += (sender, eventArgs) => _handleViewEvent.Invoke(ViewEvent.NewPaintInitiated(new WinFormsArtist(eventArgs.Graphics, _font).Draw));
         }
 
         public void SetInputHandler(InputMode<Unit> handler)
@@ -86,6 +84,11 @@ namespace Void.UI
         public void SetViewTitle(string title)
         {
             Text = title;
+        }
+
+        public void SubscribeToPaint(FSharpFunc<Action<DrawingObject>, Unit> paint)
+        {
+            Paint += (sender, eventArgs) => paint.Invoke(new WinFormsArtist(eventArgs.Graphics, _font).Draw);
         }
 
         public void TriggerDraw(PixelGrid.Block block)

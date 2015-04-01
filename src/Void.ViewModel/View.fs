@@ -1,7 +1,7 @@
 ﻿namespace Void.ViewModel
 
-open Void.Core
 open System
+open Void.Core
 
 type MainView =
     abstract member Close : unit -> unit
@@ -10,8 +10,5 @@ type MainView =
     abstract member SetFontBySize : byte -> unit
     abstract member SetViewSize : PixelGrid.Dimensions -> unit
     abstract member SetViewTitle : string -> unit
+    abstract member SubscribeToPaint : (Action<DrawingObject> -> unit) -> unit
     abstract member TriggerDraw : PixelGrid.Block -> unit
-
-[<RequireQualifiedAccess>]
-type ViewEvent =
-    | PaintInitiated of Action<DrawingObject>

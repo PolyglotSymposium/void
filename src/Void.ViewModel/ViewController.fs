@@ -15,13 +15,14 @@ type ViewController
     let mutable _bufferedDrawings = Seq.empty
 
     member private x.initializeView() =
+        _view.SubscribeToPaint x.paint
         _view.SetViewTitle ViewModel.defaultTitle
         _view.SetBackgroundColor Colors.defaultColorscheme.Background
         x.setFont()
         _view.SetViewSize <| _convert.cellDimensionsToPixels _viewModel.Size
         Command.PublishEvent Event.ViewInitialized
 
-    member x.paint (draw : Action<DrawingObject>) =
+    member private x.paint (draw : Action<DrawingObject>) =
         let drawAll drawings = for drawing in drawings do draw.Invoke drawing
         if Seq.isEmpty _bufferedDrawings
         then drawAll <| Render.viewModelAsDrawingObjects _convert _viewModel
