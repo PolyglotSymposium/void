@@ -15,7 +15,7 @@ namespace Void.UI
         public MainForm()
         {
             InitializeComponent();
-            Init.initializeVoid(this);
+            Init.initializeVoid(this, this);
             KeyUp += (sender, eventArgs) =>
             {
                 if (_inputHandler.IsKeyPresses)

@@ -7,12 +7,27 @@ type InputMode<'Output> =
     | KeyPresses of (KeyPress -> 'Output)
     | TextAndHotKeys of (TextOrHotKey -> 'Output)
 
-type CommandModeInputHandler() =
+type CommandModeInputHandler(interpret : RequestAPI.InterpretScriptFragment) =
+    let mutable _buffer = ""
+    // TODO refactor... this is a mess
     member x.handleTextOrHotKey input =
         match input with
-        | TextOrHotKey.Text text -> ()
-        | TextOrHotKey.HotKey hotKey -> ()
-        Command.Noop
+        | TextOrHotKey.Text text ->
+            _buffer <- _buffer + text
+            Command.Noop
+        | TextOrHotKey.HotKey hotKey ->
+            match hotKey with
+            | HotKey.Enter ->
+                match interpret { Language = "VoidScript"; Fragment = _buffer} with
+                | InterpretScriptFragmentResponse.Completed ->
+                    _buffer <- ""
+                    Command.ChangeToMode Mode.Normal // TODO but what if the command itself changed modes? etc
+                | InterpretScriptFragmentResponse.ParseFailed message ->
+                    Event.ErrorOccurred message |> Command.PublishEvent
+                | InterpretScriptFragmentResponse.ParseIncomplete ->
+                    _buffer <- "\n"
+                    Command.Noop
+            | _ -> Command.Noop
 
 type NormalModeInputHandler() =
     let mutable _bindings = defaultBindings
@@ -39,23 +54,26 @@ type ModeNotImplementedYet_FakeInputHandler() =
     member x.handleAnything whatever =
         notImplemented
 
-type ModeController(setInputMode : InputMode<Command> -> unit) =
+type ModeController
+    (
+        normalModeInputHandler : NormalModeInputHandler,
+        commandModeInputHandler : CommandModeInputHandler,
+        visualModeInputHandler : VisualModeInputHandler,
+        insertModeInputHandler : InsertModeInputHandler,
+        setInputMode : InputMode<Command> -> unit
+    ) =
     let mutable _mode = Mode.Normal
 
     let inputHandlerFor mode =
         match mode with
         | Mode.Normal ->
-            NormalModeInputHandler().handleKeyPress
-            |> InputMode.KeyPresses
+            InputMode.KeyPresses normalModeInputHandler.handleKeyPress
         | Mode.Command ->
-            CommandModeInputHandler().handleTextOrHotKey
-            |> InputMode.TextAndHotKeys
+            InputMode.TextAndHotKeys commandModeInputHandler.handleTextOrHotKey
         | Mode.Visual ->
-            VisualModeInputHandler().handleKeyPress
-            |> InputMode.KeyPresses
+            InputMode.KeyPresses visualModeInputHandler.handleKeyPress
         | Mode.Insert ->
-            InsertModeInputHandler().handleTextOrHotKey
-            |> InputMode.TextAndHotKeys
+            InputMode.TextAndHotKeys insertModeInputHandler.handleTextOrHotKey
         | _ ->
             ModeNotImplementedYet_FakeInputHandler().handleAnything
             |> InputMode.KeyPresses

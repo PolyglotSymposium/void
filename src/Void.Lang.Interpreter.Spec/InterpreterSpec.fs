@@ -22,5 +22,6 @@ type ``VoidScript interpreter``() =
     member x.``should be able to run a simple command``() =
         let invoked = ref false
         let interpreter = setup (fun _ _ -> invoked := true)
-        Run.line interpreter commandName
+        let result = Run.fragment interpreter commandName
         !invoked |> should be True
+        result |> should equal InterpretScriptFragmentResult.Completed

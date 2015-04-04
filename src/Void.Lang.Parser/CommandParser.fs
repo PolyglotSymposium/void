@@ -42,6 +42,7 @@ type ParseError =
 [<RequireQualifiedAccess>]
 type LineCommandParse<'TArgWrapper> =
     | Failed of ParseError
+    | Incomplete // For multiline commands such as ;if and ;for
     | Succeeded of ParsedCommand<'TArgWrapper>
 
 module ParseErrors =

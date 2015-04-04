@@ -532,6 +532,10 @@ namespace Void.UI
             {
                 textOrHotKey = TextOrHotKey.NewHotKey(HotKey.Escape);
             }
+            else if (keyEvent.KeyCode == Keys.Enter)
+            {
+                textOrHotKey = TextOrHotKey.NewHotKey(HotKey.Enter);
+            }
             else
             {
                 string character = string.Empty;

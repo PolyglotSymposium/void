@@ -24,7 +24,7 @@ type ``Parsing normal mode commands``() =
 
     [<Test>]
     member x.``After receiving two key presses that together match should translate them into a command``() =
-        x.parse KeyPress.ShiftQ [KeyPress.ShiftZ] |> should equal (ParseResult.Command Command.Quit)
+        x.parse KeyPress.ShiftQ [KeyPress.ShiftZ] |> should equal (ParseResult.Command Command.QuitWithoutSaving)
 
     [<Test>]
     member x.``After receiving three key presses that together match should translate them into a command``() =

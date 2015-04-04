@@ -171,6 +171,7 @@ type KeyPress =
     | End
     | PageUp
     | PageDown
+    | Enter
 
 [<RequireQualifiedAccess>]
 type HotKey =
@@ -250,6 +251,7 @@ type HotKey =
     | End
     | PageUp
     | PageDown
+    | Enter
 
 [<RequireQualifiedAccess>]
 type TextOrHotKey =

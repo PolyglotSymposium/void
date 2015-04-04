@@ -13,9 +13,10 @@ type Command =
     | Edit of FileIdentifier
     | FormatCurrentLine
     | InitializeVoid
-    | InterpretCommandModeCommand of string
     | Put
     | Quit
+    | QuitAll
+    | QuitWithoutSaving
     | Redraw
     | ShowMessages
     | ViewTestBuffer // TODO for Debug/Test only

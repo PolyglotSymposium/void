@@ -6,23 +6,6 @@ type LineCommandResult =
     | Failed of string
     | ParseIncomplete // e.g. you typed ;if true<Enter>
 
-// TODO need to glue this in...
-type InterpreterController(runLine : string -> LineCommandResult) =
-    member x.handleCommand command =
-        match command with
-        | Command.InterpretCommandModeCommand line ->
-            match runLine line with
-            | LineCommandResult.Succeeded ->
-                Command.ChangeToMode Mode.Normal // TODO but what if we deliberately changed to insert or visual, etc?
-            | LineCommandResult.Failed message ->
-                Error.LineCommandFailed message
-                |> Event.ErrorOccurred
-                |> Command.PublishEvent
-                // TODO but need to change modes...
-            | LineCommandResult.ParseIncomplete ->
-                Command.Noop // allow command mode to continue buffering keystrokes
-        | _ -> Command.Noop
-
 type MessageController() =
     let mutable _messages = []
 

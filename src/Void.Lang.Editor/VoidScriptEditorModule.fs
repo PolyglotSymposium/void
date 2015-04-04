@@ -15,7 +15,11 @@ type VoidScriptEditorModule(publish : Command -> unit) =
         | _ -> FileIdentifier.Path raw
         |> Command.Edit 
         |> publish
-    let commands = [
+    let quit _ execEnv =
+        publish Command.Quit
+    let quitAll _ execEnv =
+        publish Command.QuitAll
+    member x.Commands = [
         {
             ShortName = "redr"
             FullName = "redraw"
@@ -26,5 +30,15 @@ type VoidScriptEditorModule(publish : Command -> unit) =
             FullName = "edit"
             // TODO Note that in Vim it can take optional ++opt and +cmd args
             WrapArguments = CommandType.Unparsed edit
+        }
+        {
+            ShortName = "q"
+            FullName = "quit"
+            WrapArguments = CommandType.NoArgs quit
+        }
+        {
+            ShortName = "qa"
+            FullName = "qall"
+            WrapArguments = CommandType.NoArgs quitAll
         }
     ]

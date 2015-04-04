@@ -2,6 +2,7 @@
 
 open Void.Core
 open Void.Lang.Interpreter
+open Void.Lang.Editor
 open Void.ViewModel
 
 type InputModeChanger =
@@ -18,24 +19,27 @@ module Init =
             |> InputMode.TextAndHotKeys
         |> changer.SetInputHandler
 
-    let initializeVoid view =
+    let initializeVoid view inputModeChanger =
         let messageCtrl = MessageController()
         let editorCtrl = EditorController()
         let viewCtrl = ViewController view
-        let interpreter = Interpreter.empty
-        let voidScriptCtrl = VoidScriptController interpreter
         let commandHandlers = [
             messageCtrl.handleCommand
             viewCtrl.handleCommand
             editorCtrl.handleCommand
-            voidScriptCtrl.handleCommand
         ]
         let eventHandlers = [
             messageCtrl.handleEvent
             viewCtrl.handleEvent
         ]
         let broker = Broker(commandHandlers, eventHandlers)
-        let modeCtrl = ModeController(setInputMode view broker.publishCommand)
+        let interpreter = Interpreter.init <| VoidScriptEditorModule(broker.publishCommand).Commands
+        let interpreterWrapper = InterpreterWrapperController interpreter
+        let modeCtrl = ModeController(NormalModeInputHandler(),
+                                      CommandModeInputHandler interpreterWrapper.interpretFragment,
+                                      VisualModeInputHandler(),
+                                      InsertModeInputHandler(),
+                                      setInputMode inputModeChanger broker.publishCommand)
         broker.addCommandHandler modeCtrl.handleCommand
 
         broker.publishCommand Command.InitializeVoid

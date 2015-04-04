@@ -15,7 +15,8 @@ module NormalMode =
             [KeyPress.ControlV], Command.Put
             [KeyPress.ControlB], Command.ChangeToMode Mode.VisualBlock
             [KeyPress.ControlL], Command.Redraw
-            [KeyPress.ShiftZ; KeyPress.ShiftQ], Command.Quit
+            [KeyPress.ShiftZ; KeyPress.ShiftQ], Command.QuitWithoutSaving
+            [KeyPress.ShiftZ; KeyPress.ShiftA], Command.QuitAll
             [KeyPress.G; KeyPress.Q; KeyPress.Q], Command.FormatCurrentLine
         ] |> Map.ofList
 

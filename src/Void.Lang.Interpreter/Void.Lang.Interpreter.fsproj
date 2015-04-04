@@ -42,8 +42,9 @@
     <Reference Include="System.Numerics" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Interpreter.fs" />
+    <Compile Include="InterpreterTypes.fs" />
     <Compile Include="BuiltinCommands.fs" />
+    <Compile Include="Interpreter.fs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Void.Lang.Parser\Void.Lang.Parser.fsproj">
