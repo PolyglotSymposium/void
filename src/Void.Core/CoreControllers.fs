@@ -34,7 +34,7 @@ type EditorController() =
         | Command.Yank
         | Command.Put
         | Command.FormatCurrentLine ->
-            x.handleCommand notImplemented 
+            notImplemented 
         | Command.ViewTestBuffer ->
             let buffer = Buffer.testFile
             _editorState <- Editor.viewFile _editorState buffer
