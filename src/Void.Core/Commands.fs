@@ -16,6 +16,7 @@ type Command =
     | Put
     | Quit
     | QuitAll
+    | QuitAllWithoutSaving
     | QuitWithoutSaving
     | Redraw
     | ShowMessages

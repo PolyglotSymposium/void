@@ -43,6 +43,9 @@ type EditorController() =
         | Command.InitializeVoid ->
             _editorState <- Editor.init CommandLine.noArgs
             Command.PublishEvent <| Event.EditorInitialized _editorState
-        | Command.Quit ->
+        | Command.Quit
+        | Command.QuitAll
+        | Command.QuitAllWithoutSaving
+        | Command.QuitWithoutSaving ->
             Command.PublishEvent Event.LastWindowClosed
         | _ -> Command.Noop

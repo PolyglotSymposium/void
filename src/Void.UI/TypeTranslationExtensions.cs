@@ -257,6 +257,10 @@ namespace Void.UI
             {
                 keyPress = KeyPress.Escape;
             }
+            else if (keyEvent.KeyCode == Keys.Enter)
+            {
+                keyPress = KeyPress.Enter;
+            }
             else
             {
                 switch (keyEvent.KeyCode)
