@@ -11,6 +11,7 @@ type ``Editing command mode``() =
     let interpret_parseFailure request = InterpretScriptFragmentResponse.ParseFailed error
     let interpret_parseIncomplete request = InterpretScriptFragmentResponse.ParseIncomplete
     let enter = TextOrHotKey.HotKey HotKey.Enter
+    let escape = TextOrHotKey.HotKey HotKey.Escape
 
     let typeIncrement increment buffer expected =
         TextOrHotKey.Text increment
@@ -34,8 +35,10 @@ type ``Editing command mode``() =
         CommandMode.handle fakeInterpret "edit" enter |> ignore
         !commandForInterpreting |> should equal "edit"
 
-    (*[<Test>]
-    member x.``When escape is pressed, the command text is interpreted``() =*)
+    [<Test>]
+    member x.``When escape is pressed, command entry is cancelled``() =
+        CommandMode.handle interpret_success "edit" escape
+        |> should equal ("", Some Event.CommandEntryCancelled)
 
     [<Test>]
     member x.``When the command text is parsed successfully, the command text is reset``() =

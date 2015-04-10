@@ -73,6 +73,7 @@ type ModeController
             if _mode = Mode.Command
             then Command.ChangeToMode Mode.Normal // TODO or whatever mode we were in previously?
             else Command.Noop
+        | Event.CommandEntryCancelled
         | Event.ErrorOccurred (Error.ScriptFragmentParseFailed _) -> 
             Command.ChangeToMode Mode.Normal // TODO or whatever mode we were in previously?
         | _ -> Command.Noop

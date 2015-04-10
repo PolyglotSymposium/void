@@ -15,4 +15,6 @@ module CommandMode =
                     ("", Event.ErrorOccurred error |> Some)
                 | InterpretScriptFragmentResponse.ParseIncomplete ->
                     (buffer + "\n", None)
+            | HotKey.Escape ->
+                ("", Some Event.CommandEntryCancelled)
             | _ -> (buffer, None)
