@@ -8,26 +8,13 @@ type InputMode<'Output> =
     | TextAndHotKeys of (TextOrHotKey -> 'Output)
 
 type CommandModeInputHandler(interpret : RequestAPI.InterpretScriptFragment) =
+    let handle = CommandMode.handle interpret
     let mutable _buffer = ""
-    // TODO refactor... this is a mess
+
     member x.handleTextOrHotKey input =
-        match input with
-        | TextOrHotKey.Text text ->
-            _buffer <- _buffer + text
-            Command.Noop
-        | TextOrHotKey.HotKey hotKey ->
-            match hotKey with
-            | HotKey.Enter ->
-                match interpret { Language = "VoidScript"; Fragment = _buffer} with
-                | InterpretScriptFragmentResponse.Completed ->
-                    _buffer <- ""
-                    Command.ChangeToMode Mode.Normal // TODO but what if the command itself changed modes? etc
-                | InterpretScriptFragmentResponse.ParseFailed message ->
-                    Event.ErrorOccurred message |> Command.PublishEvent
-                | InterpretScriptFragmentResponse.ParseIncomplete ->
-                    _buffer <- "\n"
-                    Command.Noop
-            | _ -> Command.Noop
+        let updatedBuffer, command = handle _buffer input
+        _buffer <- updatedBuffer
+        command
 
 type NormalModeInputHandler() =
     let mutable _bindings = defaultBindings
