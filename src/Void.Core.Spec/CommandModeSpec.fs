@@ -12,6 +12,7 @@ type ``Editing command mode``() =
     let interpret_parseIncomplete request = InterpretScriptFragmentResponse.ParseIncomplete
     let enter = TextOrHotKey.HotKey HotKey.Enter
     let escape = TextOrHotKey.HotKey HotKey.Escape
+    let backspace = TextOrHotKey.HotKey HotKey.Backspace
 
     let typeIncrement increment buffer expected =
         TextOrHotKey.Text increment
@@ -39,6 +40,12 @@ type ``Editing command mode``() =
     member x.``When escape is pressed, command entry is cancelled``() =
         CommandMode.handle interpret_success "edit" escape
         |> should equal ("", Some Event.CommandEntryCancelled)
+
+    [<Test>]
+    member x.``When backspace is pressed, the previous character is remove from the buffer``() =
+        CommandMode.handle interpret_success "edig" backspace
+        |> fst
+        |> should equal "edi"
 
     [<Test>]
     member x.``When the command text is parsed successfully, the command text is reset``() =

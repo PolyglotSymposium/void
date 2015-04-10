@@ -167,6 +167,7 @@ type KeyPress =
     | Escape
     | Insert
     | Delete
+    | Backspace
     | Home
     | End
     | PageUp
@@ -247,6 +248,7 @@ type HotKey =
     | Escape
     | Insert
     | Delete
+    | Backspace
     | Home
     | End
     | PageUp

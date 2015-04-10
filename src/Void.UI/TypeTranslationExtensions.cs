@@ -261,6 +261,10 @@ namespace Void.UI
             {
                 keyPress = KeyPress.Enter;
             }
+            else if (keyEvent.KeyCode == Keys.Back)
+            {
+                keyPress = KeyPress.Backspace;
+            }
             else
             {
                 switch (keyEvent.KeyCode)
@@ -539,6 +543,10 @@ namespace Void.UI
             else if (keyEvent.KeyCode == Keys.Enter)
             {
                 textOrHotKey = TextOrHotKey.NewHotKey(HotKey.Enter);
+            }
+            else if (keyEvent.KeyCode == Keys.Back)
+            {
+                textOrHotKey = TextOrHotKey.NewHotKey(HotKey.Backspace);
             }
             else
             {

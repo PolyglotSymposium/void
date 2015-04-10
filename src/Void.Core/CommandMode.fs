@@ -16,6 +16,8 @@ module CommandMode =
             handleEnter interpret buffer
         | HotKey.Escape ->
             ("", Some Event.CommandEntryCancelled)
+        | HotKey.Backspace ->
+            (buffer.Remove(buffer.Length - 1), None)
         | _ -> (buffer, None)
         
     let handle (interpret : RequestAPI.InterpretScriptFragment) buffer input =
