@@ -51,6 +51,7 @@
     <Compile Include="Commands.fs" />
     <Compile Include="Requests.fs" />
     <Compile Include="NormalMode.fs" />
+    <Compile Include="CommandMode.fs" />
     <Compile Include="Editor.fs" />
     <Compile Include="ModeController.fs" />
     <Compile Include="CoreControllers.fs" />

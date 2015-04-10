@@ -3,6 +3,7 @@
 [<RequireQualifiedAccess>]
 type Event =
     | BufferLoadedIntoWindow of BufferType
+    | CommandEntryCancelled
     | EditorInitialized of EditorState
     | ErrorOccurred of Error
     | LastWindowClosed
