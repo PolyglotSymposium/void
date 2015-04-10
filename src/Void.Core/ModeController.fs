@@ -12,9 +12,11 @@ type CommandModeInputHandler(interpret : RequestAPI.InterpretScriptFragment) =
     let mutable _buffer = ""
 
     member x.handleTextOrHotKey input =
-        let updatedBuffer, command = handle _buffer input
+        let updatedBuffer, maybeEvent = handle _buffer input
         _buffer <- updatedBuffer
-        command
+        match maybeEvent with
+        | Some event -> Command.PublishEvent event
+        | None -> Command.Noop
 
 type NormalModeInputHandler() =
     let mutable _bindings = defaultBindings
@@ -64,6 +66,16 @@ type ModeController
         | _ ->
             ModeNotImplementedYet_FakeInputHandler().handleAnything
             |> InputMode.KeyPresses
+
+    member x.handleEvent event =
+        match event with
+        | Event.LineCommandCompleted -> 
+            if _mode = Mode.Command
+            then Command.ChangeToMode Mode.Normal // TODO or whatever mode we were in previously?
+            else Command.Noop
+        | Event.ErrorOccurred (Error.ScriptFragmentParseFailed _) -> 
+            Command.ChangeToMode Mode.Normal // TODO or whatever mode we were in previously?
+        | _ -> Command.Noop
 
     member x.handleCommand command =
         match command with

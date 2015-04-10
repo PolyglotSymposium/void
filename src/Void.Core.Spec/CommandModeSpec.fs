@@ -6,11 +6,15 @@ open FsUnit
 
 [<TestFixture>]
 type ``Editing command mode``() = 
-    let noopInterpret request = InterpretScriptFragmentResponse.Completed
+    let interpret_success request = InterpretScriptFragmentResponse.Completed
+    let error = Error.ScriptFragmentParseFailed "Augh!"
+    let interpret_parseFailure request = InterpretScriptFragmentResponse.ParseFailed error
+    let interpret_parseIncomplete request = InterpretScriptFragmentResponse.ParseIncomplete
+    let enter = TextOrHotKey.HotKey HotKey.Enter
 
     let typeIncrement increment buffer expected =
         TextOrHotKey.Text increment
-        |> CommandMode.handle noopInterpret buffer
+        |> CommandMode.handle interpret_success buffer
         |> fst
         |> should equal expected
 
@@ -27,35 +31,24 @@ type ``Editing command mode``() =
         let fakeInterpret request =
             commandForInterpreting := request.Fragment
             InterpretScriptFragmentResponse.Completed
-        CommandMode.handle fakeInterpret "edit" (TextOrHotKey.HotKey HotKey.Enter) |> ignore
+        CommandMode.handle fakeInterpret "edit" enter |> ignore
         !commandForInterpreting |> should equal "edit"
+
+    (*[<Test>]
+    member x.``When escape is pressed, the command text is interpreted``() =*)
 
     [<Test>]
     member x.``When the command text is parsed successfully, the command text is reset``() =
-        false |> should be True
+        CommandMode.handle interpret_success "edit" enter
+        |> should equal ("", Some Event.LineCommandCompleted)
 
     [<Test>]
     member x.``When the command text is not parsed successfully, the command text is reset``() =
-        false |> should be True
+        CommandMode.handle interpret_parseFailure "edit" enter
+        |> should equal ("", Some <| Event.ErrorOccurred error)
 
     [<Test>]
     member x.``When the command text parse is incomplete, a newline is added to the command text``() =
-        false |> should be True
-
-    [<Test>]
-    member x.``When the command text is parsed successfully, the mode is changed to normal``() =
-        false |> should be True
-
-    [<Test>]
-    member x.``When the command text is not parsed successfully, an error is published``() =
-        // This will require publishing multiple commands, which will be a design change
-        // that I have been wondering about the need for for a while
-        false |> should be True
-
-    [<Test>]
-    member x.``When the command text is not parsed successfully, the mode is changed to normal``() =
-        false |> should be True
-
-    [<Test>]
-    member x.``When the command text parse is incomplete, the mode is not changed``() =
-        false |> should be True
+        CommandMode.handle interpret_parseIncomplete "edit" enter
+        |> fst
+        |> should equal "edit\n"

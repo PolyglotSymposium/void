@@ -14,6 +14,9 @@ type Broker
     member x.addCommandHandler commandHandler =
         _commandHandlers <- commandHandler :: _commandHandlers
 
+    member x.addEventHandler eventHandler =
+        _eventHandlers <- eventHandler :: _eventHandlers
+
     member x.publishCommand command =
         match command with
         | Command.PublishEvent event ->

@@ -41,6 +41,7 @@ module Init =
                                       InsertModeInputHandler(),
                                       setInputMode inputModeChanger broker.publishCommand)
         broker.addCommandHandler modeCtrl.handleCommand
+        broker.addEventHandler modeCtrl.handleEvent
 
         broker.publishCommand Command.InitializeVoid
         //broker.brokerCommand Command.ViewTestBuffer // TODO for testing and debugging only
