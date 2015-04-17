@@ -152,3 +152,6 @@ module ViewModel =
 
     let addMessage viewModel msg =
         { viewModel with OutputMessages = msg :: viewModel.OutputMessages }
+
+    let init editorState viewModel =
+        loadBuffer (Editor.currentBuffer editorState) viewModel

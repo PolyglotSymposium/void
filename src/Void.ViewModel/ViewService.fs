@@ -58,6 +58,12 @@ type ViewService
             Render.currentBufferAsDrawingObjects _convert _viewModel
             |> x.bufferDrawings
             _convert.cellBlockToPixels (ViewModel.wholeArea _viewModel) |> _view.TriggerDraw // TODO shouldn't redraw the whole UI
+        | Event.CommandEntryCancelled ->
+            ()
+        | Event.CommandMode_CharacterBackspaced ->
+            ()
+        | Event.CommandMode_TextAppended text ->
+            ()
         | Event.MessageAdded msg ->
             ViewModel.toScreenMessage msg
             |> Render.outputMessageAsDrawingObject _convert { Row = lastRow (ViewModel.wholeArea _viewModel); Column = 0 }
@@ -67,7 +73,7 @@ type ViewService
         | Event.LastWindowClosed ->
             _view.Close()
         | Event.EditorInitialized editor ->
-            _viewModel <- ViewModel.loadBuffer (Editor.currentBuffer editor) _viewModel 
+            _viewModel <- ViewModel.init editor _viewModel 
             // TODO duplication of BufferLoadedIntoWindow below
             Render.currentBufferAsDrawingObjects _convert _viewModel
             |> x.bufferDrawings
