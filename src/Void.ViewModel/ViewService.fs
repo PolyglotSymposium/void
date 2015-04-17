@@ -4,7 +4,7 @@ open Void.Core
 open Void.Core.CellGrid
 open System
 
-type ViewController
+type ViewService
     (
         _view : MainView
     ) =

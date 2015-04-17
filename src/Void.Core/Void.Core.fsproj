@@ -53,8 +53,9 @@
     <Compile Include="NormalMode.fs" />
     <Compile Include="CommandMode.fs" />
     <Compile Include="Editor.fs" />
-    <Compile Include="ModeController.fs" />
-    <Compile Include="CoreControllers.fs" />
+    <Compile Include="ModeService.fs" />
+    <Compile Include="MessageService.fs" />
+    <Compile Include="EditorService.fs" />
   </ItemGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>
