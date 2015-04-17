@@ -265,6 +265,54 @@ namespace Void.UI
             {
                 keyPress = KeyPress.Backspace;
             }
+            else if (keyEvent.KeyCode == Keys.F1)
+            {
+                keyPress = KeyPress.F12;
+            }
+            else if (keyEvent.KeyCode == Keys.F2)
+            {
+                keyPress = KeyPress.F12;
+            }
+            else if (keyEvent.KeyCode == Keys.F3)
+            {
+                keyPress = KeyPress.F12;
+            }
+            else if (keyEvent.KeyCode == Keys.F4)
+            {
+                keyPress = KeyPress.F12;
+            }
+            else if (keyEvent.KeyCode == Keys.F5)
+            {
+                keyPress = KeyPress.F12;
+            }
+            else if (keyEvent.KeyCode == Keys.F6)
+            {
+                keyPress = KeyPress.F12;
+            }
+            else if (keyEvent.KeyCode == Keys.F7)
+            {
+                keyPress = KeyPress.F12;
+            }
+            else if (keyEvent.KeyCode == Keys.F8)
+            {
+                keyPress = KeyPress.F12;
+            }
+            else if (keyEvent.KeyCode == Keys.F9)
+            {
+                keyPress = KeyPress.F12;
+            }
+            else if (keyEvent.KeyCode == Keys.F10)
+            {
+                keyPress = KeyPress.F12;
+            }
+            else if (keyEvent.KeyCode == Keys.F11)
+            {
+                keyPress = KeyPress.F12;
+            }
+            else if (keyEvent.KeyCode == Keys.F12)
+            {
+                keyPress = KeyPress.F12;
+            }
             else
             {
                 switch (keyEvent.KeyCode)
@@ -547,6 +595,54 @@ namespace Void.UI
             else if (keyEvent.KeyCode == Keys.Back)
             {
                 textOrHotKey = TextOrHotKey.NewHotKey(HotKey.Backspace);
+            }
+            else if (keyEvent.KeyCode == Keys.F1)
+            {
+                textOrHotKey = TextOrHotKey.NewHotKey(HotKey.F12);
+            }
+            else if (keyEvent.KeyCode == Keys.F2)
+            {
+                textOrHotKey = TextOrHotKey.NewHotKey(HotKey.F12);
+            }
+            else if (keyEvent.KeyCode == Keys.F3)
+            {
+                textOrHotKey = TextOrHotKey.NewHotKey(HotKey.F12);
+            }
+            else if (keyEvent.KeyCode == Keys.F4)
+            {
+                textOrHotKey = TextOrHotKey.NewHotKey(HotKey.F12);
+            }
+            else if (keyEvent.KeyCode == Keys.F5)
+            {
+                textOrHotKey = TextOrHotKey.NewHotKey(HotKey.F12);
+            }
+            else if (keyEvent.KeyCode == Keys.F6)
+            {
+                textOrHotKey = TextOrHotKey.NewHotKey(HotKey.F12);
+            }
+            else if (keyEvent.KeyCode == Keys.F7)
+            {
+                textOrHotKey = TextOrHotKey.NewHotKey(HotKey.F12);
+            }
+            else if (keyEvent.KeyCode == Keys.F8)
+            {
+                textOrHotKey = TextOrHotKey.NewHotKey(HotKey.F12);
+            }
+            else if (keyEvent.KeyCode == Keys.F9)
+            {
+                textOrHotKey = TextOrHotKey.NewHotKey(HotKey.F12);
+            }
+            else if (keyEvent.KeyCode == Keys.F10)
+            {
+                textOrHotKey = TextOrHotKey.NewHotKey(HotKey.F12);
+            }
+            else if (keyEvent.KeyCode == Keys.F11)
+            {
+                textOrHotKey = TextOrHotKey.NewHotKey(HotKey.F12);
+            }
+            else if (keyEvent.KeyCode == Keys.F12)
+            {
+                textOrHotKey = TextOrHotKey.NewHotKey(HotKey.F12);
             }
             else
             {

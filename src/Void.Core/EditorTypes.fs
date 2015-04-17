@@ -48,8 +48,14 @@ module CellGrid =
     let lastRow block =
         block.Dimensions.Rows - 1
 
+    let lessRows n dimensions =
+        { dimensions with Rows = dimensions.Rows - n }
+
+    let lessRowsBelow n block =
+        { block with Dimensions = lessRows n block.Dimensions}
+
 // TODO This is naive, obviously
-type FileBuffer = {
+type FileBuffer = private {
     Filepath : string option
     Contents : string list
     CursorPosition : CellGrid.Cell
