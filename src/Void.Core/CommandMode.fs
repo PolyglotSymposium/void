@@ -17,12 +17,12 @@ module CommandMode =
         | HotKey.Escape ->
             ("", Some Event.CommandEntryCancelled)
         | HotKey.Backspace ->
-            (buffer.Remove(buffer.Length - 1), None)
+            (buffer.Remove(buffer.Length - 1), Some Event.CommandMode_CharacterBackspaced)
         | _ -> (buffer, None)
         
     let handle (interpret : RequestAPI.InterpretScriptFragment) buffer input =
         match input with
         | TextOrHotKey.Text text ->
-            (buffer + text, None)
+            (buffer + text, Some <| Event.CommandMode_TextAppended text)
         | TextOrHotKey.HotKey hotKey ->
             handleHotKey interpret buffer hotKey

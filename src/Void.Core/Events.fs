@@ -4,6 +4,8 @@
 type Event =
     | BufferLoadedIntoWindow of BufferType
     | CommandEntryCancelled
+    | CommandMode_TextAppended of string
+    | CommandMode_CharacterBackspaced
     | EditorInitialized of EditorState
     | ErrorOccurred of Error
     | LastWindowClosed
