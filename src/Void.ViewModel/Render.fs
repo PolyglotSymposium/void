@@ -117,3 +117,7 @@ module Render =
             commandBarAsDrawingObjects convert viewModel.CommandBar viewModel.Size.Columns originCell
             outputMessagesAsDrawingObjects convert viewModel.Size.Columns originCell viewModel.OutputMessages 
         ] |> Seq.concat
+
+    let currentBufferAsDrawingObjects convert viewModel =
+        viewModel.VisibleWindows.[0].Buffer
+        |> bufferAsDrawingObjects convert viewModel.VisibleWindows.[0].Area

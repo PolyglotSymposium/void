@@ -55,8 +55,7 @@ type ViewController
         match event with
         | Event.BufferLoadedIntoWindow buffer ->
             _viewModel <- ViewModel.loadBuffer buffer _viewModel
-            _viewModel.VisibleWindows.[0].Buffer
-            |> Render.bufferAsDrawingObjects _convert (ViewModel.wholeArea _viewModel)
+            Render.currentBufferAsDrawingObjects _convert _viewModel
             |> x.bufferDrawings
             _convert.cellBlockToPixels (ViewModel.wholeArea _viewModel) |> _view.TriggerDraw // TODO shouldn't redraw the whole UI
         | Event.MessageAdded msg ->
@@ -70,8 +69,7 @@ type ViewController
         | Event.EditorInitialized editor ->
             _viewModel <- ViewModel.loadBuffer (Editor.currentBuffer editor) _viewModel 
             // TODO duplication of BufferLoadedIntoWindow below
-            _viewModel.VisibleWindows.[0].Buffer
-            |> Render.bufferAsDrawingObjects _convert (ViewModel.wholeArea _viewModel)
+            Render.currentBufferAsDrawingObjects _convert _viewModel
             |> x.bufferDrawings
             _convert.cellBlockToPixels (ViewModel.wholeArea _viewModel) |> _view.TriggerDraw // TODO shouldn't redraw the whole UI
         | _ -> ()

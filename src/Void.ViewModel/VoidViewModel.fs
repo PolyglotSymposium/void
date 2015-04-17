@@ -103,11 +103,11 @@ module ViewModel =
     let defaultFontSize = 9uy
     let defaultBuffer = { Contents = [] }
 
-    let defaultWindowView =
+    let defaultWindowView containingArea =
         {
             StatusLine = StatusLineView.Focused
             Buffer = defaultBuffer
-            Area = Sizing.defaultViewArea
+            Area = lessRowsBelow 1 containingArea
             Cursor = CursorView.Block originCell
         }
 
@@ -115,7 +115,7 @@ module ViewModel =
         {
             Size = Sizing.defaultViewSize
             TabBar = []
-            VisibleWindows = [defaultWindowView]
+            VisibleWindows = [defaultWindowView Sizing.defaultViewArea]
             CommandBar = CommandBarView.Hidden
             OutputMessages = []
         }
@@ -130,9 +130,7 @@ module ViewModel =
         }
 
     let toScreenBuffer windowSize buffer =
-        match buffer with
-        | BufferType.File { Contents = lines } -> lines
-        | _ -> []
+        Editor.readLines buffer 1
         |> bufferFrom windowSize
 
     let private loadBufferIntoWindow buffer window =
