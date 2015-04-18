@@ -20,16 +20,16 @@ module Init =
         |> changer.SetInputHandler
 
     let initializeVoid view inputModeChanger =
-        let messageService = MessageService()
+        let notificationService = NotificationService()
         let editorService = EditorService()
         let viewService = ViewService view
         let commandHandlers = [
-            messageService.handleCommand
+            notificationService.handleCommand
             viewService.handleCommand
             editorService.handleCommand
         ]
         let eventHandlers = [
-            messageService.handleEvent
+            notificationService.handleEvent
             viewService.handleEvent
         ]
         let broker = Broker(commandHandlers, eventHandlers)

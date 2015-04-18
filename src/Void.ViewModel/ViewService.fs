@@ -58,9 +58,9 @@ type ViewService
             Render.currentBufferAsDrawingObjects _convert _viewModel
             |> x.bufferDrawings
             _convert.cellBlockToPixels (ViewModel.wholeArea _viewModel) |> _view.TriggerDraw // TODO shouldn't redraw the whole UI
-        | Event.MessageAdded msg ->
-            ViewModel.toScreenMessage msg
-            |> Render.outputMessageAsDrawingObject _convert { Row = lastRow (ViewModel.wholeArea _viewModel); Column = 0 }
+        | Event.NotificationAdded notification ->
+            ViewModel.toScreenNotification notification
+            |> Render.notificationAsDrawingObject _convert { Row = lastRow (ViewModel.wholeArea _viewModel); Column = 0 }
             |> x.bufferDrawing
             // TODO this is just hacked together for the moment
             _convert.cellBlockToPixels { UpperLeftCell = { Row = lastRow (ViewModel.wholeArea _viewModel); Column = 0 }; Dimensions = { Rows = 1; Columns = _viewModel.Size.Columns }} |> _view.TriggerDraw

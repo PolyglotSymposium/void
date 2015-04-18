@@ -1,7 +1,20 @@
 ﻿namespace Void.Core
 
+[<RequireQualifiedAccess>]
+type Event =
+    | BufferLoadedIntoWindow of BufferType
+    | CommandEntryCancelled
+    | EditorInitialized of EditorState
+    | ErrorOccurred of Error
+    | LastWindowClosed
+    | LineCommandCompleted
+    | NotificationAdded of UserNotification
+    | ModeSet of Mode
+    | ModeChanged of ModeChange
+    | ViewInitialized // Vim equivalent: GUIEnter
+
 type Displayable =
-    | Messages of Message list
+    | Notifications of UserNotification list
 
 [<RequireQualifiedAccess>]
 type Command =
@@ -19,7 +32,7 @@ type Command =
     | QuitAllWithoutSaving
     | QuitWithoutSaving
     | Redraw
-    | ShowMessages
+    | ShowNotificationHistory
     | ViewTestBuffer // TODO for Debug/Test only
     | Yank
 

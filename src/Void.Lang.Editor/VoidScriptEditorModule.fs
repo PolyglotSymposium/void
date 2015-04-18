@@ -5,8 +5,6 @@ open Void.Lang.Parser
 open Void.Lang.Interpreter
 
 type VoidScriptEditorModule(publish : Command -> unit) =
-    let redraw _ execEnv =
-        publish Command.Redraw
     let edit raw execEnv =
         match raw with
         | "%" -> FileIdentifier.CurrentBuffer
@@ -15,21 +13,30 @@ type VoidScriptEditorModule(publish : Command -> unit) =
         | _ -> FileIdentifier.Path raw
         |> Command.Edit 
         |> publish
+
+    let messages _ execEnv =
+        publish Command.ShowNotificationHistory
+
     let quit _ execEnv =
         publish Command.Quit
+
     let quitAll _ execEnv =
         publish Command.QuitAll
+
+    let redraw _ execEnv =
+        publish Command.Redraw
+
     member x.Commands = [
-        {
-            ShortName = "redr"
-            FullName = "redraw"
-            WrapArguments = CommandType.NoArgs redraw
-        }
         {
             ShortName = "e"
             FullName = "edit"
             // TODO Note that in Vim it can take optional ++opt and +cmd args
             WrapArguments = CommandType.Unparsed edit
+        }
+        {
+            ShortName = "mes"
+            FullName = "messages"
+            WrapArguments = CommandType.NoArgs messages
         }
         {
             ShortName = "q"
@@ -40,5 +47,10 @@ type VoidScriptEditorModule(publish : Command -> unit) =
             ShortName = "qa"
             FullName = "qall"
             WrapArguments = CommandType.NoArgs quitAll
+        }
+        {
+            ShortName = "redr"
+            FullName = "redraw"
+            WrapArguments = CommandType.NoArgs redraw
         }
     ]

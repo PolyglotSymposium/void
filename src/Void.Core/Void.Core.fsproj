@@ -45,16 +45,15 @@
     <Compile Include="FSharpUtil.fs" />
     <Compile Include="CommandLine.fs" />
     <Compile Include="Keys.fs" />
-    <Compile Include="MessageTypes.fs" />
+    <Compile Include="UserNotificationTypes.fs" />
     <Compile Include="EditorTypes.fs" />
-    <Compile Include="Events.fs" />
-    <Compile Include="Commands.fs" />
+    <Compile Include="Messages.fs" />
     <Compile Include="Requests.fs" />
     <Compile Include="NormalMode.fs" />
     <Compile Include="CommandMode.fs" />
     <Compile Include="Editor.fs" />
     <Compile Include="ModeService.fs" />
-    <Compile Include="MessageService.fs" />
+    <Compile Include="NotificationService.fs" />
     <Compile Include="EditorService.fs" />
   </ItemGroup>
   <PropertyGroup>
