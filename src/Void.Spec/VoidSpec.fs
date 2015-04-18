@@ -8,6 +8,8 @@ open FsUnit
 
 type MainViewStub() =
     member val Closed = false with get, set
+    member val PaintedObjects = 0 with get, set
+    member val Broker = Broker([],[],[],[]) with get, set
     interface MainView with
         member x.Close() =
             x.Closed <- true
@@ -21,10 +23,8 @@ type MainViewStub() =
             ()
         member x.SetViewTitle title =
             ()
-        member x.SubscribeToPaint handlePaint =
-            ()
         member x.TriggerDraw block =
-            ()
+            x.Broker.publish <| VMEvent.PaintInitiated (fun _ -> x.PaintedObjects <- x.PaintedObjects + 1)
 
 type InputModeChangerStub() =
     let mutable _inputHandler = InputMode<unit>.KeyPresses (fun _ -> ())
@@ -36,13 +36,11 @@ type InputModeChangerStub() =
 
 [<TestFixture>]
 type ``Void``() = 
-    let mainView = MainViewStub()
-    let inputModeChanger = InputModeChangerStub()
-    let init() =
-        Init.initializeVoid mainView inputModeChanger
     [<Test>]
     member x.``When I have freshly opened Vim with one window, when I enter the quit command, then the editor exists``() =
-        init()
+        let mainView = MainViewStub()
+        let inputModeChanger = InputModeChangerStub()
+        Init.initializeVoid mainView inputModeChanger |> ignore
 
         match inputModeChanger.getInputHandler() with
         | InputMode.KeyPresses handler ->
@@ -58,3 +56,18 @@ type ``Void``() =
             TextOrHotKey.HotKey HotKey.Enter |> handler
 
         mainView.Closed |> should be True
+
+    [<Test>]
+    member x.``When I type CTRL-L in normal mode, the screen is redrawn``() =
+        let mainView = MainViewStub()
+        let inputModeChanger = InputModeChangerStub()
+        mainView.Broker <- Init.initializeVoid mainView inputModeChanger
+        mainView.PaintedObjects |> should equal 0
+
+        match inputModeChanger.getInputHandler() with
+        | InputMode.KeyPresses handler ->
+            handler KeyPress.ControlL
+        | InputMode.TextAndHotKeys _ ->
+            Assert.Fail "Right after startup did not have a key presses handler set"
+
+        mainView.PaintedObjects |> should be (greaterThan 20)

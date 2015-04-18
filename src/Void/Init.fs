@@ -22,7 +22,8 @@ module Init =
     let initializeVoid view inputModeChanger =
         let notificationService = NotificationService()
         let editorService = EditorService()
-        let viewService = ViewService view
+        let viewService = ViewModelService view
+        let renderingService = RenderingService(view, viewService.rerenderWholeView)
         let commandHandlers = [
             notificationService.handleCommand
             viewService.handleCommand
@@ -32,7 +33,13 @@ module Init =
             notificationService.handleEvent
             viewService.handleEvent
         ]
-        let broker = Broker(commandHandlers, eventHandlers)
+        let vmCommandHandlers = [
+            renderingService.handleVMCommand
+        ]
+        let vmEventHandlers = [
+            renderingService.handleVMEvent
+        ]
+        let broker = Broker(commandHandlers, eventHandlers, vmCommandHandlers, vmEventHandlers)
         let interpreter = Interpreter.init <| VoidScriptEditorModule(broker.publish).Commands
         let interpreterWrapper = InterpreterWrapperService interpreter
         let modeService = ModeService(NormalModeInputHandler(),
@@ -44,3 +51,4 @@ module Init =
         broker.addEventHandler modeService.handleEvent
 
         broker.publish Command.InitializeVoid
+        broker

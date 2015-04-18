@@ -20,7 +20,6 @@ type Event =
     | NotificationAdded of UserNotification
     | ModeSet of Mode
     | ModeChanged of ModeChange
-    | ViewInitialized // Vim equivalent: GUIEnter
     interface Message
 
 type Displayable =

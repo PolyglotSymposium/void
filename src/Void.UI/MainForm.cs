@@ -15,7 +15,13 @@ namespace Void.UI
         public MainForm()
         {
             InitializeComponent();
-            Init.initializeVoid(this, this);
+            var broker = Init.initializeVoid(this, this);
+            SubscribeToPaint(broker);
+            WireUpInputEvents();
+        }
+
+        private void WireUpInputEvents()
+        {
             KeyUp += (sender, eventArgs) =>
             {
                 if (_inputHandler.IsKeyPresses)
@@ -46,6 +52,15 @@ namespace Void.UI
                         _inputHandler.AsTextAndHotKeysHandler()(textOrHotKey);
                     }
                 }
+            };
+        }
+
+        public void SubscribeToPaint(Broker broker)
+        {
+            Paint += (sender, eventArgs) =>
+            {
+                var artist = new WinFormsArtist(eventArgs.Graphics, _font);
+                broker.publish(VMEvent.NewPaintInitiated(artist.DrawAsFSharpFunc()));
             };
         }
 
@@ -84,11 +99,6 @@ namespace Void.UI
         public void SetViewTitle(string title)
         {
             Text = title;
-        }
-
-        public void SubscribeToPaint(FSharpFunc<Action<DrawingObject>, Unit> paint)
-        {
-            Paint += (sender, eventArgs) => paint.Invoke(new WinFormsArtist(eventArgs.Graphics, _font).Draw);
         }
 
         public void TriggerDraw(PixelGrid.Block block)
