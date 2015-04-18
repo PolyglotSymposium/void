@@ -1,5 +1,14 @@
 ﻿namespace Void.Core
 
+type Message = interface end
+
+[<AutoOpen>]
+module ``This module is auto-opened to provide a null message`` =
+    type private NullMessage =
+        | NoMsg
+        interface Message
+    let noMessage = NoMsg :> Message
+
 [<RequireQualifiedAccess>]
 type Event =
     | BufferLoadedIntoWindow of BufferType
@@ -12,15 +21,13 @@ type Event =
     | ModeSet of Mode
     | ModeChanged of ModeChange
     | ViewInitialized // Vim equivalent: GUIEnter
+    interface Message
 
 type Displayable =
     | Notifications of UserNotification list
 
 [<RequireQualifiedAccess>]
 type Command =
-    | Noop
-    | PublishEvent of Event
-    //
     | ChangeToMode of Mode
     | Display of Displayable
     | Edit of FileIdentifier
@@ -35,9 +42,9 @@ type Command =
     | ShowNotificationHistory
     | ViewTestBuffer // TODO for Debug/Test only
     | Yank
+    interface Message
 
 [<AutoOpen>]
-module Util =
+module ``This module is auto-opened to provide message aliases`` =
     let notImplemented =
-        Event.ErrorOccurred Error.NotImplemented
-        |> Command.PublishEvent
+        Event.ErrorOccurred Error.NotImplemented :> Message

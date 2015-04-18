@@ -5,8 +5,8 @@ open Void.ViewModel
 
 type Broker
     (
-        commandHandlers : (Command -> Command) list,
-        eventHandlers : (Event -> Command) list
+        commandHandlers : (Command -> Message) list,
+        eventHandlers : (Event -> Message) list
     ) =
     let mutable _commandHandlers = commandHandlers
     let mutable _eventHandlers = eventHandlers
@@ -17,12 +17,12 @@ type Broker
     member x.addEventHandler eventHandler =
         _eventHandlers <- eventHandler :: _eventHandlers
 
-    member x.publishCommand command =
-        match command with
-        | Command.PublishEvent event ->
+    member x.publish (message : Message) =
+        match message with
+        | :? Event as event ->
             for handle in _eventHandlers do
-                handle event |> x.publishCommand
-        | Command.Noop -> ()
-        | _ ->
+                handle event |> x.publish
+        | :? Command as command ->
             for handle in _commandHandlers do
-                handle command |> x.publishCommand
+                handle command |> x.publish
+        | noMessage -> ()

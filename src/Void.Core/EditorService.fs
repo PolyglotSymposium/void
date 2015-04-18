@@ -9,18 +9,18 @@ type EditorService() =
         | Command.Yank
         | Command.Put
         | Command.FormatCurrentLine ->
-            notImplemented 
+            notImplemented
         | Command.ViewTestBuffer ->
             let buffer = Buffer.testFile
             _editorState <- Editor.viewFile _editorState buffer
             // TODO Should controllers create the events?...
-            Event.BufferLoadedIntoWindow buffer |> Command.PublishEvent
+            Event.BufferLoadedIntoWindow buffer :> Message
         | Command.InitializeVoid ->
             _editorState <- Editor.init CommandLine.noArgs
-            Command.PublishEvent <| Event.EditorInitialized _editorState
+            Event.EditorInitialized _editorState :> Message
         | Command.Quit
         | Command.QuitAll
         | Command.QuitAllWithoutSaving
         | Command.QuitWithoutSaving ->
-            Command.PublishEvent Event.LastWindowClosed
-        | _ -> Command.Noop
+             Event.LastWindowClosed :> Message
+        | _ -> noMessage

@@ -39,7 +39,7 @@ type ``Editing command mode``() =
     [<Test>]
     member x.``When escape is pressed, command entry is cancelled``() =
         CommandMode.handle interpret_success "edit" escape
-        |> should equal ("", Some Event.CommandEntryCancelled)
+        |> should equal ("", Event.CommandEntryCancelled :> Message)
 
     [<Test>]
     member x.``When backspace is pressed, the previous character is remove from the buffer``() =
@@ -50,12 +50,12 @@ type ``Editing command mode``() =
     [<Test>]
     member x.``When the command text is parsed successfully, the command text is reset``() =
         CommandMode.handle interpret_success "edit" enter
-        |> should equal ("", Some Event.LineCommandCompleted)
+        |> should equal ("", Event.LineCommandCompleted :> Message)
 
     [<Test>]
     member x.``When the command text is not parsed successfully, the command text is reset``() =
         CommandMode.handle interpret_parseFailure "edit" enter
-        |> should equal ("", Some <| Event.ErrorOccurred error)
+        |> should equal ("", Event.ErrorOccurred error :> Message)
 
     [<Test>]
     member x.``When the command text parse is incomplete, a newline is added to the command text``() =

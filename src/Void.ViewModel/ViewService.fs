@@ -20,7 +20,7 @@ type ViewService
         _view.SetBackgroundColor Colors.defaultColorscheme.Background
         x.setFont()
         _view.SetViewSize <| _convert.cellDimensionsToPixels _viewModel.Size
-        Command.PublishEvent Event.ViewInitialized
+        Event.ViewInitialized
 
     member private x.paint (draw : Action<DrawingObject>) =
         let drawAll drawings = for drawing in drawings do draw.Invoke drawing
@@ -42,14 +42,15 @@ type ViewService
 
     member x.handleCommand command =
         match command with
-        | Command.InitializeVoid -> x.initializeView()
+        | Command.InitializeVoid ->
+            x.initializeView() :> Message
         | Command.Display _ ->
             notImplemented
         | Command.Redraw ->
             _convert.cellBlockToPixels (ViewModel.wholeArea _viewModel) |> _view.TriggerDraw
-            Command.Noop
+            noMessage
         | _ ->
-            Command.Noop
+            noMessage
 
     member x.handleEvent event =
         match event with
@@ -73,4 +74,4 @@ type ViewService
             |> x.bufferDrawings
             _convert.cellBlockToPixels (ViewModel.wholeArea _viewModel) |> _view.TriggerDraw // TODO shouldn't redraw the whole UI
         | _ -> ()
-        Command.Noop
+        noMessage
