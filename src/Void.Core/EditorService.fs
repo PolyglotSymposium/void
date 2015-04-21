@@ -3,8 +3,8 @@
 type EditorService() =
     let mutable _editorState = Editor.defaultState
 
-    member x.handleCommand command =
-        match command with
+    member x.handleCommand =
+        function
         | Command.Edit _
         | Command.Yank
         | Command.Put

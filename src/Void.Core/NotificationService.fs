@@ -3,8 +3,8 @@
 type NotificationService() =
     let mutable _notifications = []
 
-    member x.handleEvent event =
-        match event with
+    member x.handleEvent =
+        function
         | Event.ErrorOccurred error ->
             // TODO ...Or should the underlying model create the events?
             let notifications, event = Notifications.addError error _notifications
@@ -12,8 +12,8 @@ type NotificationService() =
             event :> Message
         | _ -> noMessage
 
-    member x.handleCommand command =
-        match command with
+    member x.handleCommand =
+        function
         | Command.ShowNotificationHistory ->
             Command.Display <| Displayable.Notifications _notifications :> Message
         | _ -> noMessage

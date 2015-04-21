@@ -27,8 +27,8 @@ type ViewModelService
         _fontMetrics <- _view.GetFontMetrics()
         _convert <- Sizing.Convert _fontMetrics
 
-    member x.handleCommand command =
-        match command with
+    member x.handleCommand =
+        function
         | Command.InitializeVoid ->
             x.initializeView() :> Message
         | Command.Display _ ->
@@ -39,8 +39,8 @@ type ViewModelService
         | _ ->
             noMessage
 
-    member x.handleEvent event =
-        match event with
+    member x.handleEvent =
+        function
         | Event.BufferLoadedIntoWindow buffer ->
             _viewModel <- ViewModel.loadBuffer buffer _viewModel
             let drawings = Render.currentBufferAsDrawingObjects _convert _viewModel

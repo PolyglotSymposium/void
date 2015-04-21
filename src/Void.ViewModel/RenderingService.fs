@@ -19,11 +19,11 @@ type RenderingService
         else drawAll _bufferedDrawings
         _bufferedDrawings <- []
 
-    member x.handleVMCommand command =
-        match command with
+    member x.handleVMCommand =
+        function
         | VMCommand.Redraw area ->
             _view.TriggerDraw area
-        noMessage
+            noMessage
 
     member x.handleVMEvent event =
         match event with

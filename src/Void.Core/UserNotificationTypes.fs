@@ -6,8 +6,8 @@ type Error =
     | ScriptFragmentParseFailed of string
 
 module Errors =
-    let textOf error =
-        match error with
+    let textOf =
+        function
         | Error.NotImplemented -> "That command is not yet implemented"
         | Error.ScriptFragmentParseFailed msg -> msg
 

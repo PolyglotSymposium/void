@@ -52,8 +52,8 @@ type ModeService
     ) =
     let mutable _mode = Mode.Normal
 
-    let inputHandlerFor mode =
-        match mode with
+    let inputHandlerFor =
+        function
         | Mode.Normal ->
             InputMode.KeyPresses normalModeInputHandler.handleKeyPress
         | Mode.Command ->
@@ -66,8 +66,8 @@ type ModeService
             ModeNotImplementedYet_FakeInputHandler().handleAnything
             |> InputMode.KeyPresses
 
-    member x.handleEvent event =
-        match event with
+    member x.handleEvent =
+        function
         | Event.LineCommandCompleted -> 
             if _mode = Mode.Command
             then Command.ChangeToMode Mode.Normal :> Message // TODO or whatever mode we were in previously?
@@ -77,8 +77,8 @@ type ModeService
             Command.ChangeToMode Mode.Normal :> Message // TODO or whatever mode we were in previously?
         | _ -> noMessage
 
-    member x.handleCommand command =
-        match command with
+    member x.handleCommand =
+        function
         | Command.InitializeVoid ->
             setInputMode <| inputHandlerFor _mode
             Event.ModeSet _mode :> Message

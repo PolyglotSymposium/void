@@ -145,8 +145,8 @@ module ViewModel =
             Dimensions = view.Size
         }
 
-    let toScreenNotification notification =
-        match notification with
+    let toScreenNotification =
+        function
         | UserNotification.Output notificationText -> UserNotificationView.Text notificationText
         | UserNotification.Error error -> UserNotificationView.Error <| Errors.textOf error
 
