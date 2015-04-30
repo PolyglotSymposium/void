@@ -9,7 +9,7 @@ open FsUnit
 type MainViewStub() =
     member val Closed = false with get, set
     member val PaintedObjects = 0 with get, set
-    member val Broker = Broker([],[],[],[]) with get, set
+    member val Bus = Bus([]) with get, set
     interface MainView with
         member x.Close() =
             x.Closed <- true
@@ -24,7 +24,7 @@ type MainViewStub() =
         member x.SetViewTitle title =
             ()
         member x.TriggerDraw block =
-            x.Broker.publish <| VMEvent.PaintInitiated (fun _ -> x.PaintedObjects <- x.PaintedObjects + 1)
+            x.Bus.publish <| VMEvent.PaintInitiated (fun _ -> x.PaintedObjects <- x.PaintedObjects + 1)
 
 type InputModeChangerStub() =
     let mutable _inputHandler = InputMode<unit>.KeyPresses (fun _ -> ())
@@ -61,7 +61,7 @@ type ``Void``() =
     member x.``When I type CTRL-L in normal mode, the screen is redrawn``() =
         let mainView = MainViewStub()
         let inputModeChanger = InputModeChangerStub()
-        mainView.Broker <- Init.initializeVoid mainView inputModeChanger
+        mainView.Bus <- Init.initializeVoid mainView inputModeChanger
         mainView.PaintedObjects |> should equal 0
 
         match inputModeChanger.getInputHandler() with

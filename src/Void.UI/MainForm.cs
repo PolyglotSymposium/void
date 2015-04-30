@@ -55,12 +55,12 @@ namespace Void.UI
             };
         }
 
-        public void SubscribeToPaint(Broker broker)
+        public void SubscribeToPaint(Bus bus)
         {
             Paint += (sender, eventArgs) =>
             {
                 var artist = new WinFormsArtist(eventArgs.Graphics, _font);
-                broker.publish(VMEvent.NewPaintInitiated(artist.DrawAsFSharpFunc()));
+                bus.publish(VMEvent.NewPaintInitiated(artist.DrawAsFSharpFunc()));
             };
         }
 

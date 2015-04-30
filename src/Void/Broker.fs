@@ -3,42 +3,34 @@
 open Void.Core
 open Void.ViewModel
 
-type Broker
+type Channel<'TIn when 'TIn :> Message>
     (
-        commandHandlers : (Command -> Message) list,
-        eventHandlers : (Event -> Message) list,
-        vmCommandHandlers : (VMCommand -> Message) list,
-        vmEventHandlers : (VMEvent -> Message) list
+        handlers : ('TIn -> Message) list
     ) =
-    let mutable _commandHandlers = commandHandlers
-    let mutable _eventHandlers = eventHandlers
-    let mutable _vmCommandHandlers = vmCommandHandlers
-    let mutable _vmEventHandlers = vmEventHandlers
-
-    member x.addCommandHandler commandHandler =
-        _commandHandlers <- commandHandler :: _commandHandlers
-
-    member x.addEventHandler eventHandler =
-        _eventHandlers <- eventHandler :: _eventHandlers
-
-    member x.addVMCommandHandler commandHandler =
-        _vmCommandHandlers <- commandHandler :: _vmCommandHandlers
-
-    member x.addVMEventHandler eventHandler =
-        _vmEventHandlers <- eventHandler :: _vmEventHandlers
+    let mutable _handlers = handlers
 
     member x.publish (message : Message) =
         match message with
-        | :? Event as event ->
-            for handle in _eventHandlers do
-                handle event |> x.publish
-        | :? Command as command ->
-            for handle in _commandHandlers do
-                handle command |> x.publish
-        | :? VMEvent as event ->
-            for handle in _vmEventHandlers do
-                handle event |> x.publish
-        | :? VMCommand as command ->
-            for handle in _vmCommandHandlers do
-                handle command |> x.publish
-        | noMessage -> ()
+        | :? 'TIn as msg ->
+            Seq.map (fun handle -> handle msg) _handlers
+        | _ -> Seq.empty
+
+    member x.addHandler handler =
+        _handlers <- handler :: _handlers
+
+type Bus
+    (
+        channels : (Message -> Message seq) list
+    ) =
+    let mutable _channels = channels
+
+    member x.addChannel channel =
+        _channels <- channel :: _channels
+
+    member x.publishAll messages =
+        for message in messages do
+            x.publish message
+
+    member x.publish (message : Message) =
+        for publishToChannel in _channels do
+            publishToChannel message |> x.publishAll

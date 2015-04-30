@@ -24,31 +24,41 @@ module Init =
         let editorService = EditorService()
         let viewService = ViewModelService view
         let renderingService = RenderingService(view, viewService.rerenderWholeView)
-        let commandHandlers = [
-            notificationService.handleCommand
-            viewService.handleCommand
-            editorService.handleCommand
-        ]
-        let eventHandlers = [
-            notificationService.handleEvent
-            viewService.handleEvent
-        ]
-        let vmCommandHandlers = [
-            renderingService.handleVMCommand
-        ]
-        let vmEventHandlers = [
-            renderingService.handleVMEvent
-        ]
-        let broker = Broker(commandHandlers, eventHandlers, vmCommandHandlers, vmEventHandlers)
-        let interpreter = Interpreter.init <| VoidScriptEditorModule(broker.publish).Commands
+        let commandChannel =
+            Channel [
+                notificationService.handleCommand
+                viewService.handleCommand
+                editorService.handleCommand
+            ]
+        let eventChannel =
+            Channel [
+                notificationService.handleEvent
+                viewService.handleEvent
+            ]
+        let vmCommandChannel =
+            Channel [
+                renderingService.handleVMCommand
+            ]
+        let vmEventChannel =
+            Channel [
+                renderingService.handleVMEvent
+            ]
+        let bus =
+            Bus [
+                commandChannel.publish
+                eventChannel.publish
+                vmCommandChannel.publish
+                vmEventChannel.publish
+            ]
+        let interpreter = Interpreter.init <| VoidScriptEditorModule(bus.publish).Commands
         let interpreterWrapper = InterpreterWrapperService interpreter
         let modeService = ModeService(NormalModeInputHandler(),
                                       CommandModeInputHandler interpreterWrapper.interpretFragment,
                                       VisualModeInputHandler(),
                                       InsertModeInputHandler(),
-                                      setInputMode inputModeChanger broker.publish)
-        broker.addCommandHandler modeService.handleCommand
-        broker.addEventHandler modeService.handleEvent
+                                      setInputMode inputModeChanger bus.publish)
+        commandChannel.addHandler modeService.handleCommand
+        eventChannel.addHandler modeService.handleEvent
 
-        broker.publish Command.InitializeVoid
-        broker
+        bus.publish Command.InitializeVoid
+        bus
