@@ -2,8 +2,10 @@
 using System.Drawing;
 using System.Windows.Forms;
 using Void.Core;
+using Void.Util;
 using Void.ViewModel;
 using Microsoft.FSharp.Core;
+using Message = Void.Core.Message;
 
 namespace Void.UI
 {
@@ -16,8 +18,18 @@ namespace Void.UI
         {
             InitializeComponent();
             var messagingSystem = Init.initializeVoid(this, this);
+            messagingSystem.EventChannel.addHandler(FSharpFuncUtil.Create<Event, Message>(HandleEvent));
             SubscribeToPaint(messagingSystem.Bus);
             WireUpInputEvents();
+        }
+
+        private Message HandleEvent(Event eventMsg)
+        {
+            if (eventMsg.IsLastWindowClosed)
+            {
+                Close();
+            }
+            return null;
         }
 
         private void WireUpInputEvents()

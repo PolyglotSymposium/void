@@ -52,9 +52,6 @@ type ViewModelService
             // TODO this is just hacked together for the moment
             let area = _convert.cellBlockToPixels { UpperLeftCell = { Row = CellGrid.lastRow (ViewModel.wholeArea _viewModel); Column = 0 }; Dimensions = { Rows = 1; Columns = _viewModel.Size.Columns }}
             VMEvent.ViewPortionRendered(area, [drawing]) :> Message
-        | Event.LastWindowClosed ->
-            _view.Close()
-            noMessage
         | Event.EditorInitialized editor ->
             _viewModel <- ViewModel.loadBuffer (Editor.currentBuffer editor) _viewModel 
             let drawings = Render.currentBufferAsDrawingObjects _convert _viewModel

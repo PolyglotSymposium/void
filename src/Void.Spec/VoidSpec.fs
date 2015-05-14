@@ -7,12 +7,9 @@ open NUnit.Framework
 open FsUnit
 
 type MainViewStub() =
-    member val Closed = false with get, set
     member val PaintedObjects = 0 with get, set
     member val Bus = Bus([]) with get, set
     interface MainView with
-        member x.Close() =
-            x.Closed <- true
         member x.GetFontMetrics() =
             { LineHeight = 0; CharWidth = 0 }
         member x.SetBackgroundColor color =
@@ -40,7 +37,15 @@ type ``Void``() =
     member x.``When I have freshly opened Vim with one window, when I enter the quit command, then the editor exists``() =
         let mainView = MainViewStub()
         let inputModeChanger = InputModeChangerStub()
-        Init.initializeVoid mainView inputModeChanger |> ignore
+        let messagingSystem = Init.initializeVoid mainView inputModeChanger
+        let closed = ref false
+        let closeHandler event =
+            match event with
+            | Event.LastWindowClosed ->
+                closed := true
+            | _ -> ()
+            noMessage
+        messagingSystem.EventChannel.addHandler closeHandler
 
         match inputModeChanger.getInputHandler() with
         | InputMode.KeyPresses handler ->
@@ -55,7 +60,8 @@ type ``Void``() =
             TextOrHotKey.Text "q" |> handler
             TextOrHotKey.HotKey HotKey.Enter |> handler
 
-        mainView.Closed |> should be True
+        (* Remeber that ! is dereference, not negate, in F# *)
+        !closed |> should be True
 
     [<Test>]
     member x.``When I type CTRL-L in normal mode, the screen is redrawn``() =

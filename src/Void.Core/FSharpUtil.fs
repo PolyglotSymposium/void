@@ -15,3 +15,14 @@ module StringUtil =
         if text.Length > length
         then text.Substring(0, length)
         else text
+
+(* Overcome the impedance mismatch between F# and C# functions.
+ * Thanks to Jared Parsons.
+ * http://blogs.msdn.com/b/jaredpar/archive/2010/07/27/converting-system-func-lt-t1-tn-gt-to-fsharpfunc-lt-t-tresult-gt.aspx
+ * *)
+ open System.Runtime.CompilerServices
+[<Extension>]
+type public FSharpFuncUtil = 
+    [<Extension>] 
+    static member ToFSharpFunc<'a,'b> (func:System.Func<'a,'b>) = fun x -> func.Invoke(x)
+    static member Create<'a,'b> (func:System.Func<'a,'b>) = FSharpFuncUtil.ToFSharpFunc func
