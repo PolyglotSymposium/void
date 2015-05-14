@@ -10,7 +10,8 @@ namespace Void.UI
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new MainForm());
+            var view = new MainForm();
+            Application.Run(view);
         }
     }
 }

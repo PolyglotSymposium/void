@@ -61,7 +61,7 @@ type ``Void``() =
     member x.``When I type CTRL-L in normal mode, the screen is redrawn``() =
         let mainView = MainViewStub()
         let inputModeChanger = InputModeChangerStub()
-        mainView.Bus <- Init.initializeVoid mainView inputModeChanger
+        mainView.Bus <- (Init.initializeVoid mainView inputModeChanger).Bus
         mainView.PaintedObjects |> should equal 0
 
         match inputModeChanger.getInputHandler() with

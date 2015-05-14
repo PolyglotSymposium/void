@@ -15,8 +15,8 @@ namespace Void.UI
         public MainForm()
         {
             InitializeComponent();
-            var broker = Init.initializeVoid(this, this);
-            SubscribeToPaint(broker);
+            var messagingSystem = Init.initializeVoid(this, this);
+            SubscribeToPaint(messagingSystem.Bus);
             WireUpInputEvents();
         }
 

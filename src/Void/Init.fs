@@ -5,6 +5,14 @@ open Void.Lang.Interpreter
 open Void.Lang.Editor
 open Void.ViewModel
 
+type MessagingSystem = {
+    EventChannel : Channel<Event>
+    CommandChannel : Channel<Command>
+    VMEventChannel : Channel<VMEvent>
+    VMCommandChannel : Channel<VMCommand>
+    Bus : Bus
+}
+
 type InputModeChanger =
     abstract member SetInputHandler : InputMode<unit> -> unit
 
@@ -61,4 +69,10 @@ module Init =
         eventChannel.addHandler modeService.handleEvent
 
         bus.publish Command.InitializeVoid
-        bus
+        {
+            EventChannel = eventChannel
+            CommandChannel = commandChannel
+            VMEventChannel = vmEventChannel
+            VMCommandChannel = vmCommandChannel
+            Bus = bus
+        }
