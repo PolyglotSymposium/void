@@ -44,7 +44,7 @@ type ModeNotImplementedYet_FakeInputHandler() =
     member x.handleAnything whatever =
         notImplemented
 
-type ModeController
+type ModeService
     (
         normalModeInputHandler : NormalModeInputHandler,
         commandModeInputHandler : CommandModeInputHandler,

@@ -42,7 +42,7 @@
     <Reference Include="System.Numerics" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="InterpreterWrapperController.fs" />
+    <Compile Include="InterpreterWrapperService.fs" />
     <Compile Include="Broker.fs" />
     <Compile Include="Init.fs" />
   </ItemGroup>

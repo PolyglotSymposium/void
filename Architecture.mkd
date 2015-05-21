@@ -2,7 +2,7 @@
 
 ## User Interface and Architectural Layers
 The core logic will be written in F# that is ignorant of view/UI implementation
-details. The view/UI code will be written in C#.
+details. The view/UI code will be written in C# (or should it be in F#?).
 
 The view code should absorb the complexity of the translation between F# and C#
 and especially of the translation between Void's model of the view and the GUI
@@ -14,24 +14,25 @@ details of a particular graphics library. The view model is to model the UI.
 However, this model is conceptually different than the total current state of
 the editor (in other words, there is not a one-to-one between everything in the
 editor's state and the screen, or everything on the screen and the editor's
-state). The model and view model should be written functionally, except what we
-are currently calling the "controllers" (this may need to be renamed to
-"handlers" or something else once we understand it better), which are the
-imperative "glue" in the view model that ties together view, model, and view
-model. Their only concern is to connect the other components; they should be
-light on logic and heavy on delegation. The models should not reference their
-controllers.
+state). The model and view model should be written functionally (stateless) and
+wrapped in lightweight stateful services that talk by message-passing (though
+preferably without having to directly dependent on any messaging glue). Thus we
+are shooting for a sort of internally service-oriented, message-based
+architecture. The classes that implement the services should be light on logic
+and heavy on delegation to the functional model/domain code. The models should
+not reference their services.
 
 Loose coupling is to be maintained by the use of commands and events. The view
 model should be generated from events off the core model. It should not make
 direct calls to the core model.
 
+TODO - talk about the Requests API
+
+TODO - add stuff about the design of Command Mode and VoidScript.
+
 ## Questions
-+ Should the view send down events rather than just directly calling methods on
-  controllers?
-+ To what extent and in what way should the `MainController` broker? Should it
-  pass all commands to all controllers, similar to what it is doing with events
-  now?
++ Should we use actors for the services?
++ Concurrency?
 
 ## Other
 Pending, but will imitate VsVim and other known good patterns.

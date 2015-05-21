@@ -20,28 +20,27 @@ module Init =
         |> changer.SetInputHandler
 
     let initializeVoid view inputModeChanger =
-        let messageCtrl = MessageController()
-        let editorCtrl = EditorController()
-        let viewCtrl = ViewController view
+        let messageService = MessageService()
+        let editorService = EditorService()
+        let viewService = ViewService view
         let commandHandlers = [
-            messageCtrl.handleCommand
-            viewCtrl.handleCommand
-            editorCtrl.handleCommand
+            messageService.handleCommand
+            viewService.handleCommand
+            editorService.handleCommand
         ]
         let eventHandlers = [
-            messageCtrl.handleEvent
-            viewCtrl.handleEvent
+            messageService.handleEvent
+            viewService.handleEvent
         ]
         let broker = Broker(commandHandlers, eventHandlers)
         let interpreter = Interpreter.init <| VoidScriptEditorModule(broker.publishCommand).Commands
-        let interpreterWrapper = InterpreterWrapperController interpreter
-        let modeCtrl = ModeController(NormalModeInputHandler(),
+        let interpreterWrapper = InterpreterWrapperService interpreter
+        let modeService = ModeService(NormalModeInputHandler(),
                                       CommandModeInputHandler interpreterWrapper.interpretFragment,
                                       VisualModeInputHandler(),
                                       InsertModeInputHandler(),
                                       setInputMode inputModeChanger broker.publishCommand)
-        broker.addCommandHandler modeCtrl.handleCommand
-        broker.addEventHandler modeCtrl.handleEvent
+        broker.addCommandHandler modeService.handleCommand
+        broker.addEventHandler modeService.handleEvent
 
         broker.publishCommand Command.InitializeVoid
-        //broker.brokerCommand Command.ViewTestBuffer // TODO for testing and debugging only

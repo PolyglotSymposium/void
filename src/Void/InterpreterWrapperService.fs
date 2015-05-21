@@ -4,7 +4,7 @@ open Void.Core
 open Void.Lang.Parser
 open Void.Lang.Interpreter
 
-type InterpreterWrapperController(interpreter : VoidScriptInterpreter) =
+type InterpreterWrapperService(interpreter : VoidScriptInterpreter) =
     member x.interpretFragment (request : InterpretScriptFragmentRequest) =
         match Run.fragment interpreter request.Fragment with
         | InterpretScriptFragmentResult.Completed ->
