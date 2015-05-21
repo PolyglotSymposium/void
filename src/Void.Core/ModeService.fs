@@ -13,11 +13,9 @@ type CommandModeInputHandler(interpret : RequestAPI.InterpretScriptFragment) =
 
     // This is so far the model of what I think most "Controllers" should look like
     member x.handleTextOrHotKey input =
-        let updatedBuffer, maybeEvent = handle _buffer input
+        let updatedBuffer, message = handle _buffer input
         _buffer <- updatedBuffer
-        match maybeEvent with
-        | Some event -> Command.PublishEvent event
-        | None -> Command.Noop
+        message
 
 type NormalModeInputHandler() =
     let mutable _bindings = defaultBindings
@@ -27,10 +25,10 @@ type NormalModeInputHandler() =
         match parse _bindings keyPress _state with
         | ParseResult.AwaitingKeyPress prevKeys ->
             _state <- prevKeys
-            Command.Noop
+            noMessage
         | ParseResult.Command command ->
             _state <- noKeysYet
-            command
+            command :> Message
 
 type VisualModeInputHandler() =
     member x.handleKeyPress whatever =
@@ -50,12 +48,12 @@ type ModeService
         commandModeInputHandler : CommandModeInputHandler,
         visualModeInputHandler : VisualModeInputHandler,
         insertModeInputHandler : InsertModeInputHandler,
-        setInputMode : InputMode<Command> -> unit
+        setInputMode : InputMode<Message> -> unit
     ) =
     let mutable _mode = Mode.Normal
 
-    let inputHandlerFor mode =
-        match mode with
+    let inputHandlerFor =
+        function
         | Mode.Normal ->
             InputMode.KeyPresses normalModeInputHandler.handleKeyPress
         | Mode.Command ->
@@ -68,25 +66,25 @@ type ModeService
             ModeNotImplementedYet_FakeInputHandler().handleAnything
             |> InputMode.KeyPresses
 
-    member x.handleEvent event =
-        match event with
+    member x.handleEvent =
+        function
         | Event.LineCommandCompleted -> 
             if _mode = Mode.Command
-            then Command.ChangeToMode Mode.Normal // TODO or whatever mode we were in previously?
-            else Command.Noop
+            then Command.ChangeToMode Mode.Normal :> Message // TODO or whatever mode we were in previously?
+            else noMessage
         | Event.CommandEntryCancelled
         | Event.ErrorOccurred (Error.ScriptFragmentParseFailed _) -> 
-            Command.ChangeToMode Mode.Normal // TODO or whatever mode we were in previously?
-        | _ -> Command.Noop
+            Command.ChangeToMode Mode.Normal :> Message // TODO or whatever mode we were in previously?
+        | _ -> noMessage
 
-    member x.handleCommand command =
-        match command with
+    member x.handleCommand =
+        function
         | Command.InitializeVoid ->
             setInputMode <| inputHandlerFor _mode
-            Command.PublishEvent <| Event.ModeSet _mode
+            Event.ModeSet _mode :> Message
         | Command.ChangeToMode mode ->
             let change = { From = _mode; To = mode }
             _mode <- change.To
             setInputMode <| inputHandlerFor change.To
-            Command.PublishEvent <| Event.ModeChanged change
-        | _ -> Command.Noop
+            Event.ModeChanged change :> Message
+        | _ -> noMessage

@@ -5,42 +5,74 @@ open Void.Lang.Interpreter
 open Void.Lang.Editor
 open Void.ViewModel
 
+type MessagingSystem = {
+    EventChannel : Channel<Event>
+    CommandChannel : Channel<Command>
+    VMEventChannel : Channel<VMEvent>
+    VMCommandChannel : Channel<VMCommand>
+    Bus : Bus
+}
+
 type InputModeChanger =
     abstract member SetInputHandler : InputMode<unit> -> unit
 
 module Init =
-    let setInputMode (changer : InputModeChanger) (publishCommand : Command -> unit) (inputMode : InputMode<Command>) =
+    let setInputMode (changer : InputModeChanger) (publish : Message -> unit) (inputMode : InputMode<Message>) =
         match inputMode with
         | InputMode.KeyPresses handler ->
-            (fun keyPress -> handler keyPress |> publishCommand)
+            (fun keyPress -> handler keyPress |> publish)
             |> InputMode.KeyPresses
         | InputMode.TextAndHotKeys handler ->
-            (fun textOrHotKey -> handler textOrHotKey |> publishCommand)
+            (fun textOrHotKey -> handler textOrHotKey |> publish)
             |> InputMode.TextAndHotKeys
         |> changer.SetInputHandler
 
     let initializeVoid view inputModeChanger =
-        let messageService = MessageService()
+        let notificationService = NotificationService()
         let editorService = EditorService()
-        let viewService = ViewService view
-        let commandHandlers = [
-            messageService.handleCommand
-            viewService.handleCommand
-            editorService.handleCommand
-        ]
-        let eventHandlers = [
-            messageService.handleEvent
-            viewService.handleEvent
-        ]
-        let broker = Broker(commandHandlers, eventHandlers)
-        let interpreter = Interpreter.init <| VoidScriptEditorModule(broker.publishCommand).Commands
+        let viewService = ViewModelService view
+        let renderingService = RenderingService(view, viewService.rerenderWholeView)
+        let commandChannel =
+            Channel [
+                notificationService.handleCommand
+                viewService.handleCommand
+                editorService.handleCommand
+            ]
+        let eventChannel =
+            Channel [
+                notificationService.handleEvent
+                viewService.handleEvent
+            ]
+        let vmCommandChannel =
+            Channel [
+                renderingService.handleVMCommand
+            ]
+        let vmEventChannel =
+            Channel [
+                renderingService.handleVMEvent
+            ]
+        let bus =
+            Bus [
+                commandChannel.publish
+                eventChannel.publish
+                vmCommandChannel.publish
+                vmEventChannel.publish
+            ]
+        let interpreter = Interpreter.init <| VoidScriptEditorModule(bus.publish).Commands
         let interpreterWrapper = InterpreterWrapperService interpreter
         let modeService = ModeService(NormalModeInputHandler(),
                                       CommandModeInputHandler interpreterWrapper.interpretFragment,
                                       VisualModeInputHandler(),
                                       InsertModeInputHandler(),
-                                      setInputMode inputModeChanger broker.publishCommand)
-        broker.addCommandHandler modeService.handleCommand
-        broker.addEventHandler modeService.handleEvent
+                                      setInputMode inputModeChanger bus.publish)
+        commandChannel.addHandler modeService.handleCommand
+        eventChannel.addHandler modeService.handleEvent
 
-        broker.publishCommand Command.InitializeVoid
+        bus.publish Command.InitializeVoid
+        {
+            EventChannel = eventChannel
+            CommandChannel = commandChannel
+            VMEventChannel = vmEventChannel
+            VMCommandChannel = vmCommandChannel
+            Bus = bus
+        }

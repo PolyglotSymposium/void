@@ -85,6 +85,21 @@
       <Project>{0619a030-5068-4eff-8d9e-55ea3fe924d8}</Project>
       <Private>True</Private>
     </ProjectReference>
+    <ProjectReference Include="..\Void.Lang.Editor\Void.Lang.Editor.fsproj">
+      <Name>Void.Lang.Editor</Name>
+      <Project>{480fdc57-afa5-4165-8497-6ded5d0495b8}</Project>
+      <Private>True</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\Void.Lang.Interpreter\Void.Lang.Interpreter.fsproj">
+      <Name>Void.Lang.Interpreter</Name>
+      <Project>{4bd639f5-0c73-4267-9a19-6e62ed309986}</Project>
+      <Private>True</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\Void.Lang.Parser\Void.Lang.Parser.fsproj">
+      <Name>Void.Lang.Parser</Name>
+      <Project>{06bcbea6-c272-4591-bfe3-9dd6bbabea9e}</Project>
+      <Private>True</Private>
+    </ProjectReference>
     <ProjectReference Include="..\Void.ViewModel\Void.ViewModel.fsproj">
       <Name>Void.ViewModel</Name>
       <Project>{aba22359-eaf6-4604-82e2-977f816040ed}</Project>

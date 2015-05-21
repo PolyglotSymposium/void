@@ -43,7 +43,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="InterpreterWrapperService.fs" />
-    <Compile Include="Broker.fs" />
+    <Compile Include="Messaging.fs" />
     <Compile Include="Init.fs" />
   </ItemGroup>
   <ItemGroup>

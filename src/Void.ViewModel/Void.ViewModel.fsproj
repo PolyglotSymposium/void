@@ -46,7 +46,9 @@
     <Compile Include="VoidViewModel.fs" />
     <Compile Include="Render.fs" />
     <Compile Include="View.fs" />
-    <Compile Include="ViewService.fs" />
+    <Compile Include="ViewModelMessages.fs" />
+    <Compile Include="RenderingService.fs" />
+    <Compile Include="ViewModelService.fs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Void.Core\Void.Core.fsproj">

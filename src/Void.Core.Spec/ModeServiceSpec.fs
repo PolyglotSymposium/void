@@ -7,7 +7,7 @@ open FsUnit
 [<TestFixture>]
 type ``Normal mode input handler``() = 
     let handleAndVerifyZQ (handler : NormalModeInputHandler) = 
-        handler.handleKeyPress KeyPress.ShiftZ |> should equal Command.Noop
+        handler.handleKeyPress KeyPress.ShiftZ |> should equal noMessage
         handler.handleKeyPress KeyPress.ShiftQ |> should equal Command.QuitWithoutSaving
 
     [<Test>]

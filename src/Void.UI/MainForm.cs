@@ -2,8 +2,10 @@
 using System.Drawing;
 using System.Windows.Forms;
 using Void.Core;
+using Void.Util;
 using Void.ViewModel;
 using Microsoft.FSharp.Core;
+using Message = Void.Core.Message;
 
 namespace Void.UI
 {
@@ -15,7 +17,23 @@ namespace Void.UI
         public MainForm()
         {
             InitializeComponent();
-            Init.initializeVoid(this, this);
+            var messagingSystem = Init.initializeVoid(this, this);
+            messagingSystem.EventChannel.addHandler(FSharpFuncUtil.Create<Event, Message>(HandleEvent));
+            SubscribeToPaint(messagingSystem.Bus);
+            WireUpInputEvents();
+        }
+
+        private Message HandleEvent(Event eventMsg)
+        {
+            if (eventMsg.IsLastWindowClosed)
+            {
+                Close();
+            }
+            return null;
+        }
+
+        private void WireUpInputEvents()
+        {
             KeyUp += (sender, eventArgs) =>
             {
                 if (_inputHandler.IsKeyPresses)
@@ -46,6 +64,15 @@ namespace Void.UI
                         _inputHandler.AsTextAndHotKeysHandler()(textOrHotKey);
                     }
                 }
+            };
+        }
+
+        public void SubscribeToPaint(Bus bus)
+        {
+            Paint += (sender, eventArgs) =>
+            {
+                var artist = new WinFormsArtist(eventArgs.Graphics, _font);
+                bus.publish(VMEvent.NewPaintInitiated(artist.DrawAsFSharpFunc()));
             };
         }
 
@@ -84,11 +111,6 @@ namespace Void.UI
         public void SetViewTitle(string title)
         {
             Text = title;
-        }
-
-        public void SubscribeToPaint(FSharpFunc<Action<DrawingObject>, Unit> paint)
-        {
-            Paint += (sender, eventArgs) => paint.Invoke(new WinFormsArtist(eventArgs.Graphics, _font).Draw);
         }
 
         public void TriggerDraw(PixelGrid.Block block)

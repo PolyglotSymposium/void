@@ -60,26 +60,26 @@ module Render =
                     Color = Colors.defaultColorscheme.Foreground
                  }]
 
-    let outputMessageAsDrawingObject (convert : Sizing.Convert) upperLeft outputMessage =
-        match outputMessage with
-        | OutputMessageView.Text msg ->
+    let notificationAsDrawingObject (convert : Sizing.Convert) upperLeft notification =
+        match notification with
+        | UserNotificationView.Text text ->
             {
-                Text = msg
+                Text = text
                 UpperLeftCorner = convert.cellToUpperLeftPoint upperLeft
                 Color = Colors.defaultColorscheme.Foreground
             }
-        | OutputMessageView.Error msg ->
+        | UserNotificationView.Error text ->
             {
-                Text = msg
+                Text = text
                 UpperLeftCorner = convert.cellToUpperLeftPoint upperLeft
                 Color = Colors.defaultColorscheme.Error
             }
         |> DrawingObject.Text
 
-    let outputMessagesAsDrawingObjects convert width upperLeft outputMessages =
+    let notificationsAsDrawingObjects convert width upperLeft notifications =
         let asDrawingObject =
-            outputMessageAsDrawingObject convert upperLeft
-        outputMessages |> List.map asDrawingObject
+            notificationAsDrawingObject convert upperLeft
+        notifications |> List.map asDrawingObject
 
     let tabBarAsDrawingObjects convert tabBar = []
 
@@ -115,7 +115,7 @@ module Render =
             tabBarAsDrawingObjects convert viewModel.TabBar
             windowsAsDrawingObjects convert viewModel.VisibleWindows
             commandBarAsDrawingObjects convert viewModel.CommandBar viewModel.Size.Columns originCell
-            outputMessagesAsDrawingObjects convert viewModel.Size.Columns originCell viewModel.OutputMessages 
+            notificationsAsDrawingObjects convert viewModel.Size.Columns originCell viewModel.Notifications 
         ] |> Seq.concat
 
     let currentBufferAsDrawingObjects convert viewModel =
