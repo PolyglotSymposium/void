@@ -11,13 +11,16 @@ module CommandMode =
             (buffer + "\n", noMessage)
 
     let private handleHotKey interpret buffer hotKey =
+        let cancelled = ("", Event.CommandEntryCancelled :> Message)
         match hotKey with
         | HotKey.Enter ->
             handleEnter interpret buffer
         | HotKey.Escape ->
-            ("", Event.CommandEntryCancelled :> Message)
+            cancelled
         | HotKey.Backspace ->
-            (buffer.Remove(buffer.Length - 1), Event.CommandMode_CharacterBackspaced :> Message)
+            if buffer = ""
+            then cancelled
+            else (buffer.Remove(buffer.Length - 1), Event.CommandMode_CharacterBackspaced :> Message)
         | _ -> (buffer, noMessage)
 
     let handle (interpret : RequestAPI.InterpretScriptFragment) buffer input =

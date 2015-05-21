@@ -153,5 +153,32 @@ module ViewModel =
     let addNotification viewModel notification =
         { viewModel with Notifications = notification :: viewModel.Notifications }
 
+    let appendTextInCommandBar viewModel textToAppend =
+        match viewModel.CommandBar with
+        | CommandBarView.Hidden ->
+            { viewModel with CommandBar = CommandBarView.Visible textToAppend }
+        | CommandBarView.Visible text ->
+            { viewModel with CommandBar = CommandBarView.Visible (text + textToAppend) }
+
+    let characterBackspacedInCommandBar viewModel =
+        match viewModel.CommandBar with
+        | CommandBarView.Hidden ->
+            viewModel
+        | CommandBarView.Visible text ->
+            { viewModel with CommandBar = CommandBarView.Visible <| text.Remove(text.Length - 1)}
+
+    let hideCommandBar viewModel =
+        { viewModel with CommandBar = CommandBarView.Hidden }
+
+    let showCommandBar viewModel =
+        { viewModel with CommandBar = CommandBarView.Visible "" }
+
+    let areaOfCommandBarOrNotifications viewModel =
+        // TODO this is just hacked together for the moment
+        {
+            UpperLeftCell = { Row = CellGrid.lastRow (wholeArea viewModel); Column = 0 }
+            Dimensions = { Rows = 1; Columns = viewModel.Size.Columns }
+        }
+
     let init editorState viewModel =
         loadBuffer (Editor.currentBuffer editorState) viewModel

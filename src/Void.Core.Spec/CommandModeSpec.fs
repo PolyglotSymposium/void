@@ -46,6 +46,11 @@ type ``Editing command mode``() =
         |> should equal ("edi", Event.CommandMode_CharacterBackspaced :> Message)
 
     [<Test>]
+    member x.``When backspace is pressed and there are no characters but the prompt, command entry is cancelled``() =
+        CommandMode.handle interpret_success "" backspace
+        |> should equal ("", Event.CommandEntryCancelled :> Message)
+
+    [<Test>]
     member x.``When the command text is parsed successfully, the command text is reset``() =
         CommandMode.handle interpret_success "edit" enter
         |> should equal ("", Event.LineCommandCompleted :> Message)

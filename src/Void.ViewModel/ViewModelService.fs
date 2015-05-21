@@ -40,24 +40,42 @@ type ViewModelService
             noMessage
 
     member x.handleEvent =
-        function
+        function // TODO clearly the code below needs to be refactored
         | Event.BufferLoadedIntoWindow buffer ->
             _viewModel <- ViewModel.loadBuffer buffer _viewModel
             let drawings = Render.currentBufferAsDrawingObjects _convert _viewModel
             let area = _convert.cellBlockToPixels <| ViewModel.wholeArea _viewModel (* TODO shouldn't redraw the whole UI *)
             VMEvent.ViewPortionRendered(area, drawings) :> Message
+        | Event.ModeChanged { From = _; To = Mode.Command } ->
+            let area = ViewModel.areaOfCommandBarOrNotifications _viewModel
+            _viewModel <- ViewModel.showCommandBar _viewModel
+            let drawings = Render.commandBarAsDrawingObjects _convert _viewModel.CommandBar area.Dimensions.Columns area.UpperLeftCell
+            let areaInPixels = _convert.cellBlockToPixels area
+            VMEvent.ViewPortionRendered(areaInPixels, drawings) :> Message
         | Event.CommandEntryCancelled ->
-            noMessage
+            let area = ViewModel.areaOfCommandBarOrNotifications _viewModel
+            _viewModel <- ViewModel.hideCommandBar _viewModel
+            let drawings = Render.commandBarAsDrawingObjects _convert _viewModel.CommandBar area.Dimensions.Columns area.UpperLeftCell
+            let areaInPixels = _convert.cellBlockToPixels area
+            VMEvent.ViewPortionRendered(areaInPixels, drawings) :> Message
         | Event.CommandMode_CharacterBackspaced ->
-            noMessage
+            let area = ViewModel.areaOfCommandBarOrNotifications _viewModel
+            _viewModel <- ViewModel.characterBackspacedInCommandBar _viewModel
+            let drawings = Render.commandBarAsDrawingObjects _convert _viewModel.CommandBar area.Dimensions.Columns area.UpperLeftCell
+            let areaInPixels = _convert.cellBlockToPixels area // TODO we are refreshing too much
+            VMEvent.ViewPortionRendered(areaInPixels, drawings) :> Message
         | Event.CommandMode_TextAppended text ->
-            noMessage
+            let area = ViewModel.areaOfCommandBarOrNotifications _viewModel
+            _viewModel <- ViewModel.appendTextInCommandBar _viewModel text
+            let drawings = Render.commandBarAsDrawingObjects _convert _viewModel.CommandBar area.Dimensions.Columns area.UpperLeftCell
+            let areaInPixels = _convert.cellBlockToPixels area // TODO we are refreshing too much
+            VMEvent.ViewPortionRendered(areaInPixels, drawings) :> Message
         | Event.NotificationAdded notification ->
+            let area = ViewModel.areaOfCommandBarOrNotifications _viewModel
             let drawing = ViewModel.toScreenNotification notification
-                          |> Render.notificationAsDrawingObject _convert { Row = CellGrid.lastRow (ViewModel.wholeArea _viewModel); Column = 0 }
-            // TODO this is just hacked together for the moment
-            let area = _convert.cellBlockToPixels { UpperLeftCell = { Row = CellGrid.lastRow (ViewModel.wholeArea _viewModel); Column = 0 }; Dimensions = { Rows = 1; Columns = _viewModel.Size.Columns }}
-            VMEvent.ViewPortionRendered(area, [drawing]) :> Message
+                          |> Render.notificationAsDrawingObject _convert area.UpperLeftCell
+            let areaInPixels = _convert.cellBlockToPixels area
+            VMEvent.ViewPortionRendered(areaInPixels, [drawing]) :> Message
         | Event.EditorInitialized editor ->
             _viewModel <- ViewModel.init editor _viewModel 
             let drawings = Render.currentBufferAsDrawingObjects _convert _viewModel
