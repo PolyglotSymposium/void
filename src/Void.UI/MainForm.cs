@@ -13,6 +13,7 @@ namespace Void.UI
     {
         private Font _font = new Font(FontFamily.GenericMonospace, 9);
         private InputMode<Unit> _inputHandler;
+        private CellMetrics _cellMetrics;
 
         public MainForm()
         {
@@ -71,7 +72,7 @@ namespace Void.UI
         {
             Paint += (sender, eventArgs) =>
             {
-                var artist = new WinFormsArtist(eventArgs.Graphics, _font);
+                var artist = new WinFormsArtist(eventArgs.Graphics, _font, _cellMetrics);
                 bus.publish(VMEvent.NewPaintInitiated(artist.DrawAsFSharpFunc()));
             };
         }
@@ -79,11 +80,6 @@ namespace Void.UI
         public void SetInputHandler(InputMode<Unit> handler)
         {
             _inputHandler = handler;
-        }
-
-        public PixelGrid.FontMetrics GetFontMetrics()
-        {
-            return new PixelGrid.FontMetrics(_font.Height, MeasureFontWidth());
         }
 
         private int MeasureFontWidth()
@@ -101,11 +97,12 @@ namespace Void.UI
         public void SetFontBySize(byte size)
         {
             _font = new Font(FontFamily.GenericMonospace, 9);
+            _cellMetrics = new CellMetrics(_font.Height, MeasureFontWidth());
         }
 
-        public void SetViewSize(PixelGrid.Dimensions size)
+        public void SetViewSize(PointGrid.Dimensions size)
         {
-            ClientSize = size.AsWinFormsSize();
+            ClientSize = size.AsWinFormsSize(_cellMetrics);
         }
 
         public void SetViewTitle(string title)
@@ -113,9 +110,9 @@ namespace Void.UI
             Text = title;
         }
 
-        public void TriggerDraw(PixelGrid.Block block)
+        public void TriggerDraw(PointGrid.Block block)
         {
-            Invalidate(block.AsWinFormsRectangle());
+            Invalidate(block.AsWinFormsRectangle(_cellMetrics));
         }
     }
 }

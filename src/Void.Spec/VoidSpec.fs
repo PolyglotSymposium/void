@@ -10,8 +10,6 @@ type MainViewStub() =
     member val PaintedObjects = 0 with get, set
     member val Bus = Bus([]) with get, set
     interface MainView with
-        member x.GetFontMetrics() =
-            { LineHeight = 0; CharWidth = 0 }
         member x.SetBackgroundColor color =
             ()
         member x.SetFontBySize size =

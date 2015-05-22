@@ -74,7 +74,7 @@ module GridConvert =
     open PointGrid
     open CellGrid
 
-    let upperLeftCorner cell =
+    let upperLeftCornerOf cell =
         { X = cell.Column; Y = cell.Row }
 
     let dimensionsInPoints dimensions =
@@ -82,7 +82,7 @@ module GridConvert =
 
     let perimeterOf block =
         {
-            UpperLeftCorner = upperLeftCorner block.UpperLeftCell
+            UpperLeftCorner = upperLeftCornerOf block.UpperLeftCell
             Dimensions = dimensionsInPoints block.Dimensions
         }
 

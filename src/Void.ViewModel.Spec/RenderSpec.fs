@@ -1,23 +1,20 @@
 ﻿namespace Void.ViewModel.Spec
 
 open Void.ViewModel
-open Void.ViewModel.PixelGrid
+open Void.Core
 open Void.Core.CellGrid
 open System.Linq
 open NUnit.Framework
 open FsUnit
 
-module Stubs =
-    let convert = Sizing.Convert { LineHeight = 1; CharWidth = 1 }
-
 [<TestFixture>]
 type ``Rendering text lines as drawing objects for a view size``() = 
     [<Test>]
     member x.``for one line, which fits on the screen in both dimensions, should place it at the origin``() =
-        Render.textLinesAsDrawingObjects Stubs.convert ["Just one line"]
+        Render.textLinesAsDrawingObjects ["Just one line"]
         |> should equal [DrawingObject.Text {
             Text = "Just one line"
-            UpperLeftCorner = originPoint
+            UpperLeftCorner = PointGrid.originPoint
             Color = Colors.defaultColorscheme.Foreground
         }]
 
@@ -25,7 +22,7 @@ type ``Rendering text lines as drawing objects for a view size``() =
 type ``Rendering the command bar``() = 
     [<Test>]
     member x.``when it is hidden results in a background block``() =
-        Render.commandBarAsDrawingObjects Stubs.convert CommandBarView.Hidden 78 { Row = 24; Column = 0 }
+        Render.commandBarAsDrawingObjects CommandBarView.Hidden 78 { Row = 24; Column = 0 }
         |> should equal [DrawingObject.Block {
             Area =
                 {
@@ -37,7 +34,7 @@ type ``Rendering the command bar``() =
 
     [<Test>]
     member x.``when it is shown but empty results in a prompt symbol``() =
-        let drawings = Render.commandBarAsDrawingObjects Stubs.convert (CommandBarView.Visible "") 80 { Row = 25; Column = 0 }
+        let drawings = Render.commandBarAsDrawingObjects (CommandBarView.Visible "") 80 { Row = 25; Column = 0 }
         drawings.Length |> should equal 2
         drawings.[1] |> should equal (DrawingObject.Text {
             Text = ";"
@@ -47,7 +44,7 @@ type ``Rendering the command bar``() =
 
     [<Test>]
     member x.``when it is shown and has text results in a prompt symbol and text``() =
-        let drawings = Render.commandBarAsDrawingObjects Stubs.convert (CommandBarView.Visible "quit") 80 { Row = 25; Column = 0 }
+        let drawings = Render.commandBarAsDrawingObjects (CommandBarView.Visible "quit") 80 { Row = 25; Column = 0 }
         drawings.Length |> should equal 3
         drawings.[2] |> should equal (DrawingObject.Text {
             Text = "quit"
@@ -57,7 +54,7 @@ type ``Rendering the command bar``() =
 
 [<TestFixture>]
 type ``Rendering user notifications``() = 
-    let render = Render.notificationsAsDrawingObjects Stubs.convert
+    let render = Render.notificationsAsDrawingObjects
     [<Test>]
     member x.``when there are none results in no drawing objects``() =
         render 78 { Row = 24; Column = 0 } [] 
@@ -90,19 +87,19 @@ type ``Rendering buffers``() =
         Dimensions = { Rows = 25; Columns = 80 }
     }
 
-    let render = Render.bufferAsDrawingObjects Stubs.convert windowArea
+    let render = Render.bufferAsDrawingObjects windowArea
 
     let shouldAllBeTildes drawingObjects =
         drawingObjects |> Seq.mapi (fun i drawingObject ->
             drawingObject |> should equal [DrawingObject.Text {
                 Text = "~"
-                UpperLeftCorner = Stubs.convert.cellToUpperLeftPoint { Row = i+1; Column = 0 }
+                UpperLeftCorner = { Y = i+1; X = 0 }
                 Color = Colors.defaultColorscheme.DimForeground
             }]) |> ignore
 
     let shouldBeBackgroundBlock drawingObject =
         drawingObject |> should equal (DrawingObject.Block {
-            Area = { UpperLeftCorner = originPoint; Dimensions = { Height = 25; Width = 80 } }
+            Area = { UpperLeftCorner = PointGrid.originPoint; Dimensions = { Height = 25; Width = 80 } }
             Color = Colors.defaultColorscheme.Background
         })
 
@@ -121,7 +118,7 @@ type ``Rendering buffers``() =
         drawingObjects.[0] |> shouldBeBackgroundBlock
         drawingObjects.[1] |> should equal (DrawingObject.Text {
             Text = "only one line"
-            UpperLeftCorner = originPoint
+            UpperLeftCorner = PointGrid.originPoint
             Color = Colors.defaultColorscheme.Foreground
         })
         drawingObjects |> Seq.skip 2 |> shouldAllBeTildes
@@ -133,7 +130,7 @@ type ``Rendering buffers``() =
         drawingObjects.[0] |> shouldBeBackgroundBlock
         drawingObjects.[1] |> should equal (DrawingObject.Text {
             Text = "line 1"
-            UpperLeftCorner = originPoint
+            UpperLeftCorner = PointGrid.originPoint
             Color = Colors.defaultColorscheme.Foreground
         })
         drawingObjects.[2] |> should equal (DrawingObject.Text {
@@ -152,6 +149,6 @@ type ``Rendering buffers``() =
         drawingObjects |> Seq.mapi (fun i drawingObject ->
             drawingObject |> should equal [DrawingObject.Text {
                 Text = "line"
-                UpperLeftCorner = Stubs.convert.cellToUpperLeftPoint { Row = i+1; Column = 0 }
+                UpperLeftCorner = { Y = i+1; X = 0 }
                 Color = Colors.defaultColorscheme.DimForeground
             }]) |> ignore

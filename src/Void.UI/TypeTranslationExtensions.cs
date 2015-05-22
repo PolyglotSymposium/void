@@ -27,34 +27,34 @@ namespace Void.UI
             return new SolidBrush(color.AsWinFormsColor());
         }
 
-        public static Size AsWinFormsSize(this PixelGrid.Dimensions size)
+        public static Size AsWinFormsSize(this PointGrid.Dimensions size, CellMetrics cellMetrics)
         {
-            return new Size(size.Width, size.Height);
+            return new Size(size.Width * cellMetrics.Width, size.Height * cellMetrics.Height);
         }
 
-        public static Point AsWinFormsPoint(this PixelGrid.Point point)
+        public static Point AsWinFormsPoint(this PointGrid.Point point, CellMetrics cellMetrics)
         {
-            return new Point(point.X, point.Y);
+            return new Point(point.X * cellMetrics.Width, point.Y * cellMetrics.Height);
         }
 
-        public static PointF AsWinFormsPointF(this PixelGrid.Point point)
+        public static PointF AsWinFormsPointF(this PointGrid.Point point, CellMetrics cellMetrics)
         {
-            return new PointF(Convert.ToSingle(point.X), Convert.ToSingle(point.Y));
+            return new PointF(Convert.ToSingle(point.X * cellMetrics.Width), Convert.ToSingle(point.Y * cellMetrics.Height));
         }
 
-        public static SizeF AsWinFormsSizeF(this PixelGrid.Dimensions size)
+        public static SizeF AsWinFormsSizeF(this PointGrid.Dimensions size, CellMetrics cellMetrics)
         {
-            return new SizeF(Convert.ToSingle(size.Width), Convert.ToSingle(size.Height));
+            return new SizeF(Convert.ToSingle(size.Width * cellMetrics.Width), Convert.ToSingle(size.Height * cellMetrics.Height));
         }
 
-        public static Rectangle AsWinFormsRectangle(this PixelGrid.Block block)
+        public static Rectangle AsWinFormsRectangle(this PointGrid.Block block, CellMetrics cellMetrics)
         {
-            return new Rectangle(block.UpperLeftCorner.AsWinFormsPoint(), block.Dimensions.AsWinFormsSize());
+            return new Rectangle(block.UpperLeftCorner.AsWinFormsPoint(cellMetrics), block.Dimensions.AsWinFormsSize(cellMetrics));
         }
 
-        public static RectangleF AsWinFormsRectangleF(this PixelGrid.Block block)
+        public static RectangleF AsWinFormsRectangleF(this PointGrid.Block block, CellMetrics cellMetrics)
         {
-            return new RectangleF(block.UpperLeftCorner.AsWinFormsPointF(), block.Dimensions.AsWinFormsSizeF());
+            return new RectangleF(block.UpperLeftCorner.AsWinFormsPointF(cellMetrics), block.Dimensions.AsWinFormsSizeF(cellMetrics));
         }
 
         public static ScreenLineObject AsLine(this DrawingObject drawing)

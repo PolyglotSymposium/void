@@ -30,7 +30,7 @@ module Render =
     let private textLineAsDrawingObject x line =
         DrawingObject.Text {
             Text = line
-            UpperLeftCorner = convert.cellToUpperLeftPoint <| below originCell x
+            UpperLeftCorner = GridConvert.upperLeftCornerOf <| below originCell x
             Color = Colors.defaultColorscheme.Foreground
         }
 
@@ -40,15 +40,15 @@ module Render =
     let private commandBarPrompt = 
         DrawingObject.Text {
             Text = ";"
-            UpperLeftCorner = convert.cellToUpperLeftPoint { Row = 25; Column = 0 }
+            UpperLeftCorner = GridConvert.upperLeftCornerOf { Row = 25; Column = 0 }
             Color = Colors.defaultColorscheme.DimForeground
         }
 
-    let commandBarAsDrawingObjects commandBar width upperLeft =
+    let commandBarAsDrawingObjects commandBar width upperLeftCell =
         DrawingObject.Block {
             Area =
                 {
-                    UpperLeftCorner = convert.cellToUpperLeftPoint upperLeft
+                    UpperLeftCorner = GridConvert.upperLeftCornerOf upperLeftCell
                     Dimensions = { Height = 1; Width = width }
                 }
             Color = Colors.defaultColorscheme.Background
@@ -58,7 +58,7 @@ module Render =
              | CommandBarView.Visible text ->
                  [commandBarPrompt; DrawingObject.Text {
                     Text = text
-                    UpperLeftCorner = convert.cellToUpperLeftPoint <| rightOf upperLeft 1
+                    UpperLeftCorner = GridConvert.upperLeftCornerOf <| rightOf upperLeftCell 1
                     Color = Colors.defaultColorscheme.Foreground
                  }]
 
@@ -67,27 +67,27 @@ module Render =
         | UserNotificationView.Text text ->
             {
                 Text = text
-                UpperLeftCorner = convert.cellToUpperLeftPoint upperLeft
+                UpperLeftCorner = GridConvert.upperLeftCornerOf upperLeft
                 Color = Colors.defaultColorscheme.Foreground
             }
         | UserNotificationView.Error text ->
             {
                 Text = text
-                UpperLeftCorner = convert.cellToUpperLeftPoint upperLeft
+                UpperLeftCorner = GridConvert.upperLeftCornerOf upperLeft
                 Color = Colors.defaultColorscheme.Error
             }
         |> DrawingObject.Text
 
     let notificationsAsDrawingObjects width upperLeft notifications =
         let asDrawingObject =
-            notificationAsDrawingObject convert upperLeft
+            notificationAsDrawingObject upperLeft
         notifications |> List.map asDrawingObject
 
     let tabBarAsDrawingObjects tabBar = []
 
-    let bufferAsDrawingObjects windowArea buffer =
+    let bufferAsDrawingObjects windowArea (buffer : BufferView) =
         let background = DrawingObject.Block {
-            Area = convert.cellBlockToPixels windowArea
+            Area = GridConvert.perimeterOf windowArea
             Color = Colors.defaultColorscheme.Background
         }
 
@@ -97,7 +97,7 @@ module Render =
             let lineNotInBufferAsDrawingObject i =
                 DrawingObject.Text {
                     Text = "~"
-                    UpperLeftCorner = convert.cellToUpperLeftPoint { Row = i; Column = 0 }
+                    UpperLeftCorner = GridConvert.upperLeftCornerOf { Row = i; Column = 0 }
                     Color = Colors.defaultColorscheme.DimForeground
                 }
             let linesWithNoTilde =
@@ -120,6 +120,6 @@ module Render =
             notificationsAsDrawingObjects viewModel.Size.Columns originCell viewModel.Notifications 
         ] |> Seq.concat
 
-    let currentBufferAsDrawingObjects convert viewModel =
+    let currentBufferAsDrawingObjects viewModel =
         viewModel.VisibleWindows.[0].Buffer
         |> bufferAsDrawingObjects viewModel.VisibleWindows.[0].Area
