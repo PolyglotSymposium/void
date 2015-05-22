@@ -24,6 +24,22 @@ type ModeChange = {
     To : Mode
 }
 
+module PointGrid =
+    type Point = {
+        X : int
+        Y : int
+    }
+    type Dimensions = {
+        Height : int
+        Width : int
+    }
+    type Block = {
+        UpperLeftCorner : Point
+        Dimensions : Dimensions
+    }
+
+    let originPoint = { X = 0; Y = 0 }
+
 module CellGrid =
     type Cell = {
         Row : int
@@ -53,6 +69,22 @@ module CellGrid =
 
     let lessRowsBelow n block =
         { block with Dimensions = lessRows n block.Dimensions}
+
+module GridConvert =
+    open PointGrid
+    open CellGrid
+
+    let upperLeftCorner cell =
+        { X = cell.Column; Y = cell.Row }
+
+    let dimensionsInPoints dimensions =
+        { Width = dimensions.Columns; Height = dimensions.Rows }
+
+    let perimeterOf block =
+        {
+            UpperLeftCorner = upperLeftCorner block.UpperLeftCell
+            Dimensions = dimensionsInPoints block.Dimensions
+        }
 
 // TODO This is naive, obviously
 type FileBuffer = private {

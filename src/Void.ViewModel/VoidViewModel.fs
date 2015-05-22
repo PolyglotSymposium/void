@@ -2,56 +2,15 @@
 
 open Void.Core
 
-module PixelGrid =
-    type FontMetrics = {
-        LineHeight : int
-        CharWidth : int
-    }
-    type Point = {
-        X : int
-        Y : int
-    }
-    type Dimensions = {
-        Height : int
-        Width : int
-    }
-    type Block = {
-        UpperLeftCorner : Point
-        Dimensions : Dimensions
-    }
-
-    let originPoint = { X = 0; Y = 0 }
-
 module Sizing =
-    open System
-    open PixelGrid
     open Void.Core.CellGrid
-
     let defaultViewSize = { Rows = 26; Columns = 80 }
-
     let defaultViewArea = { UpperLeftCell = originCell; Dimensions = defaultViewSize }
-
-    type Convert(_fontMetrics : FontMetrics) =
-        member this.cellToUpperLeftPoint cell =
-            {
-                X = cell.Column * _fontMetrics.CharWidth
-                Y = cell.Row * _fontMetrics.LineHeight
-            }
-        member this.cellDimensionsToPixels dimensions =
-            {
-                Height = _fontMetrics.LineHeight * dimensions.Rows
-                Width = _fontMetrics.CharWidth * dimensions.Columns
-            }
-        member this.cellBlockToPixels block =
-            {
-                UpperLeftCorner = this.cellToUpperLeftPoint block.UpperLeftCell
-                Dimensions = this.cellDimensionsToPixels block.Dimensions
-            }
 
 [<RequireQualifiedAccess>]
 type CursorView =
     | Block of CellGrid.Cell
-    | IBeam of PixelGrid.Point
+    | IBeam of PointGrid.Point
     | Hidden
 
 [<RequireQualifiedAccess>]

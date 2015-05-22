@@ -7,8 +7,6 @@ type ViewModelService
     (
         _view : MainView
     ) =
-    let mutable _fontMetrics = _view.GetFontMetrics()
-    let mutable _convert = Sizing.Convert _fontMetrics
     let mutable _viewModel = ViewModel.defaultViewModel
     let _colorscheme = Colors.defaultColorscheme
 
@@ -16,16 +14,14 @@ type ViewModelService
         _view.SetViewTitle ViewModel.defaultTitle
         _view.SetBackgroundColor Colors.defaultColorscheme.Background
         x.setFont()
-        _view.SetViewSize <| _convert.cellDimensionsToPixels _viewModel.Size
+        _view.SetViewSize <| GridConvert.dimensionsInPoints _viewModel.Size
         VMEvent.ViewModelInitialized
 
     member x.rerenderWholeView() =
-        Render.viewModelAsDrawingObjects _convert _viewModel
+        Render.viewModelAsDrawingObjects _viewModel
 
     member private x.setFont() =
         _view.SetFontBySize ViewModel.defaultFontSize
-        _fontMetrics <- _view.GetFontMetrics()
-        _convert <- Sizing.Convert _fontMetrics
 
     member x.handleCommand =
         function
@@ -34,7 +30,7 @@ type ViewModelService
         | Command.Display _ ->
             notImplemented
         | Command.Redraw ->
-            _convert.cellBlockToPixels (ViewModel.wholeArea _viewModel)
+            GridConvert.perimeterOf (ViewModel.wholeArea _viewModel)
             |> VMCommand.Redraw :> Message
         | _ ->
             noMessage
@@ -43,26 +39,26 @@ type ViewModelService
         function // TODO clearly the code below needs to be refactored
         | Event.BufferLoadedIntoWindow buffer ->
             _viewModel <- ViewModel.loadBuffer buffer _viewModel
-            let drawings = Render.currentBufferAsDrawingObjects _convert _viewModel
-            let area = _convert.cellBlockToPixels <| ViewModel.wholeArea _viewModel (* TODO shouldn't redraw the whole UI *)
+            let drawings = Render.currentBufferAsDrawingObjects _viewModel
+            let area = GridConvert.perimeterOf (ViewModel.wholeArea _viewModel) (* TODO shouldn't redraw the whole UI *)
             VMEvent.ViewPortionRendered(area, drawings) :> Message
         | Event.ModeChanged { From = _; To = Mode.Command } ->
             let area = ViewModel.areaOfCommandBarOrNotifications _viewModel
             _viewModel <- ViewModel.showCommandBar _viewModel
-            let drawings = Render.commandBarAsDrawingObjects _convert _viewModel.CommandBar area.Dimensions.Columns area.UpperLeftCell
-            let areaInPixels = _convert.cellBlockToPixels area
+            let drawings = Render.commandBarAsDrawingObjects _viewModel.CommandBar area.Dimensions.Columns area.UpperLeftCell
+            let areaInPixels = GridConvert.perimeterOf area
             VMEvent.ViewPortionRendered(areaInPixels, drawings) :> Message
         | Event.CommandEntryCancelled ->
             let area = ViewModel.areaOfCommandBarOrNotifications _viewModel
             _viewModel <- ViewModel.hideCommandBar _viewModel
-            let drawings = Render.commandBarAsDrawingObjects _convert _viewModel.CommandBar area.Dimensions.Columns area.UpperLeftCell
-            let areaInPixels = _convert.cellBlockToPixels area
+            let drawings = Render.commandBarAsDrawingObjects _viewModel.CommandBar area.Dimensions.Columns area.UpperLeftCell
+            let areaInPixels = GridConvert.perimeterOf area
             VMEvent.ViewPortionRendered(areaInPixels, drawings) :> Message
         | Event.CommandMode_CharacterBackspaced ->
             let area = ViewModel.areaOfCommandBarOrNotifications _viewModel
             _viewModel <- ViewModel.characterBackspacedInCommandBar _viewModel
-            let drawings = Render.commandBarAsDrawingObjects _convert _viewModel.CommandBar area.Dimensions.Columns area.UpperLeftCell
-            let areaInPixels = _convert.cellBlockToPixels area // TODO we are refreshing too much
+            let drawings = Render.commandBarAsDrawingObjects _viewModel.CommandBar area.Dimensions.Columns area.UpperLeftCell
+            let areaInPixels = GridConvert.perimeterOf area // TODO we are refreshing too much
             VMEvent.ViewPortionRendered(areaInPixels, drawings) :> Message
         | Event.CommandMode_TextAppended text ->
             let area = ViewModel.areaOfCommandBarOrNotifications _viewModel

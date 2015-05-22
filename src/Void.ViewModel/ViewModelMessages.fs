@@ -9,10 +9,10 @@ type Draw = DrawingObject -> unit
 type VMEvent =
     | PaintInitiated of Draw
     | ViewModelInitialized // Vim rough equivalent: GUIEnter
-    | ViewPortionRendered of PixelGrid.Block * seq<DrawingObject>
+    | ViewPortionRendered of PointGrid.Block * seq<DrawingObject>
     interface Message
 
 [<RequireQualifiedAccess>]
 type VMCommand =
-    | Redraw of PixelGrid.Block
+    | Redraw of PointGrid.Block
     interface Message
