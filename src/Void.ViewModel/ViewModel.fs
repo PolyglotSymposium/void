@@ -19,7 +19,7 @@ module ViewModel =
             StatusLine = StatusLineView.Focused
             Buffer = defaultBuffer
             Area = lessRowsBelow 1 containingArea
-            Cursor = CursorView.Block originCell
+            Cursor = Visible <| CursorView.Block originCell
         }
 
     let defaultViewModel =

@@ -2,11 +2,14 @@
 
 open Void.Core
 
+type Visibility<'a> =
+    | Hidden
+    | Visible of 'a
+
 [<RequireQualifiedAccess>]
 type CursorView =
     | Block of CellGrid.Cell
     | IBeam of PointGrid.Point
-    | Hidden
 
 [<RequireQualifiedAccess>]
 type StatusLineView = // TODO much yet to be done here
@@ -21,12 +24,8 @@ type WindowView = {
     StatusLine : StatusLineView
     Area : CellGrid.Block
     Buffer : BufferView
-    Cursor : CursorView
+    Cursor : CursorView Visibility
 }
-
-type Visibility<'a> =
-    | Hidden
-    | Visible of 'a
 
 (* "Command line" is too equivocal. I mean the ; (or : in Vim) bar at the
  * bottom of the screen *)
