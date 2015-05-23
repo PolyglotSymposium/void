@@ -15,9 +15,11 @@ module Render =
     let textLinesAsDrawingObjects =
         List.mapi textLineAsDrawingObject
 
-    let private commandBarPrompt upperLeftCell = 
+    let private commandBarPrompt upperLeftCell prompt = 
         DrawingObject.Text {
-            Text = ";"
+            Text = match prompt with
+                   | CommandBarPrompt.ClassicVim -> ":"
+                   | CommandBarPrompt.VoidDefault -> ";"
             UpperLeftCorner = GridConvert.upperLeftCornerOf upperLeftCell
             Color = Colors.defaultColorscheme.DimForeground
         }
@@ -31,10 +33,12 @@ module Render =
                 }
             Color = Colors.defaultColorscheme.Background
         } :: match commandBar with
-             | CommandBarView.Hidden -> []
-             | CommandBarView.Visible "" -> [commandBarPrompt upperLeftCell]
-             | CommandBarView.Visible text ->
-                 [commandBarPrompt upperLeftCell; DrawingObject.Text {
+             | { Prompt = Hidden; Text = _ } -> []
+             | { Prompt = Visible prompt; Text = text } ->
+                 let renderedPrompt = commandBarPrompt upperLeftCell prompt
+                 if text = ""
+                 then [renderedPrompt]
+                 else [renderedPrompt; DrawingObject.Text {
                     Text = text
                     UpperLeftCorner = GridConvert.upperLeftCornerOf <| rightOf upperLeftCell 1
                     Color = Colors.defaultColorscheme.Foreground

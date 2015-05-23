@@ -23,12 +23,18 @@ module ViewModel =
             Cursor = CursorView.Block originCell
         }
 
+    let defaultCommandBar =
+        { Prompt = Hidden; Text = "" }
+
+    let visibleButEmptyCommandBar =
+        { Prompt = Visible CommandBarPrompt.VoidDefault; Text = "" }
+
     let defaultViewModel =
         {
             Size = Sizing.defaultViewSize
             TabBar = []
             VisibleWindows = [defaultWindowView Sizing.defaultViewArea]
-            CommandBar = CommandBarView.Hidden
+            CommandBar = defaultCommandBar
             Notifications = []
         }
 
@@ -73,48 +79,39 @@ module ViewModel =
         }
 
     let appendTextInCommandBar viewModel textToAppend =
-        match viewModel.CommandBar with
-        | CommandBarView.Hidden ->
-            (viewModel, noMessage) // Impossible... how do I get rid of this condition?
-        | CommandBarView.Visible text ->
-            let area = areaOfCommandBarOrNotifications viewModel
-            let newText = text + textToAppend
-            let vm = { viewModel with CommandBar = CommandBarView.Visible newText }
-            let areaInPoints = GridConvert.boxAround {
-                UpperLeftCell = { area.UpperLeftCell with Column = area.UpperLeftCell.Column + text.Length + 1 }
-                Dimensions = { Columns = textToAppend.Length; Rows = 1 }
-            }
-            let drawing = DrawingObject.Text {
-                UpperLeftCorner = areaInPoints.UpperLeftCorner
-                Text = textToAppend
-                Color = Colors.defaultColorscheme.Foreground
-            }
-            (vm, VMEvent.ViewPortionRendered(areaInPoints, [drawing]) :> Message)
+        let area = areaOfCommandBarOrNotifications viewModel
+        let vm = { viewModel with CommandBar = { viewModel.CommandBar with Text = viewModel.CommandBar.Text + textToAppend } }
+        let areaInPoints = GridConvert.boxAround {
+            UpperLeftCell = { area.UpperLeftCell with Column = area.UpperLeftCell.Column + viewModel.CommandBar.Text.Length + 1 }
+            Dimensions = { Columns = textToAppend.Length; Rows = 1 }
+        }
+        let drawing = DrawingObject.Text {
+            UpperLeftCorner = areaInPoints.UpperLeftCorner
+            Text = textToAppend
+            Color = Colors.defaultColorscheme.Foreground
+        }
+        (vm, VMEvent.ViewPortionRendered(areaInPoints, [drawing]) :> Message)
 
     let characterBackspacedInCommandBar viewModel =
-        match viewModel.CommandBar with
-        | CommandBarView.Hidden ->
-            (viewModel, noMessage) // Impossible... how do I get rid of this condition?
-        | CommandBarView.Visible text ->
-            let area = areaOfCommandBarOrNotifications viewModel
-            let vm = { viewModel with CommandBar = CommandBarView.Visible <| text.Remove(text.Length - 1) }
-            let areaInPoints = GridConvert.boxAroundOneCell <| CellGrid.rightOf area.UpperLeftCell text.Length
-            let drawing = DrawingObject.Block {
-                Area = areaInPoints
-                Color = Colors.defaultColorscheme.Background
-            }
-            (vm, VMEvent.ViewPortionRendered(areaInPoints, [drawing]) :> Message)
+        let area = areaOfCommandBarOrNotifications viewModel
+        let vm = { viewModel with CommandBar = { viewModel.CommandBar with Text = viewModel.CommandBar.Text.Remove(viewModel.CommandBar.Text.Length - 1) } }
+        let areaInPoints = GridConvert.boxAroundOneCell <| CellGrid.rightOf area.UpperLeftCell viewModel.CommandBar.Text.Length
+        let drawing = DrawingObject.Block {
+            Area = areaInPoints
+            Color = Colors.defaultColorscheme.Background
+        }
+        (vm, VMEvent.ViewPortionRendered(areaInPoints, [drawing]) :> Message)
 
     let hideCommandBar viewModel =
         let area = areaOfCommandBarOrNotifications viewModel
-        let vm = { viewModel with CommandBar = CommandBarView.Hidden }
+        let vm = { viewModel with CommandBar = defaultCommandBar }
         let drawings = Render.commandBarAsDrawingObjects vm.CommandBar area.Dimensions.Columns area.UpperLeftCell
         let areaInPoints = GridConvert.boxAround area
         (vm, VMEvent.ViewPortionRendered(areaInPoints, drawings) :> Message)
 
     let showCommandBar viewModel =
         let area = areaOfCommandBarOrNotifications viewModel
-        let vm = { viewModel with CommandBar = CommandBarView.Visible "" }
+        let vm = { viewModel with CommandBar = visibleButEmptyCommandBar }
         let drawings = Render.commandBarAsDrawingObjects vm.CommandBar area.Dimensions.Columns area.UpperLeftCell
         let areaInPoints = GridConvert.boxAround area
         (vm, VMEvent.ViewPortionRendered(areaInPoints, drawings) :> Message)

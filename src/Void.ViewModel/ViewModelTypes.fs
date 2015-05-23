@@ -24,12 +24,21 @@ type WindowView = {
     Cursor : CursorView
 }
 
+type Visibility<'a> =
+    | Hidden
+    | Visible of 'a
+
 (* "Command line" is too equivocal. I mean the ; (or : in Vim) bar at the
  * bottom of the screen *)
 [<RequireQualifiedAccess>]
-type CommandBarView =
-    | Hidden
-    | Visible of string
+type CommandBarPrompt =
+    | VoidDefault
+    | ClassicVim
+
+type CommandBarView = {
+    Prompt : CommandBarPrompt Visibility
+    Text : string
+}
 
 [<RequireQualifiedAccess>]
 type TabNameView =
