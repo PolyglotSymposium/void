@@ -602,6 +602,14 @@ namespace Void.UI
             {
                 textOrHotKey = TextOrHotKey.NewHotKey(HotKey.Backspace);
             }
+            else if (keyEvent.KeyCode == Keys.OemQuotes)
+            {
+                textOrHotKey = TextOrHotKey.NewText("\"");
+            }
+            else if (keyEvent.KeyCode == Keys.Space)
+            {
+                textOrHotKey = TextOrHotKey.NewText(" ");
+            }
             else if (keyEvent.KeyCode == Keys.F1)
             {
                 textOrHotKey = TextOrHotKey.NewHotKey(HotKey.F12);

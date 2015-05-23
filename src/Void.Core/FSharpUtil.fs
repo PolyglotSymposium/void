@@ -16,11 +16,14 @@ module StringUtil =
         then text.Substring(0, length)
         else text
 
+    let backspace (text : string) =
+        text.Remove(text.Length - 1)
+
 (* Overcome the impedance mismatch between F# and C# functions.
  * Thanks to Jared Parsons.
  * http://blogs.msdn.com/b/jaredpar/archive/2010/07/27/converting-system-func-lt-t1-tn-gt-to-fsharpfunc-lt-t-tresult-gt.aspx
  * *)
- open System.Runtime.CompilerServices
+open System.Runtime.CompilerServices
 [<Extension>]
 type public FSharpFuncUtil = 
     [<Extension>] 

@@ -1,6 +1,8 @@
 ﻿namespace Void.Core
 
 module CommandMode =
+    open Void.Util
+
     let private handleEnter interpret buffer =
         match interpret { Language = "VoidScript"; Fragment = buffer} with
         | InterpretScriptFragmentResponse.Completed ->
@@ -20,7 +22,7 @@ module CommandMode =
         | HotKey.Backspace ->
             if buffer = ""
             then cancelled
-            else (buffer.Remove(buffer.Length - 1), Event.CommandMode_CharacterBackspaced :> Message)
+            else (StringUtil.backspace buffer, Event.CommandMode_CharacterBackspaced :> Message)
         | _ -> (buffer, noMessage)
 
     let handle (interpret : RequestAPI.InterpretScriptFragment) buffer input =

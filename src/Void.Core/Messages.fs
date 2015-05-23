@@ -31,8 +31,10 @@ type Displayable =
 type Command =
     | ChangeToMode of Mode
     | Display of Displayable
+    | Echo of string
     | Edit of FileIdentifier
     | FormatCurrentLine
+    | Help
     | InitializeVoid
     | Put
     | Quit
@@ -41,6 +43,7 @@ type Command =
     | QuitWithoutSaving
     | Redraw
     | ShowNotificationHistory
+    | View of FileIdentifier
     | ViewTestBuffer // TODO for Debug/Test only
     | Yank
     interface Message

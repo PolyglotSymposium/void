@@ -22,7 +22,7 @@ type ``Rendering text lines as drawing objects for a view size``() =
 type ``Rendering the command bar``() = 
     [<Test>]
     member x.``when it is hidden results in a background block``() =
-        Render.commandBarAsDrawingObjects ViewModel.defaultCommandBar 78 { Row = 24; Column = 0 }
+        Render.commandBarAsDrawingObjects CommandBar.hidden 78 { Row = 24; Column = 0 }
         |> should equal [DrawingObject.Block {
             Area =
                 {
@@ -34,7 +34,7 @@ type ``Rendering the command bar``() =
 
     [<Test>]
     member x.``when it is shown but empty results in a prompt symbol``() =
-        let drawings = Render.commandBarAsDrawingObjects ViewModel.visibleButEmptyCommandBar 80 { Row = 25; Column = 0 }
+        let drawings = Render.commandBarAsDrawingObjects CommandBar.visibleButEmpty 80 { Row = 25; Column = 0 }
         drawings.Length |> should equal 2
         drawings.[1] |> should equal (DrawingObject.Text {
             Text = ";"
