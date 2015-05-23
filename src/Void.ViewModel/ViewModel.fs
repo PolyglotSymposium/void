@@ -65,13 +65,6 @@ module ViewModel =
     let addNotification viewModel notification =
         { viewModel with Notifications = notification :: viewModel.Notifications }
 
-    let appendTextInCommandBar viewModel textToAppend =
-        match viewModel.CommandBar with
-        | CommandBarView.Hidden ->
-            { viewModel with CommandBar = CommandBarView.Visible textToAppend }
-        | CommandBarView.Visible text ->
-            { viewModel with CommandBar = CommandBarView.Visible (text + textToAppend) }
-
     let areaOfCommandBarOrNotifications viewModel =
         // TODO this is just hacked together for the moment
         {
@@ -79,10 +72,29 @@ module ViewModel =
             Dimensions = { Rows = 1; Columns = viewModel.Size.Columns }
         }
 
+    let appendTextInCommandBar viewModel textToAppend =
+        match viewModel.CommandBar with
+        | CommandBarView.Hidden ->
+            (viewModel, noMessage) // Impossible... how do I get rid of this condition?
+        | CommandBarView.Visible text ->
+            let area = areaOfCommandBarOrNotifications viewModel
+            let newText = text + textToAppend
+            let vm = { viewModel with CommandBar = CommandBarView.Visible newText }
+            let areaInPoints = GridConvert.boxAround {
+                UpperLeftCell = { area.UpperLeftCell with Column = area.UpperLeftCell.Column + text.Length + 1 }
+                Dimensions = { Columns = textToAppend.Length; Rows = 1 }
+            }
+            let drawing = DrawingObject.Text {
+                UpperLeftCorner = areaInPoints.UpperLeftCorner
+                Text = textToAppend
+                Color = Colors.defaultColorscheme.Foreground
+            }
+            (vm, VMEvent.ViewPortionRendered(areaInPoints, [drawing]) :> Message)
+
     let characterBackspacedInCommandBar viewModel =
         match viewModel.CommandBar with
         | CommandBarView.Hidden ->
-            (viewModel, noMessage)
+            (viewModel, noMessage) // Impossible... how do I get rid of this condition?
         | CommandBarView.Visible text ->
             let area = areaOfCommandBarOrNotifications viewModel
             let vm = { viewModel with CommandBar = CommandBarView.Visible <| text.Remove(text.Length - 1) }
