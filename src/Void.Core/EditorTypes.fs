@@ -80,10 +80,16 @@ module GridConvert =
     let dimensionsInPoints dimensions =
         { Width = dimensions.Columns; Height = dimensions.Rows }
 
-    let perimeterOf block =
+    let boxAround block =
         {
             UpperLeftCorner = upperLeftCornerOf block.UpperLeftCell
             Dimensions = dimensionsInPoints block.Dimensions
+        }
+
+    let boxAroundOneCell cell =
+        {
+            UpperLeftCorner = upperLeftCornerOf cell
+            Dimensions = { Width = 1; Height = 1 }
         }
 
 // TODO This is naive, obviously

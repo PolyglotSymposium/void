@@ -65,7 +65,7 @@ module Render =
 
     let bufferAsDrawingObjects windowArea (buffer : BufferView) =
         let background = DrawingObject.Block {
-            Area = GridConvert.perimeterOf windowArea
+            Area = GridConvert.boxAround windowArea
             Color = Colors.defaultColorscheme.Background
         }
 

@@ -72,13 +72,6 @@ module ViewModel =
         | CommandBarView.Visible text ->
             { viewModel with CommandBar = CommandBarView.Visible (text + textToAppend) }
 
-    let characterBackspacedInCommandBar viewModel =
-        match viewModel.CommandBar with
-        | CommandBarView.Hidden ->
-            viewModel
-        | CommandBarView.Visible text ->
-            { viewModel with CommandBar = CommandBarView.Visible <| text.Remove(text.Length - 1)}
-
     let areaOfCommandBarOrNotifications viewModel =
         // TODO this is just hacked together for the moment
         {
@@ -86,14 +79,32 @@ module ViewModel =
             Dimensions = { Rows = 1; Columns = viewModel.Size.Columns }
         }
 
+    let characterBackspacedInCommandBar viewModel =
+        match viewModel.CommandBar with
+        | CommandBarView.Hidden ->
+            (viewModel, noMessage)
+        | CommandBarView.Visible text ->
+            let area = areaOfCommandBarOrNotifications viewModel
+            let vm = { viewModel with CommandBar = CommandBarView.Visible <| text.Remove(text.Length - 1) }
+            let areaInPoints = GridConvert.boxAroundOneCell <| CellGrid.rightOf area.UpperLeftCell text.Length
+            let drawing = DrawingObject.Block {
+                Area = areaInPoints
+                Color = Colors.defaultColorscheme.Background
+            }
+            (vm, VMEvent.ViewPortionRendered(areaInPoints, [drawing]) :> Message)
+
     let hideCommandBar viewModel =
-        { viewModel with CommandBar = CommandBarView.Hidden }
+        let area = areaOfCommandBarOrNotifications viewModel
+        let vm = { viewModel with CommandBar = CommandBarView.Hidden }
+        let drawings = Render.commandBarAsDrawingObjects vm.CommandBar area.Dimensions.Columns area.UpperLeftCell
+        let areaInPoints = GridConvert.boxAround area
+        (vm, VMEvent.ViewPortionRendered(areaInPoints, drawings) :> Message)
 
     let showCommandBar viewModel =
         let area = areaOfCommandBarOrNotifications viewModel
         let vm = { viewModel with CommandBar = CommandBarView.Visible "" }
         let drawings = Render.commandBarAsDrawingObjects vm.CommandBar area.Dimensions.Columns area.UpperLeftCell
-        let areaInPoints = GridConvert.perimeterOf area
+        let areaInPoints = GridConvert.boxAround area
         (vm, VMEvent.ViewPortionRendered(areaInPoints, drawings) :> Message)
 
     let init editorState viewModel =
