@@ -31,7 +31,7 @@ module Init =
         let notificationService = NotificationService()
         let editorService = EditorService()
         let viewService = ViewModelService view
-        let renderingService = RenderingService(view, viewService.rerenderWholeView)
+        let drawingBufferService = DrawingBufferService(view, viewService.rerenderWholeView)
         let commandChannel =
             Channel [
                 notificationService.handleCommand
@@ -45,11 +45,11 @@ module Init =
             ]
         let vmCommandChannel =
             Channel [
-                renderingService.handleVMCommand
+                drawingBufferService.handleVMCommand
             ]
         let vmEventChannel =
             Channel [
-                renderingService.handleVMEvent
+                drawingBufferService.handleVMEvent
             ]
         let bus =
             Bus [

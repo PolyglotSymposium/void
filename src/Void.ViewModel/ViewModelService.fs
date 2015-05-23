@@ -43,35 +43,33 @@ type ViewModelService
             let area = GridConvert.perimeterOf (ViewModel.wholeArea _viewModel) (* TODO shouldn't redraw the whole UI *)
             VMEvent.ViewPortionRendered(area, drawings) :> Message
         | Event.ModeChanged { From = _; To = Mode.Command } ->
-            let area = ViewModel.areaOfCommandBarOrNotifications _viewModel
-            _viewModel <- ViewModel.showCommandBar _viewModel
-            let drawings = Render.commandBarAsDrawingObjects _viewModel.CommandBar area.Dimensions.Columns area.UpperLeftCell
-            let areaInPixels = GridConvert.perimeterOf area
-            VMEvent.ViewPortionRendered(areaInPixels, drawings) :> Message
+            let viewModel, event = ViewModel.showCommandBar _viewModel
+            _viewModel <- viewModel
+            event
         | Event.CommandEntryCancelled ->
             let area = ViewModel.areaOfCommandBarOrNotifications _viewModel
             _viewModel <- ViewModel.hideCommandBar _viewModel
             let drawings = Render.commandBarAsDrawingObjects _viewModel.CommandBar area.Dimensions.Columns area.UpperLeftCell
-            let areaInPixels = GridConvert.perimeterOf area
-            VMEvent.ViewPortionRendered(areaInPixels, drawings) :> Message
+            let areaInPoints = GridConvert.perimeterOf area
+            VMEvent.ViewPortionRendered(areaInPoints, drawings) :> Message
         | Event.CommandMode_CharacterBackspaced ->
             let area = ViewModel.areaOfCommandBarOrNotifications _viewModel
             _viewModel <- ViewModel.characterBackspacedInCommandBar _viewModel
             let drawings = Render.commandBarAsDrawingObjects _viewModel.CommandBar area.Dimensions.Columns area.UpperLeftCell
-            let areaInPixels = GridConvert.perimeterOf area // TODO we are refreshing too much
-            VMEvent.ViewPortionRendered(areaInPixels, drawings) :> Message
+            let areaInPoints = GridConvert.perimeterOf area // TODO we are refreshing too much
+            VMEvent.ViewPortionRendered(areaInPoints, drawings) :> Message
         | Event.CommandMode_TextAppended text ->
             let area = ViewModel.areaOfCommandBarOrNotifications _viewModel
             _viewModel <- ViewModel.appendTextInCommandBar _viewModel text
             let drawings = Render.commandBarAsDrawingObjects _viewModel.CommandBar area.Dimensions.Columns area.UpperLeftCell
-            let areaInPixels = GridConvert.perimeterOf area // TODO we are refreshing too much
-            VMEvent.ViewPortionRendered(areaInPixels, drawings) :> Message
+            let areaInPoints = GridConvert.perimeterOf area // TODO we are refreshing too much
+            VMEvent.ViewPortionRendered(areaInPoints, drawings) :> Message
         | Event.NotificationAdded notification ->
             let area = ViewModel.areaOfCommandBarOrNotifications _viewModel
             let drawing = ViewModel.toScreenNotification notification
                           |> Render.notificationAsDrawingObject area.UpperLeftCell
-            let areaInPixels = GridConvert.perimeterOf area
-            VMEvent.ViewPortionRendered(areaInPixels, [drawing]) :> Message
+            let areaInPoints = GridConvert.perimeterOf area
+            VMEvent.ViewPortionRendered(areaInPoints, [drawing]) :> Message
         | Event.EditorInitialized editor ->
             _viewModel <- ViewModel.init editor _viewModel 
             let drawings = Render.currentBufferAsDrawingObjects _viewModel

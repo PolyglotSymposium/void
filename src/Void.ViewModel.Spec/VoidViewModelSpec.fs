@@ -14,29 +14,29 @@ type ``Constructing a buffer view model from a sequence of text lines``() =
     [<Test>]
     member x.``should create an empty buffer view model from an empty buffer``() =
         asViewModelBuffer Seq.empty
-        |> should equal { Contents = [] }
+        |> should equal { LinesOfText = [] }
 
     [<Test>]
     member x.``for one line, shorter than the window width, should create a buffer with one line``() =
         seq { yield "line 1" }
         |> asViewModelBuffer 
-        |> should equal { Contents = ["line 1"] }
+        |> should equal { LinesOfText = ["line 1"] }
 
     [<Test>]
     member x.``for one line, with length equal to the window width, should create a buffer with one line``() =
         seq { yield String('X', 80) }
         |> asViewModelBuffer 
-        |> should equal { Contents = [String('X', 80)] }
+        |> should equal { LinesOfText = [String('X', 80)] }
 
     [<Test>]
     member x.``for one line, longer than the window width, should truncate the visible part of the line``() =
         // TODO this is the behavior when Vim's wrap option is set to nowrap
         seq { yield String('x', 81) }
         |> asViewModelBuffer 
-        |> should equal { Contents = [String('x', 80)] }
+        |> should equal { LinesOfText = [String('x', 80)] }
 
     [<Test>]
     member x.``for a buffer which has more lines than the window has height, should create a buffer view model to fill the window size``() =
         Enumerable.Repeat("line", 26)
         |> asViewModelBuffer 
-        |> should equal { Contents = Seq.toList <| Enumerable.Repeat("line", 25) }
+        |> should equal { LinesOfText = Seq.toList <| Enumerable.Repeat("line", 25) }

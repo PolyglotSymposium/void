@@ -2,7 +2,7 @@
 
 open Void.Core
 
-type RenderingService
+type DrawingBufferService
     (
         _view : MainView,
         _rerenderView : RerenderWholeView

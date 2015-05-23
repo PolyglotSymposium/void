@@ -43,12 +43,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Color.fs" />
-    <Compile Include="VoidViewModel.fs" />
-    <Compile Include="Render.fs" />
-    <Compile Include="View.fs" />
+    <Compile Include="ViewModelTypes.fs" />
+    <Compile Include="DrawingObjects.fs" />
     <Compile Include="ViewModelMessages.fs" />
-    <Compile Include="RenderingService.fs" />
+    <Compile Include="View.fs" />
+    <Compile Include="Render.fs" />
+    <Compile Include="ViewModel.fs" />
     <Compile Include="ViewModelService.fs" />
+    <Compile Include="DrawingBufferService.fs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Void.Core\Void.Core.fsproj">

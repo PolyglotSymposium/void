@@ -2,28 +2,6 @@
 
 open Void.Core
 
-type ScreenLineObject = {
-    StartingPoint : PointGrid.Point
-    EndingPoint : PointGrid.Point
-}
-
-type ScreenTextObject = {
-    Text : string
-    UpperLeftCorner : PointGrid.Point
-    Color : RGBColor
-}
-
-type ScreenBlockObject = {
-    Area : PointGrid.Block
-    Color : RGBColor
-}
-
-[<RequireQualifiedAccess>]
-type DrawingObject =
-    | Line of ScreenLineObject
-    | Text of ScreenTextObject
-    | Block of ScreenBlockObject
-
 module Render =
     open Void.Core.CellGrid
 
@@ -37,10 +15,10 @@ module Render =
     let textLinesAsDrawingObjects =
         List.mapi textLineAsDrawingObject
 
-    let private commandBarPrompt = 
+    let private commandBarPrompt upperLeftCell = 
         DrawingObject.Text {
             Text = ";"
-            UpperLeftCorner = GridConvert.upperLeftCornerOf { Row = 25; Column = 0 }
+            UpperLeftCorner = GridConvert.upperLeftCornerOf upperLeftCell
             Color = Colors.defaultColorscheme.DimForeground
         }
 
@@ -54,9 +32,9 @@ module Render =
             Color = Colors.defaultColorscheme.Background
         } :: match commandBar with
              | CommandBarView.Hidden -> []
-             | CommandBarView.Visible "" -> [commandBarPrompt]
+             | CommandBarView.Visible "" -> [commandBarPrompt upperLeftCell]
              | CommandBarView.Visible text ->
-                 [commandBarPrompt; DrawingObject.Text {
+                 [commandBarPrompt upperLeftCell; DrawingObject.Text {
                     Text = text
                     UpperLeftCorner = GridConvert.upperLeftCornerOf <| rightOf upperLeftCell 1
                     Color = Colors.defaultColorscheme.Foreground
@@ -91,7 +69,7 @@ module Render =
             Color = Colors.defaultColorscheme.Background
         }
 
-        let bufferLines = textLinesAsDrawingObjects buffer.Contents
+        let bufferLines = textLinesAsDrawingObjects buffer.LinesOfText
 
         let rowsNotInBuffer =
             let lineNotInBufferAsDrawingObject i =
@@ -123,3 +101,4 @@ module Render =
     let currentBufferAsDrawingObjects viewModel =
         viewModel.VisibleWindows.[0].Buffer
         |> bufferAsDrawingObjects viewModel.VisibleWindows.[0].Area
+

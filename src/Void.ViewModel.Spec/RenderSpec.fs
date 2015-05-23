@@ -106,14 +106,14 @@ type ``Rendering buffers``() =
     [<Test>]
     member x.``when the buffer is empty it renders as a background-colored area with muted tildes on each line except the first``() =
         // TODO when you open an empty buffer in Vim, why is there no tilde in the first line?
-        let drawingObjects =  render { Contents = [] }
+        let drawingObjects =  render { LinesOfText = [] }
         drawingObjects.Length |> should equal 25
         drawingObjects.[0] |> shouldBeBackgroundBlock
         drawingObjects.Tail |> shouldAllBeTildes
 
     [<Test>]
     member x.``when the buffer has one line it renders that line and but otherwise is like an empty buffer``() =
-        let drawingObjects = render { Contents = ["only one line"] }
+        let drawingObjects = render { LinesOfText = ["only one line"] }
         drawingObjects.Length |> should equal 26
         drawingObjects.[0] |> shouldBeBackgroundBlock
         drawingObjects.[1] |> should equal (DrawingObject.Text {
@@ -125,7 +125,7 @@ type ``Rendering buffers``() =
 
     [<Test>]
     member x.``when the buffer has multple lines, but less than the rows that are available in the window``() =
-        let drawingObjects = render { Contents = ["line 1"; "line 2"] }
+        let drawingObjects = render { LinesOfText = ["line 1"; "line 2"] }
         drawingObjects.Length |> should equal 26
         drawingObjects.[0] |> shouldBeBackgroundBlock
         drawingObjects.[1] |> should equal (DrawingObject.Text {
@@ -143,7 +143,7 @@ type ``Rendering buffers``() =
     [<Test>]
     member x.``when the buffer has as many lines as the rows in the window, no tildes show``() =
         // There should never be more because of the way that the buffer view model gets constructed
-        let drawingObjects = render { Contents = Enumerable.Repeat("line", 25) |> List.ofSeq }
+        let drawingObjects = render { LinesOfText = Enumerable.Repeat("line", 25) |> List.ofSeq }
         drawingObjects.Length |> should equal 26
         drawingObjects.[0] |> shouldBeBackgroundBlock
         drawingObjects |> Seq.mapi (fun i drawingObject ->
