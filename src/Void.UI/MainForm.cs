@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using System.Windows.Forms;
 using Void.Core;
 using Void.Util;
@@ -14,14 +16,17 @@ namespace Void.UI
         private Font _font = new Font(FontFamily.GenericMonospace, 9);
         private InputMode<Unit> _inputHandler;
         private CellMetrics _cellMetrics;
+        private IEnumerable<DrawingObject> _drawings;
 
         public MainForm()
         {
             InitializeComponent();
-            var messagingSystem = Init.initializeVoid(this, this);
-            messagingSystem.EventChannel.addHandler(FSharpFuncUtil.Create<Event, Message>(HandleEvent));
-            SubscribeToPaint(messagingSystem.Bus);
+            SubscribeToPaint();
             WireUpInputEvents();
+            var messagingSystem = Init.buildVoid(this, this);
+            messagingSystem.EventChannel.addHandler(FSharpFuncUtil.Create<Event, Message>(HandleEvent));
+            messagingSystem.VMEventChannel.addHandler(FSharpFuncUtil.Create<VMEvent, Message>(HandleViewModelEvent));
+            Init.launchVoid(messagingSystem);
         }
 
         private Message HandleEvent(Event eventMsg)
@@ -29,6 +34,16 @@ namespace Void.UI
             if (eventMsg.IsLastWindowClosed)
             {
                 Close();
+            }
+            return null;
+        }
+
+        private Message HandleViewModelEvent(VMEvent eventMsg)
+        {
+            if (eventMsg.IsViewPortionRendered)
+            {
+                _drawings = ((VMEvent.ViewPortionRendered)eventMsg).Item2;
+                TriggerDraw(((VMEvent.ViewPortionRendered)eventMsg).Item1);
             }
             return null;
         }
@@ -68,12 +83,16 @@ namespace Void.UI
             };
         }
 
-        public void SubscribeToPaint(Bus bus)
+        public void SubscribeToPaint()
         {
             Paint += (sender, eventArgs) =>
             {
                 var artist = new WinFormsArtist(eventArgs.Graphics, _font, _cellMetrics);
-                bus.publish(VMEvent.NewPaintInitiated(artist.DrawAsFSharpFunc()));
+                foreach (var drawing in _drawings)
+                {
+                    artist.Draw(drawing);
+                }
+                _drawings = Enumerable.Empty<DrawingObject>();
             };
         }
 

@@ -51,7 +51,7 @@
     <Compile Include="CommandBar.fs" />
     <Compile Include="ViewModel.fs" />
     <Compile Include="ViewModelService.fs" />
-    <Compile Include="DrawingBufferService.fs" />
+    <Compile Include="CommandBarService.fs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Void.Core\Void.Core.fsproj">

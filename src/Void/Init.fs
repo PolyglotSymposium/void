@@ -9,7 +9,6 @@ type MessagingSystem = {
     EventChannel : Channel<Event>
     CommandChannel : Channel<Command>
     VMEventChannel : Channel<VMEvent>
-    VMCommandChannel : Channel<VMCommand>
     Bus : Bus
 }
 
@@ -27,11 +26,10 @@ module Init =
             |> InputMode.TextAndHotKeys
         |> changer.SetInputHandler
 
-    let initializeVoid view inputModeChanger =
+    let buildVoid view inputModeChanger =
         let notificationService = NotificationService()
         let editorService = EditorService()
         let viewService = ViewModelService view
-        let drawingBufferService = DrawingBufferService(view, viewService.rerenderWholeView)
         let commandChannel =
             Channel [
                 notificationService.handleCommand
@@ -43,19 +41,11 @@ module Init =
                 notificationService.handleEvent
                 viewService.handleEvent
             ]
-        let vmCommandChannel =
-            Channel [
-                drawingBufferService.handleVMCommand
-            ]
-        let vmEventChannel =
-            Channel [
-                drawingBufferService.handleVMEvent
-            ]
+        let vmEventChannel = Channel []
         let bus =
             Bus [
                 commandChannel.publish
                 eventChannel.publish
-                vmCommandChannel.publish
                 vmEventChannel.publish
             ]
         let interpreter = Interpreter.init <| VoidScriptEditorModule(bus.publish).Commands
@@ -68,11 +58,12 @@ module Init =
         commandChannel.addHandler modeService.handleCommand
         eventChannel.addHandler modeService.handleEvent
 
-        bus.publish Command.InitializeVoid
         {
             EventChannel = eventChannel
             CommandChannel = commandChannel
             VMEventChannel = vmEventChannel
-            VMCommandChannel = vmCommandChannel
             Bus = bus
         }
+
+    let launchVoid messagingSystem =
+        messagingSystem.Bus.publish Command.InitializeVoid

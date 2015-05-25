@@ -17,7 +17,7 @@ type ViewModelService
         _view.SetViewSize <| GridConvert.dimensionsInPoints _viewModel.Size
         VMEvent.ViewModelInitialized
 
-    member x.rerenderWholeView() =
+    member private x.rerenderWholeView() =
         Render.viewModelAsDrawingObjects _viewModel
 
     member private x.setFont() =
@@ -30,8 +30,8 @@ type ViewModelService
         | Command.Display _ ->
             notImplemented
         | Command.Redraw ->
-            GridConvert.boxAround (ViewModel.wholeArea _viewModel)
-            |> VMCommand.Redraw :> Message
+            (GridConvert.boxAround (ViewModel.wholeArea _viewModel), x.rerenderWholeView())
+            |> VMEvent.ViewPortionRendered :> Message
         | _ ->
             noMessage
 

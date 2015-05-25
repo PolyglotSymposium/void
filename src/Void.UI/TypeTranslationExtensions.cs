@@ -11,12 +11,6 @@ namespace Void.UI
     // so that each can be built the way it wants to be built
     public static class TypeTranslationExtensions
     {
-        public static FSharpFunc<DrawingObject, Unit> DrawAsFSharpFunc(this WinFormsArtist artist)
-        {
-            Action<DrawingObject> draw = artist.Draw;
-            return FuncConvert.ToFSharpFunc(draw);
-        }
-
         public static Color AsWinFormsColor(this RGBColor color)
         {
             return Color.FromArgb(color.Red, color.Green, color.Blue);

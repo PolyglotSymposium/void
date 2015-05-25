@@ -8,4 +8,3 @@ type MainView =
     abstract member SetFontBySize : byte -> unit
     abstract member SetViewSize : Dimensions -> unit
     abstract member SetViewTitle : string -> unit
-    abstract member TriggerDraw : Block -> unit
