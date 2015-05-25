@@ -5,10 +5,10 @@ module CommandBar =
     open Void.Core.CellGrid
     open Void.Util
 
-    let hidden =
+    let hidden : CommandBarView  =
         { Prompt = Hidden; Text = "" }
 
-    let visibleButEmpty =
+    let visibleButEmpty : CommandBarView =
         { Prompt = Visible CommandBarPrompt.VoidDefault; Text = "" }
 
     let appendText (commandBar : CommandBarView) area textToAppend =

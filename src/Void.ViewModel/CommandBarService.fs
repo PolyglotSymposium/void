@@ -6,10 +6,18 @@ module CommandBarV2 =
     open Void.Util
 
     let hidden =
-        { Prompt = Hidden; Text = "" }
+        {
+            Width = 80
+            Prompt = Hidden
+            WrappedLines = []
+        }
 
     let visibleButEmpty =
-        { Prompt = Visible CommandBarPrompt.VoidDefault; Text = "" }
+        {
+            Width = 80
+            Prompt = Visible CommandBarPrompt.VoidDefault
+            WrappedLines = [""]
+        }
 
     let appendText (commandBar : CommandBarView) area textToAppend =
         let bar = { commandBar with Text = commandBar.Text + textToAppend }
@@ -24,42 +32,36 @@ module CommandBarV2 =
         }
         (bar, VMEvent.ViewPortionRendered(areaInPoints, [drawing]) :> Message)
 
-    let characterBackspaced area (commandBar : CommandBarView) =
-        let bar = {
-            commandBar with Text = StringUtil.backspace commandBar.Text
-        }
-        let areaInPoints = GridConvert.boxAroundOneCell <| CellGrid.rightOf area.UpperLeftCell commandBar.Text.Length
-        let drawing = DrawingObject.Block {
-            Area = areaInPoints
-            Color = Colors.defaultColorscheme.Background
-        }
-        (bar, VMEvent.ViewPortionRendered(areaInPoints, [drawing]) :> Message)
+    let characterBackspaced (commandBar : CommandBarViewV2) =
+        let backspacedLine = StringUtil.backspace commandBar.WrappedLines.Head
+        if backspacedLine = ""
+        then
+            let bar = { commandBar with WrappedLines = List.tail commandBar.WrappedLines }
+            in (bar, VMEvent.CommandBar_TextReflowed bar :> Message)
+        else
+            let lines = backspacedLine :: List.tail commandBar.WrappedLines
+            let bar = { commandBar with WrappedLines = lines }
+            let clearedCell = CellGrid.rightOf CellGrid.originCell commandBar.WrappedLines.Head.Length
+            (bar, VMEvent.CommandBar_CharacterBackspacedFromLine clearedCell :> Message)
 
-    let hide area =
-        let commandBar = hidden
-        let drawings = Render.commandBarAsDrawingObjects commandBar area.Dimensions.Columns area.UpperLeftCell
-        let areaInPoints = GridConvert.boxAround area
-        (commandBar, VMEvent.ViewPortionRendered(areaInPoints, drawings) :> Message)
+    let hide =
+        (hidden, VMEvent.CommandBar_Hidden :> Message)
 
     let show =
         let commandBar = visibleButEmpty
         in (commandBar, VMEvent.CommandBar_Displayed commandBar :> Message)
 
-    let handleEvent =
-        function
-        | Event.ModeChanged { From = _; To = Mode.Command } ->
-            show
-        | Event.CommandEntryCancelled ->
-            (CommandBar.hidden, noMessage)
-        | Event.CommandMode_CharacterBackspaced ->
-            (CommandBar.hidden, noMessage)
+    let handleEvent commandBar event =
+        match event with
+        | Event.ModeChanged { From = _; To = Mode.Command } -> show
+        | Event.CommandEntryCancelled -> hide
+        | Event.CommandMode_CharacterBackspaced -> characterBackspaced commandBar
         | Event.CommandMode_TextAppended text ->
-            (CommandBar.hidden, noMessage)
-        | _ ->
-            (CommandBar.hidden, noMessage)
+            (hidden, noMessage)
+        | _ -> (commandBar, noMessage)
 
 module CommandBarService =
     open Void.Core
 
-    let eventHandler data =
-        Service.wrap data CommandBarV2.handleEvent
+    let eventHandler commandBar =
+        Service.wrap commandBar CommandBarV2.handleEvent

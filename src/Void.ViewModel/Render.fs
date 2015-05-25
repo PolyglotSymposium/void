@@ -24,7 +24,7 @@ module Render =
             Color = Colors.defaultColorscheme.DimForeground
         }
 
-    let commandBarAsDrawingObjects commandBar width upperLeftCell =
+    let commandBarAsDrawingObjects (commandBar : CommandBarView) width upperLeftCell =
         DrawingObject.Block {
             Area =
                 {

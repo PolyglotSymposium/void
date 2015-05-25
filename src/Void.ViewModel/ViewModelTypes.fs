@@ -39,6 +39,12 @@ type CommandBarView = {
     Text : string
 }
 
+type CommandBarViewV2 = {
+    Width : int
+    Prompt : CommandBarPrompt Visibility
+    WrappedLines : string list
+}
+
 [<RequireQualifiedAccess>]
 type TabNameView =
     | Unfocused of string

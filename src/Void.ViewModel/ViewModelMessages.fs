@@ -10,11 +10,11 @@ type SegmentOfText = {
 [<RequireQualifiedAccess>]
 type VMEvent =
     | CommandBar_CharacterBackspacedFromLine of CellGrid.Cell
-    | CommandBar_Displayed of CommandBarView
+    | CommandBar_Displayed of CommandBarViewV2
     | CommandBar_Hidden
     | CommandBar_TextAppendedToLine of SegmentOfText
-    | CommandBar_TextChanged of CommandBarView
-    | CommandBar_TextReflowed of CommandBarView
+    | CommandBar_TextChanged of CommandBarViewV2
+    | CommandBar_TextReflowed of CommandBarViewV2
     | ViewModelInitialized of MainViewModel // Vim rough equivalent: GUIEnter
     | ViewPortionRendered of PointGrid.Block * seq<DrawingObject>
     interface Message
