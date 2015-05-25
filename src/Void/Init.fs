@@ -26,10 +26,10 @@ module Init =
             |> InputMode.TextAndHotKeys
         |> changer.SetInputHandler
 
-    let buildVoid view inputModeChanger =
+    let buildVoid inputModeChanger =
         let notificationService = NotificationService()
         let editorService = EditorService()
-        let viewService = ViewModelService view
+        let viewService = ViewModelService()
         let commandChannel =
             Channel [
                 notificationService.handleCommand

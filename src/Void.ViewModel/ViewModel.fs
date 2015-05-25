@@ -11,7 +11,7 @@ module ViewModel =
     open Void.Core.CellGrid
 
     let defaultTitle = "Void - A text editor in the spirit of Vim"
-    let defaultFontSize = 9uy
+    let defaultFontSize = 9
     let defaultBuffer = { LinesOfText = [] }
 
     let defaultWindowView containingArea =
@@ -25,6 +25,9 @@ module ViewModel =
     let defaultViewModel =
         {
             Size = Sizing.defaultViewSize
+            Title = defaultTitle
+            BackgroundColor = Colors.defaultColorscheme.Background
+            FontSize = defaultFontSize
             TabBar = []
             VisibleWindows = [defaultWindowView Sizing.defaultViewArea]
             CommandBar = CommandBar.hidden

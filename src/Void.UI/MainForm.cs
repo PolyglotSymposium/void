@@ -11,7 +11,7 @@ using Message = Void.Core.Message;
 
 namespace Void.UI
 {
-    public partial class MainForm : Form, MainView, InputModeChanger
+    public partial class MainForm : Form, InputModeChanger
     {
         private Font _font = new Font(FontFamily.GenericMonospace, 9);
         private InputMode<Unit> _inputHandler;
@@ -23,13 +23,9 @@ namespace Void.UI
             InitializeComponent();
             SubscribeToPaint();
             WireUpInputEvents();
-            var messagingSystem = Init.buildVoid(this, this);
-            messagingSystem.EventChannel.addHandler(FSharpFuncUtil.Create<Event, Message>(HandleEvent));
-            messagingSystem.VMEventChannel.addHandler(FSharpFuncUtil.Create<VMEvent, Message>(HandleViewModelEvent));
-            Init.launchVoid(messagingSystem);
         }
 
-        private Message HandleEvent(Event eventMsg)
+        public Message HandleEvent(Event eventMsg)
         {
             if (eventMsg.IsLastWindowClosed)
             {
@@ -38,12 +34,20 @@ namespace Void.UI
             return null;
         }
 
-        private Message HandleViewModelEvent(VMEvent eventMsg)
+        public Message HandleViewModelEvent(VMEvent eventMsg)
         {
             if (eventMsg.IsViewPortionRendered)
             {
                 _drawings = ((VMEvent.ViewPortionRendered)eventMsg).Item2;
                 TriggerDraw(((VMEvent.ViewPortionRendered)eventMsg).Item1);
+            }
+            if (eventMsg.IsViewModelInitialized)
+            {
+                var viewModel = ((VMEvent.ViewModelInitialized)eventMsg).Item;
+                SetBackgroundColor(viewModel.BackgroundColor);
+                SetFontBySize(viewModel.FontSize);
+                SetViewSize(viewModel.Size);
+                SetViewTitle(viewModel.Title);
             }
             return null;
         }
@@ -108,23 +112,23 @@ namespace Void.UI
             return Convert.ToInt32(Math.Ceiling(CreateGraphics().MeasureString(new string('X', 80), _font).Width / 80));
         }
 
-        public void SetBackgroundColor(RGBColor color)
+        private void SetBackgroundColor(RGBColor color)
         {
             BackColor = color.AsWinFormsColor();
         }
 
-        public void SetFontBySize(byte size)
+        private void SetFontBySize(int size)
         {
-            _font = new Font(FontFamily.GenericMonospace, 9);
+            _font = new Font(FontFamily.GenericMonospace, size);
             _cellMetrics = new CellMetrics(_font.Height, MeasureFontWidth());
         }
 
-        public void SetViewSize(PointGrid.Dimensions size)
+        private void SetViewSize(CellGrid.Dimensions size)
         {
             ClientSize = size.AsWinFormsSize(_cellMetrics);
         }
 
-        public void SetViewTitle(string title)
+        private void SetViewTitle(string title)
         {
             Text = title;
         }

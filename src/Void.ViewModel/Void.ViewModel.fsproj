@@ -46,7 +46,6 @@
     <Compile Include="ViewModelTypes.fs" />
     <Compile Include="DrawingObjects.fs" />
     <Compile Include="ViewModelMessages.fs" />
-    <Compile Include="View.fs" />
     <Compile Include="Render.fs" />
     <Compile Include="CommandBar.fs" />
     <Compile Include="ViewModel.fs" />

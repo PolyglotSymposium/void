@@ -2,35 +2,17 @@
 
 open Void.Core
 
-// Drawing objects are basically considered delta events off the view model
-type ViewModelService
-    (
-        _view : MainView
-    ) =
+type ViewModelService() =
     let mutable _viewModel = ViewModel.defaultViewModel
-    let _colorscheme = Colors.defaultColorscheme
-
-    member private x.initializeView() =
-        _view.SetViewTitle ViewModel.defaultTitle
-        _view.SetBackgroundColor Colors.defaultColorscheme.Background
-        x.setFont()
-        _view.SetViewSize <| GridConvert.dimensionsInPoints _viewModel.Size
-        VMEvent.ViewModelInitialized
-
-    member private x.rerenderWholeView() =
-        Render.viewModelAsDrawingObjects _viewModel
-
-    member private x.setFont() =
-        _view.SetFontBySize ViewModel.defaultFontSize
 
     member x.handleCommand =
         function
         | Command.InitializeVoid ->
-            x.initializeView() :> Message
+            VMEvent.ViewModelInitialized _viewModel :> Message
         | Command.Display _ ->
             notImplemented
         | Command.Redraw ->
-            (GridConvert.boxAround (ViewModel.wholeArea _viewModel), x.rerenderWholeView())
+            (GridConvert.boxAround (ViewModel.wholeArea _viewModel), Render.viewModelAsDrawingObjects _viewModel)
             |> VMEvent.ViewPortionRendered :> Message
         | _ ->
             noMessage

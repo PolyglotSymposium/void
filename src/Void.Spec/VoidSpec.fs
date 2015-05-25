@@ -6,18 +6,6 @@ open Void.ViewModel
 open NUnit.Framework
 open FsUnit
 
-type MainViewStub() =
-    member val Bus = Bus([]) with get, set
-    interface MainView with
-        member x.SetBackgroundColor color =
-            ()
-        member x.SetFontBySize size =
-            ()
-        member x.SetViewSize dimensions =
-            ()
-        member x.SetViewTitle title =
-            ()
-
 type InputModeChangerStub() =
     let mutable _inputHandler = InputMode<unit>.KeyPresses (fun _ -> ())
     member x.getInputHandler() =
@@ -30,9 +18,8 @@ type InputModeChangerStub() =
 type ``Void``() = 
     [<Test>]
     member x.``When I have freshly opened Vim with one window, when I enter the quit command, then the editor exists``() =
-        let mainView = MainViewStub()
         let inputModeChanger = InputModeChangerStub()
-        let messagingSystem = Init.buildVoid mainView inputModeChanger
+        let messagingSystem = Init.buildVoid inputModeChanger
         Init.launchVoid messagingSystem
         let closed = ref false
         let closeHandler event =

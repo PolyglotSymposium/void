@@ -15,6 +15,6 @@ type VMEvent =
     | CommandBar_TextAppendedToLine of SegmentOfText
     | CommandBar_TextChanged of CommandBarView
     | CommandBar_TextReflowed of CommandBarView
-    | ViewModelInitialized // Vim rough equivalent: GUIEnter
+    | ViewModelInitialized of MainViewModel // Vim rough equivalent: GUIEnter
     | ViewPortionRendered of PointGrid.Block * seq<DrawingObject>
     interface Message

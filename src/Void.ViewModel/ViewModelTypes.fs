@@ -51,6 +51,9 @@ type UserNotificationView =
 
 type MainViewModel = {
     Size : CellGrid.Dimensions
+    Title : string
+    BackgroundColor : RGBColor
+    FontSize : int
     TabBar : TabNameView list
     VisibleWindows : WindowView list
     CommandBar : CommandBarView // for command mode

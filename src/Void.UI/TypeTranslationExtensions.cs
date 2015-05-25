@@ -21,6 +21,11 @@ namespace Void.UI
             return new SolidBrush(color.AsWinFormsColor());
         }
 
+        public static Size AsWinFormsSize(this CellGrid.Dimensions size, CellMetrics cellMetrics)
+        {
+            return new Size(size.Columns * cellMetrics.Width, size.Rows * cellMetrics.Height);
+        }
+
         public static Size AsWinFormsSize(this PointGrid.Dimensions size, CellMetrics cellMetrics)
         {
             return new Size(size.Width * cellMetrics.Width, size.Height * cellMetrics.Height);
