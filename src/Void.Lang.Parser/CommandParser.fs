@@ -46,8 +46,8 @@ type LineCommandParse<'TArgWrapper> =
     | Succeeded of ParsedCommand<'TArgWrapper>
 
 module ParseErrors =
-    let message error =
-        match error with
+    let textOf =
+        function
         | ParseError.Generic -> "Parse failed"
         | ParseError.UnknownCommand name -> sprintf "Unknown command %s" name
         | ParseError.TrailingCharacters name -> sprintf "Trailing characters after command %s" name
@@ -59,8 +59,8 @@ module ParseErrors =
         ParseError.TrailingCharacters name |> LineCommandParse.Failed
 
 module LineCommands =
-    let private isCommandDeliminator char =
-        match char with
+    let private isCommandDeliminator =
+        function
         | ' ' -> true
         | _ -> false
 

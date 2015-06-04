@@ -83,7 +83,7 @@ type TabNameView =
     | Focused of string
 
 [<RequireQualifiedAccess>]
-type OutputMessageView =
+type UserNotificationView =
     | Text of string
     | Error of string
 
@@ -92,7 +92,7 @@ type MainViewModel = {
     TabBar : TabNameView list
     VisibleWindows : WindowView list
     CommandBar : CommandBarView // for command mode
-    OutputMessages : OutputMessageView list
+    Notifications : UserNotificationView list
 }
 
 module ViewModel =
@@ -117,7 +117,7 @@ module ViewModel =
             TabBar = []
             VisibleWindows = [defaultWindowView Sizing.defaultViewArea]
             CommandBar = CommandBarView.Hidden
-            OutputMessages = []
+            Notifications = []
         }
 
     let bufferFrom (windowSize : Dimensions) lines =
@@ -145,10 +145,10 @@ module ViewModel =
             Dimensions = view.Size
         }
 
-    let toScreenMessage msg =
-        match msg with
-        | Message.Output msgText -> OutputMessageView.Text msgText
-        | Message.Error error -> OutputMessageView.Error <| Errors.message error
+    let toScreenNotification =
+        function
+        | UserNotification.Output notificationText -> UserNotificationView.Text notificationText
+        | UserNotification.Error error -> UserNotificationView.Error <| Errors.textOf error
 
-    let addMessage viewModel msg =
-        { viewModel with OutputMessages = msg :: viewModel.OutputMessages }
+    let addNotification viewModel notification =
+        { viewModel with Notifications = notification :: viewModel.Notifications }
