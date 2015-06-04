@@ -20,7 +20,7 @@ type ViewModelService() =
     member x.handleVMEvent event =
         let commandBarOrigin = ViewModel.upperLeftCellOfCommandBar _viewModel
         let renderCommandBar commandBar =
-            Render.commandBarAsDrawingObjects commandBar commandBarOrigin
+            RenderCommandBar.asDrawingObjects commandBar commandBarOrigin
             |> VMEvent.ViewPortionRendered :> Message
         match event with
         | VMEvent.CommandBar_CharacterBackspacedFromLine cell ->

@@ -49,6 +49,7 @@
     <Compile Include="CommandBar.fs" />
     <Compile Include="Render.fs" />
     <Compile Include="ViewModel.fs" />
+    <Compile Include="RenderCommandBar.fs" />
     <Compile Include="ViewModelService.fs" />
   </ItemGroup>
   <ItemGroup>
