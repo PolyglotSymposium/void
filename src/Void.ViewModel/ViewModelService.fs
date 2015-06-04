@@ -18,18 +18,34 @@ type ViewModelService() =
             noMessage
 
     member x.handleVMEvent event =
+        let commandBarOrigin = ViewModel.upperLeftCellOfCommandBar _viewModel
         let renderCommandBar commandBar =
-            Render.commandBarAsDrawingObjects commandBar (ViewModel.upperLeftCellOfCommandBar _viewModel)
+            Render.commandBarAsDrawingObjects commandBar commandBarOrigin
             |> VMEvent.ViewPortionRendered :> Message
         match event with
         | VMEvent.CommandBar_CharacterBackspacedFromLine cell ->
-            noMessage
+            // TODO refactor -- move into Render module
+            let offsetCell = CellGrid.vectorAdd commandBarOrigin cell 
+            let area = GridConvert.boxAroundOneCell offsetCell
+            let drawing = DrawingObject.Block {
+                Area = area
+                Color = Colors.defaultColorscheme.Background
+            }
+            VMEvent.ViewPortionRendered (area, Seq.singleton drawing) :> Message
         | VMEvent.CommandBar_Displayed commandBar ->
             renderCommandBar commandBar
         | VMEvent.CommandBar_Hidden commandBar ->
             renderCommandBar commandBar
         | VMEvent.CommandBar_TextAppendedToLine textSegment ->
-            noMessage
+            // TODO refactor -- move into Render module
+            let offsetCell = CellGrid.vectorAdd commandBarOrigin textSegment.LeftMostCell 
+            let area = GridConvert.boxAroundOneCell offsetCell // TODO but what if it's not one cell?
+            let drawing = DrawingObject.Text {
+                Text = textSegment.Text
+                UpperLeftCorner = GridConvert.upperLeftCornerOf offsetCell
+                Color = Colors.defaultColorscheme.Foreground
+            }
+            VMEvent.ViewPortionRendered (area, Seq.singleton drawing) :> Message
         | VMEvent.CommandBar_TextChanged commandBar ->
             renderCommandBar commandBar
         | VMEvent.CommandBar_TextReflowed commandBar ->

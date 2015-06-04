@@ -70,6 +70,12 @@ module CellGrid =
     let lessRowsBelow n block =
         { block with Dimensions = lessRows n block.Dimensions}
 
+    let vectorAdd cell1 cell2 =
+        {
+            Row = cell1.Row + cell2.Row
+            Column = cell1.Column + cell2.Column
+        }
+
 module GridConvert =
     open PointGrid
     open CellGrid
