@@ -30,7 +30,6 @@ module ViewModel =
             FontSize = defaultFontSize
             TabBar = []
             VisibleWindows = [defaultWindowView Sizing.defaultViewArea]
-            CommandBar = CommandBar.hidden
             Notifications = []
         }
 
@@ -67,32 +66,16 @@ module ViewModel =
     let addNotification viewModel notification =
         { viewModel with Notifications = notification :: viewModel.Notifications }
 
+    let upperLeftCellOfCommandBar viewModel =
+        // TODO this is just hacked together for the moment
+        { Row = CellGrid.lastRow (wholeArea viewModel); Column = 0 }
+
     let areaOfCommandBarOrNotifications viewModel =
         // TODO this is just hacked together for the moment
         {
-            UpperLeftCell = { Row = CellGrid.lastRow (wholeArea viewModel); Column = 0 }
+            UpperLeftCell = upperLeftCellOfCommandBar viewModel
             Dimensions = { Rows = 1; Columns = viewModel.Size.Columns }
         }
-
-    let appendTextInCommandBar viewModel textToAppend =
-        let area = areaOfCommandBarOrNotifications viewModel
-        let commandBar, msg = CommandBar.appendText viewModel.CommandBar area textToAppend
-        ({ viewModel with CommandBar = commandBar }, msg)
-
-    let characterBackspacedInCommandBar viewModel =
-        let area = areaOfCommandBarOrNotifications viewModel
-        let commandBar, msg = CommandBar.characterBackspaced area viewModel.CommandBar
-        ({ viewModel with CommandBar = commandBar }, msg)
-
-    let hideCommandBar viewModel =
-        let area = areaOfCommandBarOrNotifications viewModel
-        let commandBar, msg = CommandBar.hide area
-        ({ viewModel with CommandBar = commandBar }, msg)
-
-    let showCommandBar viewModel =
-        let area = areaOfCommandBarOrNotifications viewModel
-        let commandBar, msg = CommandBar.show area
-        ({ viewModel with CommandBar = commandBar }, msg)
 
     let init editorState viewModel =
         loadBuffer (Editor.currentBuffer editorState) viewModel

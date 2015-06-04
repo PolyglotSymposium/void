@@ -17,6 +17,25 @@ type ViewModelService() =
         | _ ->
             noMessage
 
+    member x.handleVMEvent event =
+        let renderCommandBar commandBar =
+            Render.commandBarAsDrawingObjects commandBar (ViewModel.upperLeftCellOfCommandBar _viewModel)
+            |> VMEvent.ViewPortionRendered :> Message
+        match event with
+        | VMEvent.CommandBar_CharacterBackspacedFromLine cell ->
+            noMessage
+        | VMEvent.CommandBar_Displayed commandBar ->
+            renderCommandBar commandBar
+        | VMEvent.CommandBar_Hidden commandBar ->
+            renderCommandBar commandBar
+        | VMEvent.CommandBar_TextAppendedToLine textSegment ->
+            noMessage
+        | VMEvent.CommandBar_TextChanged commandBar ->
+            renderCommandBar commandBar
+        | VMEvent.CommandBar_TextReflowed commandBar ->
+            renderCommandBar commandBar
+        | _ -> noMessage
+
     member x.handleEvent =
         function // TODO clearly the code below needs to be refactored
         | Event.BufferLoadedIntoWindow buffer ->
@@ -24,22 +43,6 @@ type ViewModelService() =
             let drawings = Render.currentBufferAsDrawingObjects _viewModel
             let area = GridConvert.boxAround (ViewModel.wholeArea _viewModel) (* TODO shouldn't redraw the whole UI *)
             VMEvent.ViewPortionRendered(area, drawings) :> Message
-        | Event.ModeChanged { From = _; To = Mode.Command } ->
-            let viewModel, msg = ViewModel.showCommandBar _viewModel
-            _viewModel <- viewModel
-            msg
-        | Event.CommandEntryCancelled ->
-            let viewModel, msg = ViewModel.hideCommandBar _viewModel
-            _viewModel <- viewModel
-            msg
-        | Event.CommandMode_CharacterBackspaced ->
-            let viewModel, msg = ViewModel.characterBackspacedInCommandBar _viewModel
-            _viewModel <- viewModel
-            msg
-        | Event.CommandMode_TextAppended text ->
-            let viewModel, msg = ViewModel.appendTextInCommandBar _viewModel text
-            _viewModel <- viewModel
-            msg
         | Event.NotificationAdded notification ->
             let area = ViewModel.areaOfCommandBarOrNotifications _viewModel
             let drawing = ViewModel.toScreenNotification notification

@@ -29,6 +29,7 @@ module Init =
     let buildVoid inputModeChanger =
         let notificationService = NotificationService()
         let editorService = EditorService()
+        let commandBarService = CommandBarService.build()
         let viewService = ViewModelService()
         let commandChannel =
             Channel [
@@ -39,9 +40,13 @@ module Init =
         let eventChannel =
             Channel [
                 notificationService.handleEvent
+                commandBarService
                 viewService.handleEvent
             ]
-        let vmEventChannel = Channel []
+        let vmEventChannel =
+            Channel [
+                viewService.handleVMEvent
+            ]
         let bus =
             Bus [
                 commandChannel.publish

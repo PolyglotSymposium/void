@@ -35,11 +35,6 @@ type CommandBarPrompt =
     | ClassicVim
 
 type CommandBarView = {
-    Prompt : CommandBarPrompt Visibility
-    Text : string
-}
-
-type CommandBarViewV2 = {
     Width : int
     Prompt : CommandBarPrompt Visibility
     WrappedLines : string list
@@ -62,6 +57,5 @@ type MainViewModel = {
     FontSize : int
     TabBar : TabNameView list
     VisibleWindows : WindowView list
-    CommandBar : CommandBarView // for command mode
     Notifications : UserNotificationView list
 }

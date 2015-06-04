@@ -24,25 +24,42 @@ module Render =
             Color = Colors.defaultColorscheme.DimForeground
         }
 
-    let commandBarAsDrawingObjects (commandBar : CommandBarView) width upperLeftCell =
+    let private commandBarLines upperLeftCell lines =
+        let startingCellForLineNumber i =
+           if i = 0
+           then rightOf upperLeftCell 1
+           else below upperLeftCell i
+           |> GridConvert.upperLeftCornerOf
+        let renderLine i text =
+            DrawingObject.Text {
+               Text = text
+               UpperLeftCorner = startingCellForLineNumber i
+               Color = Colors.defaultColorscheme.Foreground
+            }
+        lines
+        |> List.filter (fun line -> line <> "")
+        |> List.mapi renderLine
+
+    let private commandBarInArea commandBar area upperLeftCell =
         DrawingObject.Block {
-            Area =
-                {
-                    UpperLeftCorner = GridConvert.upperLeftCornerOf upperLeftCell
-                    Dimensions = { Height = 1; Width = width }
-                }
+            Area = area
             Color = Colors.defaultColorscheme.Background
         } :: match commandBar with
-             | { Prompt = Hidden; Text = _ } -> []
-             | { Prompt = Visible prompt; Text = text } ->
-                 let renderedPrompt = commandBarPrompt upperLeftCell prompt
-                 if text = ""
-                 then [renderedPrompt]
-                 else [renderedPrompt; DrawingObject.Text {
-                    Text = text
-                    UpperLeftCorner = GridConvert.upperLeftCornerOf <| rightOf upperLeftCell 1
-                    Color = Colors.defaultColorscheme.Foreground
-                 }]
+             | { Prompt = Hidden; WrappedLines = _ } -> []
+             | { Prompt = Visible prompt; WrappedLines = lines } ->
+                 commandBarPrompt upperLeftCell prompt :: commandBarLines upperLeftCell lines
+        |> Seq.ofList
+
+    let commandBarAsDrawingObjects commandBar upperLeftCell =
+        let height =
+            if commandBar = CommandBar.hidden
+            then 1
+            else commandBar.WrappedLines.Length
+        let area : PointGrid.Block = {
+            UpperLeftCorner = GridConvert.upperLeftCornerOf upperLeftCell
+            Dimensions = { Height = height; Width = commandBar.Width }
+        }
+        (area, commandBarInArea commandBar area upperLeftCell)
 
     let notificationAsDrawingObject upperLeft notification =
         match notification with
@@ -98,7 +115,6 @@ module Render =
         [
             tabBarAsDrawingObjects viewModel.TabBar
             windowsAsDrawingObjects viewModel.VisibleWindows
-            commandBarAsDrawingObjects viewModel.CommandBar viewModel.Size.Columns originCell
             notificationsAsDrawingObjects viewModel.Size.Columns originCell viewModel.Notifications 
         ] |> Seq.concat
 

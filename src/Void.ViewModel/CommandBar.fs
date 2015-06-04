@@ -5,44 +5,73 @@ module CommandBar =
     open Void.Core.CellGrid
     open Void.Util
 
-    let hidden : CommandBarView  =
-        { Prompt = Hidden; Text = "" }
-
-    let visibleButEmpty : CommandBarView =
-        { Prompt = Visible CommandBarPrompt.VoidDefault; Text = "" }
-
-    let appendText (commandBar : CommandBarView) area textToAppend =
-        let bar = { commandBar with Text = commandBar.Text + textToAppend }
-        let areaInPoints = GridConvert.boxAround {
-            UpperLeftCell = { area.UpperLeftCell with Column = area.UpperLeftCell.Column + 1 + commandBar.Text.Length }
-            Dimensions = { Columns = textToAppend.Length; Rows = 1 }
+    let hidden =
+        {
+            Width = 80
+            Prompt = Hidden
+            WrappedLines = []
         }
-        let drawing = DrawingObject.Text {
-            UpperLeftCorner = areaInPoints.UpperLeftCorner
-            Text = textToAppend
-            Color = Colors.defaultColorscheme.Foreground
-        }
-        (bar, VMEvent.ViewPortionRendered(areaInPoints, [drawing]) :> Message)
 
-    let characterBackspaced area (commandBar : CommandBarView) =
-        let bar = {
-            commandBar with Text = StringUtil.backspace commandBar.Text
+    let visibleButEmpty =
+        {
+            Width = 80
+            Prompt = Visible CommandBarPrompt.VoidDefault
+            WrappedLines = [""]
         }
-        let areaInPoints = GridConvert.boxAroundOneCell <| CellGrid.rightOf area.UpperLeftCell commandBar.Text.Length
-        let drawing = DrawingObject.Block {
-            Area = areaInPoints
-            Color = Colors.defaultColorscheme.Background
-        }
-        (bar, VMEvent.ViewPortionRendered(areaInPoints, [drawing]) :> Message)
 
-    let hide area =
+    let private lastCell commandBar = 
+        CellGrid.rightOf CellGrid.originCell commandBar.WrappedLines.Head.Length
+
+    let private currentLineWillOverflow (textToAppend : string) commandBar =
+        let length = commandBar.WrappedLines.Head.Length + textToAppend.Length
+        length >= commandBar.Width ||
+        (commandBar.WrappedLines.Length = 1 && length + 1 = commandBar.Width)
+
+    let private appendText textToAppend commandBar =
+        if currentLineWillOverflow textToAppend commandBar
+        then
+            let bar = { commandBar with WrappedLines = textToAppend :: commandBar.WrappedLines }
+            (bar, VMEvent.CommandBar_TextReflowed bar :> Message)
+        else
+            let line = commandBar.WrappedLines.Head + textToAppend
+            let bar = { commandBar with WrappedLines = line :: commandBar.WrappedLines.Tail }
+            let textSegment = { LeftMostCell = CellGrid.rightOf (lastCell commandBar) 1; Text = textToAppend }
+            (bar, VMEvent.CommandBar_TextAppendedToLine textSegment :> Message)
+
+    let private characterBackspaced commandBar =
+        let backspacedLine = StringUtil.backspace commandBar.WrappedLines.Head
+        if backspacedLine = ""
+        then
+            let bar = { commandBar with WrappedLines =  commandBar.WrappedLines.Tail }
+            in (bar, VMEvent.CommandBar_TextReflowed bar :> Message)
+        else
+            let lines = backspacedLine :: commandBar.WrappedLines.Tail
+            let bar = { commandBar with WrappedLines = lines }
+            let clearedCell = lastCell commandBar
+            (bar, VMEvent.CommandBar_CharacterBackspacedFromLine clearedCell :> Message)
+
+    let private hide =
         let commandBar = hidden
-        let drawings = Render.commandBarAsDrawingObjects commandBar area.Dimensions.Columns area.UpperLeftCell
-        let areaInPoints = GridConvert.boxAround area
-        (commandBar, VMEvent.ViewPortionRendered(areaInPoints, drawings) :> Message)
+        (commandBar, VMEvent.CommandBar_Hidden commandBar :> Message)
 
-    let show area =
+    let private show =
         let commandBar = visibleButEmpty
-        let drawings = Render.commandBarAsDrawingObjects commandBar area.Dimensions.Columns area.UpperLeftCell
-        let areaInPoints = GridConvert.boxAround area
-        (commandBar, VMEvent.ViewPortionRendered(areaInPoints, drawings) :> Message)
+        in (commandBar, VMEvent.CommandBar_Displayed commandBar :> Message)
+
+    let handleEvent commandBar event =
+        match event with
+        | Event.ModeChanged { From = _; To = Mode.Command } -> show
+        | Event.CommandEntryCancelled -> hide
+        | Event.CommandMode_CharacterBackspaced -> characterBackspaced commandBar
+        | Event.CommandMode_TextAppended text -> appendText text commandBar
+        | _ -> (commandBar, noMessage)
+
+module CommandBarService =
+    open Void.Core
+
+    let private eventHandler commandBar =
+        Service.wrap commandBar CommandBar.handleEvent
+
+    let build() =
+        let commandBar = ref CommandBar.hidden
+        eventHandler commandBar
