@@ -5,7 +5,6 @@ type EditorService() =
 
     member x.handleCommand =
         function
-        | Command.Edit _
         | Command.Yank
         | Command.Put
         | Command.FormatCurrentLine ->
@@ -13,7 +12,7 @@ type EditorService() =
         | Command.ViewTestBuffer ->
             let buffer = Buffer.testFile
             _editorState <- Editor.viewFile _editorState buffer
-            // TODO Should controllers create the events?...
+            // TODO Should services really create the events?...
             Event.BufferLoadedIntoWindow buffer :> Message
         | Command.InitializeVoid ->
             _editorState <- Editor.init CommandLine.noArgs
@@ -23,4 +22,18 @@ type EditorService() =
         | Command.QuitAllWithoutSaving
         | Command.QuitWithoutSaving ->
              Event.LastWindowClosed :> Message
+        | _ -> noMessage
+
+    member x.handleEvent =
+        function
+        | Event.FileOpenedForEditing lines ->
+            let buffer = BufferType.File { Buffer.emptyFile with Contents = Seq.toList lines }
+            _editorState <- Editor.viewFile _editorState buffer
+            // TODO Should services really create the events?...
+            Event.BufferLoadedIntoWindow buffer :> Message
+        | Event.FileOpenedForViewing lines ->
+            let buffer = BufferType.File { Buffer.emptyFile with Contents = Seq.toList lines }
+            _editorState <- Editor.viewFile _editorState buffer
+            // TODO Should services really create the events?...
+            Event.BufferLoadedIntoWindow buffer :> Message
         | _ -> noMessage

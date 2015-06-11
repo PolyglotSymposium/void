@@ -56,6 +56,7 @@
     <Compile Include="NotificationService.fs" />
     <Compile Include="EditorService.fs" />
     <Compile Include="Service.fs" />
+    <Compile Include="Filesystem.fs" />
   </ItemGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>

@@ -17,6 +17,8 @@ type Event =
     | CommandMode_TextAppended of string
     | EditorInitialized of EditorState
     | ErrorOccurred of Error
+    | FileOpenedForEditing of string seq
+    | FileOpenedForViewing of string seq
     | LastWindowClosed
     | LineCommandCompleted
     | NotificationAdded of UserNotification
