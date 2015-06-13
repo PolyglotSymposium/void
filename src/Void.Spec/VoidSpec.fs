@@ -6,23 +6,6 @@ open Void.ViewModel
 open NUnit.Framework
 open FsUnit
 
-type MainViewStub() =
-    member val PaintedObjects = 0 with get, set
-    member val Bus = Bus([]) with get, set
-    interface MainView with
-        member x.GetFontMetrics() =
-            { LineHeight = 0; CharWidth = 0 }
-        member x.SetBackgroundColor color =
-            ()
-        member x.SetFontBySize size =
-            ()
-        member x.SetViewSize dimensions =
-            ()
-        member x.SetViewTitle title =
-            ()
-        member x.TriggerDraw block =
-            x.Bus.publish <| VMEvent.PaintInitiated (fun _ -> x.PaintedObjects <- x.PaintedObjects + 1)
-
 type InputModeChangerStub() =
     let mutable _inputHandler = InputMode<unit>.KeyPresses (fun _ -> ())
     member x.getInputHandler() =
@@ -35,9 +18,9 @@ type InputModeChangerStub() =
 type ``Void``() = 
     [<Test>]
     member x.``When I have freshly opened Vim with one window, when I enter the quit command, then the editor exists``() =
-        let mainView = MainViewStub()
         let inputModeChanger = InputModeChangerStub()
-        let messagingSystem = Init.initializeVoid mainView inputModeChanger
+        let messagingSystem = Init.buildVoid inputModeChanger
+        Init.launchVoid messagingSystem
         let closed = ref false
         let closeHandler event =
             match event with
@@ -62,18 +45,3 @@ type ``Void``() =
 
         (* Remeber that ! is dereference, not negate, in F# *)
         !closed |> should be True
-
-    [<Test>]
-    member x.``When I type CTRL-L in normal mode, the screen is redrawn``() =
-        let mainView = MainViewStub()
-        let inputModeChanger = InputModeChangerStub()
-        mainView.Bus <- (Init.initializeVoid mainView inputModeChanger).Bus
-        mainView.PaintedObjects |> should equal 0
-
-        match inputModeChanger.getInputHandler() with
-        | InputMode.KeyPresses handler ->
-            handler KeyPress.ControlL
-        | InputMode.TextAndHotKeys _ ->
-            Assert.Fail "Right after startup did not have a key presses handler set"
-
-        mainView.PaintedObjects |> should be (greaterThan 20)

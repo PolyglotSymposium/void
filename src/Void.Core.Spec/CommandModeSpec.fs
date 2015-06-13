@@ -17,8 +17,7 @@ type ``Editing command mode``() =
     let typeIncrement increment buffer expected =
         TextOrHotKey.Text increment
         |> CommandMode.handle interpret_success buffer
-        |> fst
-        |> should equal expected
+        |> should equal (expected, Event.CommandMode_TextAppended increment :> Message)
 
     [<Test>]
     member x.``Text can be incrementally typed in``() =
@@ -44,8 +43,12 @@ type ``Editing command mode``() =
     [<Test>]
     member x.``When backspace is pressed, the previous character is remove from the buffer``() =
         CommandMode.handle interpret_success "edig" backspace
-        |> fst
-        |> should equal "edi"
+        |> should equal ("edi", Event.CommandMode_CharacterBackspaced :> Message)
+
+    [<Test>]
+    member x.``When backspace is pressed and there are no characters but the prompt, command entry is cancelled``() =
+        CommandMode.handle interpret_success "" backspace
+        |> should equal ("", Event.CommandEntryCancelled :> Message)
 
     [<Test>]
     member x.``When the command text is parsed successfully, the command text is reset``() =

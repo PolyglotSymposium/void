@@ -11,12 +11,6 @@ namespace Void.UI
     // so that each can be built the way it wants to be built
     public static class TypeTranslationExtensions
     {
-        public static FSharpFunc<DrawingObject, Unit> DrawAsFSharpFunc(this WinFormsArtist artist)
-        {
-            Action<DrawingObject> draw = artist.Draw;
-            return FuncConvert.ToFSharpFunc(draw);
-        }
-
         public static Color AsWinFormsColor(this RGBColor color)
         {
             return Color.FromArgb(color.Red, color.Green, color.Blue);
@@ -27,34 +21,39 @@ namespace Void.UI
             return new SolidBrush(color.AsWinFormsColor());
         }
 
-        public static Size AsWinFormsSize(this PixelGrid.Dimensions size)
+        public static Size AsWinFormsSize(this CellGrid.Dimensions size, CellMetrics cellMetrics)
         {
-            return new Size(size.Width, size.Height);
+            return new Size(size.Columns * cellMetrics.Width, size.Rows * cellMetrics.Height);
         }
 
-        public static Point AsWinFormsPoint(this PixelGrid.Point point)
+        public static Size AsWinFormsSize(this PointGrid.Dimensions size, CellMetrics cellMetrics)
         {
-            return new Point(point.X, point.Y);
+            return new Size(size.Width * cellMetrics.Width, size.Height * cellMetrics.Height);
         }
 
-        public static PointF AsWinFormsPointF(this PixelGrid.Point point)
+        public static Point AsWinFormsPoint(this PointGrid.Point point, CellMetrics cellMetrics)
         {
-            return new PointF(Convert.ToSingle(point.X), Convert.ToSingle(point.Y));
+            return new Point(point.X * cellMetrics.Width, point.Y * cellMetrics.Height);
         }
 
-        public static SizeF AsWinFormsSizeF(this PixelGrid.Dimensions size)
+        public static PointF AsWinFormsPointF(this PointGrid.Point point, CellMetrics cellMetrics)
         {
-            return new SizeF(Convert.ToSingle(size.Width), Convert.ToSingle(size.Height));
+            return new PointF(Convert.ToSingle(point.X * cellMetrics.Width), Convert.ToSingle(point.Y * cellMetrics.Height));
         }
 
-        public static Rectangle AsWinFormsRectangle(this PixelGrid.Block block)
+        public static SizeF AsWinFormsSizeF(this PointGrid.Dimensions size, CellMetrics cellMetrics)
         {
-            return new Rectangle(block.UpperLeftCorner.AsWinFormsPoint(), block.Dimensions.AsWinFormsSize());
+            return new SizeF(Convert.ToSingle(size.Width * cellMetrics.Width), Convert.ToSingle(size.Height * cellMetrics.Height));
         }
 
-        public static RectangleF AsWinFormsRectangleF(this PixelGrid.Block block)
+        public static Rectangle AsWinFormsRectangle(this PointGrid.Block block, CellMetrics cellMetrics)
         {
-            return new RectangleF(block.UpperLeftCorner.AsWinFormsPointF(), block.Dimensions.AsWinFormsSizeF());
+            return new Rectangle(block.UpperLeftCorner.AsWinFormsPoint(cellMetrics), block.Dimensions.AsWinFormsSize(cellMetrics));
+        }
+
+        public static RectangleF AsWinFormsRectangleF(this PointGrid.Block block, CellMetrics cellMetrics)
+        {
+            return new RectangleF(block.UpperLeftCorner.AsWinFormsPointF(cellMetrics), block.Dimensions.AsWinFormsSizeF(cellMetrics));
         }
 
         public static ScreenLineObject AsLine(this DrawingObject drawing)
@@ -601,6 +600,14 @@ namespace Void.UI
             else if (keyEvent.KeyCode == Keys.Back)
             {
                 textOrHotKey = TextOrHotKey.NewHotKey(HotKey.Backspace);
+            }
+            else if (keyEvent.KeyCode == Keys.OemQuotes)
+            {
+                textOrHotKey = TextOrHotKey.NewText("\"");
+            }
+            else if (keyEvent.KeyCode == Keys.Space)
+            {
+                textOrHotKey = TextOrHotKey.NewText(" ");
             }
             else if (keyEvent.KeyCode == Keys.F1)
             {

@@ -1,29 +1,33 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using System.Windows.Forms;
 using Void.Core;
-using Void.Util;
 using Void.ViewModel;
-using Microsoft.FSharp.Core;
 using Message = Void.Core.Message;
 
 namespace Void.UI
 {
-    public partial class MainForm : Form, MainView, InputModeChanger
+    public partial class MainForm : Form
     {
+        private readonly Bus _bus;
+        private readonly WinFormsInputModeChanger _inputModeChanger;
         private Font _font = new Font(FontFamily.GenericMonospace, 9);
-        private InputMode<Unit> _inputHandler;
+        private CellMetrics _cellMetrics;
+        private IEnumerable<DrawingObject> _drawings;
 
-        public MainForm()
+
+        public MainForm(Bus bus, WinFormsInputModeChanger inputModeChanger)
         {
+            _bus = bus;
+            _inputModeChanger = inputModeChanger;
             InitializeComponent();
-            var messagingSystem = Init.initializeVoid(this, this);
-            messagingSystem.EventChannel.addHandler(FSharpFuncUtil.Create<Event, Message>(HandleEvent));
-            SubscribeToPaint(messagingSystem.Bus);
+            SubscribeToPaint();
             WireUpInputEvents();
         }
 
-        private Message HandleEvent(Event eventMsg)
+        public Message HandleEvent(Event eventMsg)
         {
             if (eventMsg.IsLastWindowClosed)
             {
@@ -32,11 +36,29 @@ namespace Void.UI
             return null;
         }
 
+        public Message HandleViewModelEvent(VMEvent eventMsg)
+        {
+            if (eventMsg.IsViewPortionRendered)
+            {
+                _drawings = ((VMEvent.ViewPortionRendered)eventMsg).Item2;
+                TriggerDraw(((VMEvent.ViewPortionRendered)eventMsg).Item1);
+            }
+            if (eventMsg.IsViewModelInitialized)
+            {
+                var viewModel = ((VMEvent.ViewModelInitialized)eventMsg).Item;
+                SetBackgroundColor(viewModel.BackgroundColor);
+                SetFontBySize(viewModel.FontSize);
+                SetViewSize(viewModel.Size);
+                SetViewTitle(viewModel.Title);
+            }
+            return null;
+        }
+
         private void WireUpInputEvents()
         {
             KeyUp += (sender, eventArgs) =>
             {
-                if (_inputHandler.IsKeyPresses)
+                if (_inputModeChanger.InputHandler.IsKeyPresses)
                 {
                     var keyPress = eventArgs.AsVoidKeyPress();
                     if (keyPress == null)
@@ -45,7 +67,7 @@ namespace Void.UI
                     }
                     else
                     {
-                        _inputHandler.AsKeyPressesHandler()(keyPress);
+                        _inputModeChanger.InputHandler.AsKeyPressesHandler()(keyPress);
                     }
                 }
                 else
@@ -61,29 +83,30 @@ namespace Void.UI
                     }
                     else
                     {
-                        _inputHandler.AsTextAndHotKeysHandler()(textOrHotKey);
+                        _inputModeChanger.InputHandler.AsTextAndHotKeysHandler()(textOrHotKey);
                     }
                 }
             };
         }
 
-        public void SubscribeToPaint(Bus bus)
+        public void SubscribeToPaint()
         {
             Paint += (sender, eventArgs) =>
             {
-                var artist = new WinFormsArtist(eventArgs.Graphics, _font);
-                bus.publish(VMEvent.NewPaintInitiated(artist.DrawAsFSharpFunc()));
+                if (_drawings.Any())
+                {
+                    var artist = new WinFormsArtist(eventArgs.Graphics, _font, _cellMetrics);
+                    foreach (var drawing in _drawings)
+                    {
+                        artist.Draw(drawing);
+                    }
+                    _drawings = Enumerable.Empty<DrawingObject>();
+                }
+                else
+                {
+                    _bus.publish(Command.Redraw);
+                }
             };
-        }
-
-        public void SetInputHandler(InputMode<Unit> handler)
-        {
-            _inputHandler = handler;
-        }
-
-        public PixelGrid.FontMetrics GetFontMetrics()
-        {
-            return new PixelGrid.FontMetrics(_font.Height, MeasureFontWidth());
         }
 
         private int MeasureFontWidth()
@@ -93,29 +116,30 @@ namespace Void.UI
             return Convert.ToInt32(Math.Ceiling(CreateGraphics().MeasureString(new string('X', 80), _font).Width / 80));
         }
 
-        public void SetBackgroundColor(RGBColor color)
+        private void SetBackgroundColor(RGBColor color)
         {
             BackColor = color.AsWinFormsColor();
         }
 
-        public void SetFontBySize(byte size)
+        private void SetFontBySize(int size)
         {
-            _font = new Font(FontFamily.GenericMonospace, 9);
+            _font = new Font(FontFamily.GenericMonospace, size);
+            _cellMetrics = new CellMetrics(_font.Height, MeasureFontWidth());
         }
 
-        public void SetViewSize(PixelGrid.Dimensions size)
+        private void SetViewSize(CellGrid.Dimensions size)
         {
-            ClientSize = size.AsWinFormsSize();
+            ClientSize = size.AsWinFormsSize(_cellMetrics);
         }
 
-        public void SetViewTitle(string title)
+        private void SetViewTitle(string title)
         {
             Text = title;
         }
 
-        public void TriggerDraw(PixelGrid.Block block)
+        public void TriggerDraw(PointGrid.Block block)
         {
-            Invalidate(block.AsWinFormsRectangle());
+            Invalidate(block.AsWinFormsRectangle(_cellMetrics));
         }
     }
 }

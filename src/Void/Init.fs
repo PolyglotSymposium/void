@@ -9,7 +9,6 @@ type MessagingSystem = {
     EventChannel : Channel<Event>
     CommandChannel : Channel<Command>
     VMEventChannel : Channel<VMEvent>
-    VMCommandChannel : Channel<VMCommand>
     Bus : Bus
 }
 
@@ -27,11 +26,11 @@ module Init =
             |> InputMode.TextAndHotKeys
         |> changer.SetInputHandler
 
-    let initializeVoid view inputModeChanger =
+    let buildVoid inputModeChanger =
         let notificationService = NotificationService()
         let editorService = EditorService()
-        let viewService = ViewModelService view
-        let renderingService = RenderingService(view, viewService.rerenderWholeView)
+        let commandBarService = CommandBarService.build()
+        let viewService = ViewModelService()
         let commandChannel =
             Channel [
                 notificationService.handleCommand
@@ -41,21 +40,17 @@ module Init =
         let eventChannel =
             Channel [
                 notificationService.handleEvent
+                commandBarService
                 viewService.handleEvent
-            ]
-        let vmCommandChannel =
-            Channel [
-                renderingService.handleVMCommand
             ]
         let vmEventChannel =
             Channel [
-                renderingService.handleVMEvent
+                viewService.handleVMEvent
             ]
         let bus =
             Bus [
                 commandChannel.publish
                 eventChannel.publish
-                vmCommandChannel.publish
                 vmEventChannel.publish
             ]
         let interpreter = Interpreter.init <| VoidScriptEditorModule(bus.publish).Commands
@@ -68,11 +63,12 @@ module Init =
         commandChannel.addHandler modeService.handleCommand
         eventChannel.addHandler modeService.handleEvent
 
-        bus.publish Command.InitializeVoid
         {
             EventChannel = eventChannel
             CommandChannel = commandChannel
             VMEventChannel = vmEventChannel
-            VMCommandChannel = vmCommandChannel
             Bus = bus
         }
+
+    let launchVoid messagingSystem =
+        messagingSystem.Bus.publish Command.InitializeVoid

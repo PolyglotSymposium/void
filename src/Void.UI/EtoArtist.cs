@@ -7,11 +7,13 @@ namespace Void.UI
     {
         private readonly Graphics _graphics;
         private readonly Font _font;
+        private readonly CellMetrics _cellMetrics;
 
-        public WinFormsArtist(Graphics graphics, Font font)
+        public WinFormsArtist(Graphics graphics, Font font, CellMetrics cellMetrics)
         {
             _graphics = graphics;
             _font = font;
+            _cellMetrics = cellMetrics;
         }
 
         public void Draw(DrawingObject drawing)
@@ -37,12 +39,12 @@ namespace Void.UI
 
         private void RenderText(ScreenTextObject drawing)
         {
-            _graphics.DrawString(drawing.Text, _font, drawing.Color.AsWinFormsSolidBrush(), drawing.UpperLeftCorner.AsWinFormsPointF());
+            _graphics.DrawString(drawing.Text, _font, drawing.Color.AsWinFormsSolidBrush(), drawing.UpperLeftCorner.AsWinFormsPointF(_cellMetrics));
         }
 
         private void RenderBlock(ScreenBlockObject drawing)
         {
-            _graphics.FillRectangle(drawing.Color.AsWinFormsSolidBrush(), drawing.Area.AsWinFormsRectangleF());
+            _graphics.FillRectangle(drawing.Color.AsWinFormsSolidBrush(), drawing.Area.AsWinFormsRectangleF(_cellMetrics));
         }
     }
 }

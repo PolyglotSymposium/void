@@ -2,59 +2,59 @@
 
 open Void.Core
 
-// Drawing objects are basically considered delta events off the view model
-type ViewModelService
-    (
-        _view : MainView
-    ) =
-    let mutable _fontMetrics = _view.GetFontMetrics()
-    let mutable _convert = Sizing.Convert _fontMetrics
+type ViewModelService() =
     let mutable _viewModel = ViewModel.defaultViewModel
-    let _colorscheme = Colors.defaultColorscheme
-
-    member private x.initializeView() =
-        _view.SetViewTitle ViewModel.defaultTitle
-        _view.SetBackgroundColor Colors.defaultColorscheme.Background
-        x.setFont()
-        _view.SetViewSize <| _convert.cellDimensionsToPixels _viewModel.Size
-        VMEvent.ViewModelInitialized
-
-    member x.rerenderWholeView() =
-        Render.viewModelAsDrawingObjects _convert _viewModel
-
-    member private x.setFont() =
-        _view.SetFontBySize ViewModel.defaultFontSize
-        _fontMetrics <- _view.GetFontMetrics()
-        _convert <- Sizing.Convert _fontMetrics
 
     member x.handleCommand =
         function
         | Command.InitializeVoid ->
-            x.initializeView() :> Message
+            VMEvent.ViewModelInitialized _viewModel :> Message
         | Command.Display _ ->
             notImplemented
         | Command.Redraw ->
-            _convert.cellBlockToPixels (ViewModel.wholeArea _viewModel)
-            |> VMCommand.Redraw :> Message
+            (GridConvert.boxAround (ViewModel.wholeArea _viewModel), Render.viewModelAsDrawingObjects _viewModel)
+            |> VMEvent.ViewPortionRendered :> Message
         | _ ->
             noMessage
 
+    member x.handleVMEvent event =
+        let commandBarOrigin = ViewModel.upperLeftCellOfCommandBar _viewModel
+        let renderCommandBar commandBar =
+            RenderCommandBar.asDrawingObjects commandBar commandBarOrigin
+            |> VMEvent.ViewPortionRendered :> Message
+        match event with
+        | VMEvent.CommandBar_CharacterBackspacedFromLine cell ->
+            RenderCommandBar.backspacedCharacterAsDrawingObject cell commandBarOrigin
+            |> VMEvent.ViewPortionRendered :> Message
+        | VMEvent.CommandBar_Displayed commandBar ->
+            renderCommandBar commandBar
+        | VMEvent.CommandBar_Hidden commandBar ->
+            renderCommandBar commandBar
+        | VMEvent.CommandBar_TextAppendedToLine textSegment ->
+            RenderCommandBar.appendedTextAsDrawingObject textSegment commandBarOrigin
+            |> VMEvent.ViewPortionRendered :> Message
+        | VMEvent.CommandBar_TextChanged commandBar ->
+            renderCommandBar commandBar
+        | VMEvent.CommandBar_TextReflowed commandBar ->
+            renderCommandBar commandBar
+        | _ -> noMessage
+
     member x.handleEvent =
-        function
+        function // TODO clearly the code below needs to be refactored
         | Event.BufferLoadedIntoWindow buffer ->
             _viewModel <- ViewModel.loadBuffer buffer _viewModel
-            let drawings = Render.currentBufferAsDrawingObjects _convert _viewModel
-            let area = _convert.cellBlockToPixels <| ViewModel.wholeArea _viewModel (* TODO shouldn't redraw the whole UI *)
+            let drawings = Render.currentBufferAsDrawingObjects _viewModel
+            let area = GridConvert.boxAround (ViewModel.wholeArea _viewModel) (* TODO shouldn't redraw the whole UI *)
             VMEvent.ViewPortionRendered(area, drawings) :> Message
         | Event.NotificationAdded notification ->
+            let area = ViewModel.areaOfCommandBarOrNotifications _viewModel
             let drawing = ViewModel.toScreenNotification notification
-                          |> Render.notificationAsDrawingObject _convert { Row = CellGrid.lastRow (ViewModel.wholeArea _viewModel); Column = 0 }
-            // TODO this is just hacked together for the moment
-            let area = _convert.cellBlockToPixels { UpperLeftCell = { Row = CellGrid.lastRow (ViewModel.wholeArea _viewModel); Column = 0 }; Dimensions = { Rows = 1; Columns = _viewModel.Size.Columns }}
-            VMEvent.ViewPortionRendered(area, [drawing]) :> Message
+                          |> Render.notificationAsDrawingObject area.UpperLeftCell
+            let areaInPoints = GridConvert.boxAround area
+            VMEvent.ViewPortionRendered(areaInPoints, [drawing]) :> Message
         | Event.EditorInitialized editor ->
-            _viewModel <- ViewModel.loadBuffer (Editor.currentBuffer editor) _viewModel 
-            let drawings = Render.currentBufferAsDrawingObjects _convert _viewModel
-            let area = _convert.cellBlockToPixels <| ViewModel.wholeArea _viewModel
+            _viewModel <- ViewModel.init editor _viewModel 
+            let drawings = Render.currentBufferAsDrawingObjects _viewModel
+            let area = GridConvert.boxAround <| ViewModel.wholeArea _viewModel
             VMEvent.ViewPortionRendered(area, drawings) :> Message
         | _ -> noMessage

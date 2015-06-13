@@ -13,6 +13,8 @@ module ``This module is auto-opened to provide a null message`` =
 type Event =
     | BufferLoadedIntoWindow of BufferType
     | CommandEntryCancelled
+    | CommandMode_CharacterBackspaced
+    | CommandMode_TextAppended of string
     | EditorInitialized of EditorState
     | ErrorOccurred of Error
     | LastWindowClosed
@@ -29,8 +31,10 @@ type Displayable =
 type Command =
     | ChangeToMode of Mode
     | Display of Displayable
+    | Echo of string
     | Edit of FileIdentifier
     | FormatCurrentLine
+    | Help
     | InitializeVoid
     | Put
     | Quit
@@ -39,6 +43,7 @@ type Command =
     | QuitWithoutSaving
     | Redraw
     | ShowNotificationHistory
+    | View of FileIdentifier
     | ViewTestBuffer // TODO for Debug/Test only
     | Yank
     interface Message

@@ -1,101 +1,56 @@
 ﻿namespace Void.ViewModel
 
-type ScreenLineObject = {
-    StartingPoint : PixelGrid.Point
-    EndingPoint : PixelGrid.Point
-}
-
-type ScreenTextObject = {
-    Text : string
-    UpperLeftCorner : PixelGrid.Point
-    Color : RGBColor
-}
-
-type ScreenBlockObject = {
-    Area : PixelGrid.Block
-    Color : RGBColor
-}
-
-[<RequireQualifiedAccess>]
-type DrawingObject =
-    | Line of ScreenLineObject
-    | Text of ScreenTextObject
-    | Block of ScreenBlockObject
+open Void.Core
 
 module Render =
     open Void.Core.CellGrid
 
-    let private textLineAsDrawingObject (convert : Sizing.Convert) x line =
+    let private textLineAsDrawingObject x line =
         DrawingObject.Text {
             Text = line
-            UpperLeftCorner = convert.cellToUpperLeftPoint <| below originCell x
+            UpperLeftCorner = GridConvert.upperLeftCornerOf <| below originCell x
             Color = Colors.defaultColorscheme.Foreground
         }
 
-    let textLinesAsDrawingObjects convert lines =
-        List.mapi (textLineAsDrawingObject convert) lines
+    let textLinesAsDrawingObjects =
+        List.mapi textLineAsDrawingObject
 
-    let private commandBarPrompt (convert : Sizing.Convert) = 
-        DrawingObject.Text {
-            Text = ";"
-            UpperLeftCorner = convert.cellToUpperLeftPoint { Row = 25; Column = 0 }
-            Color = Colors.defaultColorscheme.DimForeground
-        }
-
-    let commandBarAsDrawingObjects (convert : Sizing.Convert) commandBar width upperLeft =
-        DrawingObject.Block {
-            Area =
-                {
-                    UpperLeftCorner = convert.cellToUpperLeftPoint upperLeft
-                    Dimensions = { Height = 1; Width = width } // TODO convert to pixels
-                }
-            Color = Colors.defaultColorscheme.Background
-        } :: match commandBar with
-             | CommandBarView.Hidden -> []
-             | CommandBarView.Visible "" -> [commandBarPrompt convert]
-             | CommandBarView.Visible text ->
-                 [commandBarPrompt convert; DrawingObject.Text {
-                    Text = text
-                    UpperLeftCorner = convert.cellToUpperLeftPoint <| rightOf upperLeft 1
-                    Color = Colors.defaultColorscheme.Foreground
-                 }]
-
-    let notificationAsDrawingObject (convert : Sizing.Convert) upperLeft notification =
+    let notificationAsDrawingObject upperLeft notification =
         match notification with
         | UserNotificationView.Text text ->
             {
                 Text = text
-                UpperLeftCorner = convert.cellToUpperLeftPoint upperLeft
+                UpperLeftCorner = GridConvert.upperLeftCornerOf upperLeft
                 Color = Colors.defaultColorscheme.Foreground
             }
         | UserNotificationView.Error text ->
             {
                 Text = text
-                UpperLeftCorner = convert.cellToUpperLeftPoint upperLeft
+                UpperLeftCorner = GridConvert.upperLeftCornerOf upperLeft
                 Color = Colors.defaultColorscheme.Error
             }
         |> DrawingObject.Text
 
-    let notificationsAsDrawingObjects convert width upperLeft notifications =
+    let notificationsAsDrawingObjects width upperLeft notifications =
         let asDrawingObject =
-            notificationAsDrawingObject convert upperLeft
+            notificationAsDrawingObject upperLeft
         notifications |> List.map asDrawingObject
 
-    let tabBarAsDrawingObjects convert tabBar = []
+    let tabBarAsDrawingObjects tabBar = []
 
-    let bufferAsDrawingObjects (convert : Sizing.Convert) windowArea buffer =
+    let bufferAsDrawingObjects windowArea (buffer : BufferView) =
         let background = DrawingObject.Block {
-            Area = convert.cellBlockToPixels windowArea
+            Area = GridConvert.boxAround windowArea
             Color = Colors.defaultColorscheme.Background
         }
 
-        let bufferLines = textLinesAsDrawingObjects convert buffer.Contents
+        let bufferLines = textLinesAsDrawingObjects buffer.LinesOfText
 
         let rowsNotInBuffer =
             let lineNotInBufferAsDrawingObject i =
                 DrawingObject.Text {
                     Text = "~"
-                    UpperLeftCorner = convert.cellToUpperLeftPoint { Row = i; Column = 0 }
+                    UpperLeftCorner = GridConvert.upperLeftCornerOf { Row = i; Column = 0 }
                     Color = Colors.defaultColorscheme.DimForeground
                 }
             let linesWithNoTilde =
@@ -107,17 +62,17 @@ module Render =
 
         List.append (background :: bufferLines) rowsNotInBuffer
 
-    let windowsAsDrawingObjects convert (windows : WindowView list) =
-        bufferAsDrawingObjects convert windows.[0].Area windows.[0].Buffer
+    let windowsAsDrawingObjects (windows : WindowView list) =
+        bufferAsDrawingObjects windows.[0].Area windows.[0].Buffer
 
-    let viewModelAsDrawingObjects convert viewModel =
+    let viewModelAsDrawingObjects viewModel =
         [
-            tabBarAsDrawingObjects convert viewModel.TabBar
-            windowsAsDrawingObjects convert viewModel.VisibleWindows
-            commandBarAsDrawingObjects convert viewModel.CommandBar viewModel.Size.Columns originCell
-            notificationsAsDrawingObjects convert viewModel.Size.Columns originCell viewModel.Notifications 
+            tabBarAsDrawingObjects viewModel.TabBar
+            windowsAsDrawingObjects viewModel.VisibleWindows
+            notificationsAsDrawingObjects viewModel.Size.Columns originCell viewModel.Notifications 
         ] |> Seq.concat
 
-    let currentBufferAsDrawingObjects convert viewModel =
+    let currentBufferAsDrawingObjects viewModel =
         viewModel.VisibleWindows.[0].Buffer
-        |> bufferAsDrawingObjects convert viewModel.VisibleWindows.[0].Area
+        |> bufferAsDrawingObjects viewModel.VisibleWindows.[0].Area
+
