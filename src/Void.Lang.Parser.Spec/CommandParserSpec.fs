@@ -74,5 +74,5 @@ type ``Parsing commands``() =
         |> should equal (LineCommandParse.Succeeded {
             Range = None
             Name = "raw"
-            WrappedArguments = " $ymb0lz & spacez & #s" :> Object // TODO technically that space shouldn't be there at the beginning
+            WrappedArguments = "$ymb0lz & spacez & #s" :> Object
         })

@@ -36,4 +36,12 @@ type EditorService() =
             _editorState <- Editor.viewFile _editorState buffer
             // TODO Should services really create the events?...
             Event.BufferLoadedIntoWindow buffer :> Message
+        | Event.NewFileForEditing path ->
+            sprintf "\"%s\" [New file]" path
+            |> UserNotification.Output
+            |> Event.NotificationAdded :> Message
+        | Event.NewFileForViewing path ->
+            sprintf "\"%s\" [New file]" path
+            |> UserNotification.Output
+            |> Event.NotificationAdded :> Message
         | _ -> noMessage

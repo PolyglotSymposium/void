@@ -2,12 +2,14 @@
 
 [<RequireQualifiedAccess>]
 type Error =
+    | AccessToPathNotAuthorized of string
     | NotImplemented
     | ScriptFragmentParseFailed of string
 
 module Errors =
     let textOf =
         function
+        | Error.AccessToPathNotAuthorized path -> sprintf "Access to path not authorized: \"%s\"" path
         | Error.NotImplemented -> "That command is not yet implemented"
         | Error.ScriptFragmentParseFailed msg -> msg
 

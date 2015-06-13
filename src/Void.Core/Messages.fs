@@ -21,6 +21,8 @@ type Event =
     | FileOpenedForViewing of string seq
     | LastWindowClosed
     | LineCommandCompleted
+    | NewFileForEditing of string
+    | NewFileForViewing of string
     | NotificationAdded of UserNotification
     | ModeSet of Mode
     | ModeChanged of ModeChange
