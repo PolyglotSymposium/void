@@ -17,19 +17,6 @@ module Filesystem =
 
     let handleCommand =
         function
-        | Command.View fileId ->
-            match fileId with
-            | FileIdentifier.Path path ->
-                if File.Exists path
-                then
-                    match readLines path with
-                    | Lines lines ->
-                        Event.FileOpenedForViewing lines :> Message
-                    | Failure error ->
-                        UserNotification.Error error
-                        |> Event.NotificationAdded :> Message
-                else Event.NewFileForViewing path :> Message
-            | _ -> notImplemented
         | Command.Edit fileId ->
             match fileId with
             | FileIdentifier.Path path ->

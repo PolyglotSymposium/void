@@ -32,6 +32,10 @@ type Displayable =
     | Notifications of UserNotification list
 
 [<RequireQualifiedAccess>]
+type EditorOption =
+    | ReadOnly
+
+[<RequireQualifiedAccess>]
 type Command =
     | ChangeToMode of Mode
     | Display of Displayable
@@ -46,9 +50,8 @@ type Command =
     | QuitAllWithoutSaving
     | QuitWithoutSaving
     | Redraw
+    | SetBufferOption of EditorOption
     | ShowNotificationHistory
-    | View of FileIdentifier
-    | ViewTestBuffer // TODO for Debug/Test only
     | Yank
     interface Message
 

@@ -9,11 +9,6 @@ type EditorService() =
         | Command.Put
         | Command.FormatCurrentLine ->
             notImplemented
-        | Command.ViewTestBuffer ->
-            let buffer = Buffer.testFile
-            _editorState <- Editor.viewFile _editorState buffer
-            // TODO Should services really create the events?...
-            Event.BufferLoadedIntoWindow buffer :> Message
         | Command.InitializeVoid ->
             _editorState <- Editor.init CommandLine.noArgs
             Event.EditorInitialized _editorState :> Message
