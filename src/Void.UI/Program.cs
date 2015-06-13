@@ -14,8 +14,9 @@ namespace Void.UI
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            var view = new MainForm();
-            var messagingSystem = Init.buildVoid(view);
+            var inputModeChanger = new WinFormsInputModeChanger();
+            var messagingSystem = Init.buildVoid(inputModeChanger);
+            var view = new MainForm(messagingSystem.Bus, inputModeChanger);
             messagingSystem.EventChannel.addHandler(FSharpFuncUtil.Create<Event, Message>(view.HandleEvent));
             messagingSystem.VMEventChannel.addHandler(FSharpFuncUtil.Create<VMEvent, Message>(view.HandleViewModelEvent));
             Init.launchVoid(messagingSystem);

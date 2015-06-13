@@ -4,22 +4,24 @@ using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 using Void.Core;
-using Void.Util;
 using Void.ViewModel;
-using Microsoft.FSharp.Core;
 using Message = Void.Core.Message;
 
 namespace Void.UI
 {
-    public partial class MainForm : Form, InputModeChanger
+    public partial class MainForm : Form
     {
+        private readonly Bus _bus;
+        private readonly WinFormsInputModeChanger _inputModeChanger;
         private Font _font = new Font(FontFamily.GenericMonospace, 9);
-        private InputMode<Unit> _inputHandler;
         private CellMetrics _cellMetrics;
         private IEnumerable<DrawingObject> _drawings;
 
-        public MainForm()
+
+        public MainForm(Bus bus, WinFormsInputModeChanger inputModeChanger)
         {
+            _bus = bus;
+            _inputModeChanger = inputModeChanger;
             InitializeComponent();
             SubscribeToPaint();
             WireUpInputEvents();
@@ -56,7 +58,7 @@ namespace Void.UI
         {
             KeyUp += (sender, eventArgs) =>
             {
-                if (_inputHandler.IsKeyPresses)
+                if (_inputModeChanger.InputHandler.IsKeyPresses)
                 {
                     var keyPress = eventArgs.AsVoidKeyPress();
                     if (keyPress == null)
@@ -65,7 +67,7 @@ namespace Void.UI
                     }
                     else
                     {
-                        _inputHandler.AsKeyPressesHandler()(keyPress);
+                        _inputModeChanger.InputHandler.AsKeyPressesHandler()(keyPress);
                     }
                 }
                 else
@@ -81,7 +83,7 @@ namespace Void.UI
                     }
                     else
                     {
-                        _inputHandler.AsTextAndHotKeysHandler()(textOrHotKey);
+                        _inputModeChanger.InputHandler.AsTextAndHotKeysHandler()(textOrHotKey);
                     }
                 }
             };
@@ -91,18 +93,20 @@ namespace Void.UI
         {
             Paint += (sender, eventArgs) =>
             {
-                var artist = new WinFormsArtist(eventArgs.Graphics, _font, _cellMetrics);
-                foreach (var drawing in _drawings)
+                if (_drawings.Any())
                 {
-                    artist.Draw(drawing);
+                    var artist = new WinFormsArtist(eventArgs.Graphics, _font, _cellMetrics);
+                    foreach (var drawing in _drawings)
+                    {
+                        artist.Draw(drawing);
+                    }
+                    _drawings = Enumerable.Empty<DrawingObject>();
                 }
-                _drawings = Enumerable.Empty<DrawingObject>();
+                else
+                {
+                    _bus.publish(Command.Redraw);
+                }
             };
-        }
-
-        public void SetInputHandler(InputMode<Unit> handler)
-        {
-            _inputHandler = handler;
         }
 
         private int MeasureFontWidth()
