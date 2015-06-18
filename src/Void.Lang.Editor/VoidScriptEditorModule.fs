@@ -4,16 +4,20 @@ open Void.Core
 open Void.Lang.Parser
 open Void.Lang.Interpreter
 
+module VoidScriptEditor =
+    let parseFilePath path =
+        match path with
+        | "%" -> FileIdentifier.CurrentBuffer
+        | "#" -> FileIdentifier.AlternateBuffer
+        // TODO better parsing, include #2, etc
+        | _ -> FileIdentifier.Path path
+
 type VoidScriptEditorModule(publish : Command -> unit) =
     let echo _ execEnv =
         publish <| Command.Echo ""
 
     let edit raw execEnv =
-        match raw with
-        | "%" -> FileIdentifier.CurrentBuffer
-        | "#" -> FileIdentifier.AlternateBuffer
-        // TODO better parsing, include #2, etc
-        | _ -> FileIdentifier.Path raw
+        VoidScriptEditor.parseFilePath raw
         |> Command.Edit 
         |> publish
 
@@ -35,6 +39,11 @@ type VoidScriptEditorModule(publish : Command -> unit) =
     let view raw execEnv =
         edit raw execEnv
         Command.SetBufferOption EditorOption.ReadOnly
+        |> publish
+
+    let write raw execEnv =
+        VoidScriptEditor.parseFilePath raw
+        |> Command.Write
         |> publish
 
     member x.Commands = [
@@ -81,5 +90,10 @@ type VoidScriptEditorModule(publish : Command -> unit) =
             FullName = "view"
             // TODO Note that in Vim it can take optional ++opt and +cmd args
             WrapArguments = CommandType.Unparsed view
+        }
+        {
+            ShortName = "w"
+            FullName = "write"
+            WrapArguments = CommandType.Unparsed write
         }
     ]

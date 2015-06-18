@@ -17,6 +17,8 @@ type EditorService() =
         | Command.QuitAllWithoutSaving
         | Command.QuitWithoutSaving ->
              Event.LastWindowClosed :> Message
+        | Command.Write fileId ->
+            notImplemented
         | _ -> noMessage
 
     member x.handleEvent =
