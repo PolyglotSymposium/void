@@ -77,5 +77,5 @@ module ViewModel =
             Dimensions = { Rows = 1; Columns = viewModel.Size.Columns }
         }
 
-    let init editorState viewModel =
-        loadBuffer (Editor.currentBuffer editorState) viewModel
+    let init (editorState : BufferList) viewModel =
+        loadBuffer editorState.[0] viewModel

@@ -122,7 +122,4 @@ type DataOperations =
     | Down
     | Escape // TODO Is there a better word for this?
 
-type EditorState = {
-    CurrentBuffer : int
-    BufferList : Map<int, BufferType>
-}
+type BufferList = Map<int, BufferType>

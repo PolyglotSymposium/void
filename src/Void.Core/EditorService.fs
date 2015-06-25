@@ -10,7 +10,6 @@ type EditorService() =
         | Command.FormatCurrentLine ->
             notImplemented
         | Command.InitializeVoid ->
-            _editorState <- Editor.init CommandLine.noArgs
             Event.EditorInitialized _editorState :> Message
         | Command.Quit
         | Command.QuitAll

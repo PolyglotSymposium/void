@@ -21,23 +21,11 @@ module Buffer =
 
 module Editor = 
     let defaultState =
-        {
-            CurrentBuffer = 0
-            BufferList = Map.empty.Add(0, Buffer.empty)
-        }
+        Map.empty.Add(0, Buffer.empty)
 
-    let private addBuffer editor buffer =
+    let viewFile (bufferList : BufferList) buffer =
         // TODO replace instead of add if current buffer is strictly empty
-        editor.BufferList.Add(editor.BufferList.Count+1, buffer)
-
-    let viewFile editor file =
-        { editor with BufferList = addBuffer editor file }
-
-    let init (commands : CommandLine.Arguments) =
-        defaultState
-
-    let currentBuffer editor =
-        editor.BufferList.[editor.CurrentBuffer]
+        bufferList.Add(bufferList.Count+1, buffer)
 
     let readLines buffer start =
         match buffer with

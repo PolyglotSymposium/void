@@ -15,7 +15,7 @@ type Event =
     | CommandEntryCancelled
     | CommandMode_CharacterBackspaced
     | CommandMode_TextAppended of string
-    | EditorInitialized of EditorState
+    | EditorInitialized of BufferList
     | ErrorOccurred of Error
     | FileOpenedForEditing of string seq
     | FileOpenedForViewing of string seq
