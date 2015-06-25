@@ -17,17 +17,14 @@ module Filesystem =
 
     let handleCommand =
         function
-        | Command.Edit fileId ->
-            match fileId with
-            | FileIdentifier.Path path ->
-                if File.Exists path
-                then
-                    match readLines path with
-                    | Lines lines ->
-                        Event.FileOpenedForEditing lines :> Message
-                    | Failure error ->
-                        UserNotification.Error error
-                        |> Event.NotificationAdded :> Message
-                else Event.NewFileForEditing path :> Message
-            | _ -> notImplemented
+        | Command.OpenFile path ->
+            if File.Exists path
+            then
+                match readLines path with
+                | Lines lines ->
+                    Event.FileOpenedForEditing lines :> Message
+                | Failure error ->
+                    UserNotification.Error error
+                    |> Event.NotificationAdded :> Message
+            else Event.NewFileForEditing path :> Message
         | _ -> noMessage

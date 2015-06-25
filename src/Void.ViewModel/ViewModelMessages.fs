@@ -8,6 +8,13 @@ type SegmentOfText = {
 }
 
 [<RequireQualifiedAccess>]
+type FileOrBufferId = // TODO this is very sketchy right now
+    | BufferNumber of int // #1, #2 etc
+    | AlternateBuffer // #
+    | CurrentBuffer // %
+    | Path of string
+
+[<RequireQualifiedAccess>]
 type VMEvent =
     | CommandBar_CharacterBackspacedFromLine of CellGrid.Cell
     | CommandBar_Displayed of CommandBarView
@@ -17,4 +24,9 @@ type VMEvent =
     | CommandBar_TextReflowed of CommandBarView
     | ViewModelInitialized of MainViewModel // Vim rough equivalent: GUIEnter
     | ViewPortionRendered of PointGrid.Block * seq<DrawingObject>
+    interface Message
+
+[<RequireQualifiedAccess>]
+type VMCommand =
+    | Edit of FileOrBufferId
     interface Message

@@ -15,11 +15,11 @@ type Event =
     | CommandEntryCancelled
     | CommandMode_CharacterBackspaced
     | CommandMode_TextAppended of string
-    | EditorInitialized of BufferList
+    | EditorInitialized of BufferList // TODO this event is too big
     | ErrorOccurred of Error
     | FileOpenedForEditing of string seq
     | FileOpenedForViewing of string seq
-    | LastWindowClosed
+    | LastWindowClosed // TODO this should be in the view model
     | LineCommandCompleted
     | NewFileForEditing of string
     | NewFileForViewing of string
@@ -40,7 +40,7 @@ type Command =
     | ChangeToMode of Mode
     | Display of Displayable
     | Echo of string
-    | Edit of FileIdentifier
+    | OpenFile of string
     | FormatCurrentLine
     | Help
     | InitializeVoid

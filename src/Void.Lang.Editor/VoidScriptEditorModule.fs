@@ -3,18 +3,19 @@
 open Void.Core
 open Void.Lang.Parser
 open Void.Lang.Interpreter
+open Void.ViewModel
 
-type VoidScriptEditorModule(publish : Command -> unit) =
+type VoidScriptEditorModule(publish : Message -> unit) =
     let echo _ execEnv =
         publish <| Command.Echo ""
 
     let edit raw execEnv =
         match raw with
-        | "%" -> FileIdentifier.CurrentBuffer
-        | "#" -> FileIdentifier.AlternateBuffer
+        | "%" -> FileOrBufferId.CurrentBuffer
+        | "#" -> FileOrBufferId.AlternateBuffer
         // TODO better parsing, include #2, etc
-        | _ -> FileIdentifier.Path raw
-        |> Command.Edit 
+        | _ -> FileOrBufferId.Path raw
+        |> VMCommand.Edit 
         |> publish
 
     let help _ execEnv =

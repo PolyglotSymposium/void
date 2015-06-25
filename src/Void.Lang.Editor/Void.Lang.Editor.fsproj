@@ -60,6 +60,11 @@
       <Project>{06bcbea6-c272-4591-bfe3-9dd6bbabea9e}</Project>
       <Private>True</Private>
     </ProjectReference>
+    <ProjectReference Include="..\Void.ViewModel\Void.ViewModel.fsproj">
+      <Name>Void.ViewModel</Name>
+      <Project>{aba22359-eaf6-4604-82e2-977f816040ed}</Project>
+      <Private>True</Private>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>
