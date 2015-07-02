@@ -11,7 +11,7 @@ module ``This module is auto-opened to provide a null message`` =
 
 [<RequireQualifiedAccess>]
 type Event =
-    | BufferLoadedIntoWindow of BufferType
+    | BufferAdded of int
     | CommandEntryCancelled
     | CommandMode_CharacterBackspaced
     | CommandMode_TextAppended of string
