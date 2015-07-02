@@ -19,6 +19,8 @@ type Event =
     | ErrorOccurred of Error
     | FileOpenedForEditing of string seq
     | FileOpenedForViewing of string seq
+    | FileSaved of string
+    | FileSaveFailed of Error
     | LastWindowClosed // TODO this should be in the view model
     | LineCommandCompleted
     | NewFileForEditing of string
@@ -50,8 +52,10 @@ type Command =
     | QuitAllWithoutSaving
     | QuitWithoutSaving
     | Redraw
+    | SaveToDisk of string * string seq
     | SetBufferOption of EditorOption
     | ShowNotificationHistory
+    | Write of FileIdentifier
     | Yank
     interface Message
 

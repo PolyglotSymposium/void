@@ -15,6 +15,15 @@ module Filesystem =
         | :? UnauthorizedAccessException ->
             Error.AccessToPathNotAuthorized path |> Failure
 
+    let private writeLines path lines =
+        try
+            File.WriteAllLines(path, Seq.toList lines)
+            Event.FileSaved path
+        with
+        | :? UnauthorizedAccessException ->
+            Error.AccessToPathNotAuthorized path
+            |> Event.FileSaveFailed
+
     let handleCommand =
         function
         | Command.OpenFile path ->
@@ -27,4 +36,7 @@ module Filesystem =
                     UserNotification.Error error
                     |> Event.NotificationAdded :> Message
             else Event.NewFileForEditing path :> Message
+            | _ -> notImplemented
+        | Command.SaveToDisk (path, lines) ->
+            writeLines path lines :> Message
         | _ -> noMessage
