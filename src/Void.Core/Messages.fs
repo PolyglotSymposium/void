@@ -11,20 +11,18 @@ module ``This module is auto-opened to provide a null message`` =
 
 [<RequireQualifiedAccess>]
 type Event =
-    | BufferAdded of int
+    | BufferAdded of int * BufferType
     | CommandEntryCancelled
     | CommandMode_CharacterBackspaced
     | CommandMode_TextAppended of string
-    | EditorInitialized of BufferList // TODO this event is too big
+    | EditorInitialized
     | ErrorOccurred of Error
     | FileOpenedForEditing of string seq
-    | FileOpenedForViewing of string seq
     | FileSaved of string
     | FileSaveFailed of Error
     | LastWindowClosed // TODO this should be in the view model
     | LineCommandCompleted
     | NewFileForEditing of string
-    | NewFileForViewing of string
     | NotificationAdded of UserNotification
     | ModeSet of Mode
     | ModeChanged of ModeChange
@@ -55,7 +53,8 @@ type Command =
     | SaveToDisk of string * string seq
     | SetBufferOption of EditorOption
     | ShowNotificationHistory
-    | Write of FileIdentifier
+    | WriteBuffer of int
+    | WriteBufferToPath of int * string
     | Yank
     interface Message
 

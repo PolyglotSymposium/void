@@ -39,6 +39,16 @@ module WindowBufferMap =
                 (windowBufferMap, noMessage)
             | FileOrBufferId.BufferNumber bufferId ->
                 (windowBufferMap, noMessage)
+        | VMCommand.Write fileOrBufferId ->
+            match fileOrBufferId with
+            | FileOrBufferId.Path path ->
+                (windowBufferMap, Command.WriteBufferToPath (0, path) :> Message)
+            | FileOrBufferId.CurrentBuffer ->
+                (windowBufferMap, noMessage)
+            | FileOrBufferId.AlternateBuffer ->
+                (windowBufferMap, noMessage)
+            | FileOrBufferId.BufferNumber bufferId ->
+                (windowBufferMap, noMessage)
 
 module WindowBufferMapService =
     open Void.Core

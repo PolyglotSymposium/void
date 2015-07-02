@@ -114,5 +114,3 @@ type DataOperations =
     | Up
     | Down
     | Escape // TODO Is there a better word for this?
-
-type BufferList = Map<int, BufferType>

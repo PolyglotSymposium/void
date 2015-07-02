@@ -8,10 +8,10 @@ open Void.ViewModel
 module VoidScriptEditor =
     let parseFilePath path =
         match path with
-        | "%" -> FileIdentifier.CurrentBuffer
-        | "#" -> FileIdentifier.AlternateBuffer
+        | "%" -> FileOrBufferId.CurrentBuffer
+        | "#" -> FileOrBufferId.AlternateBuffer
         // TODO better parsing, include #2, etc
-        | _ -> FileIdentifier.Path path
+        | _ -> FileOrBufferId.Path path
 
 type VoidScriptEditorModule(publish : Message -> unit) =
     let echo _ execEnv =
@@ -19,7 +19,7 @@ type VoidScriptEditorModule(publish : Message -> unit) =
 
     let edit raw execEnv =
         VoidScriptEditor.parseFilePath raw
-        |> Command.Edit 
+        |> VMCommand.Edit 
         |> publish
 
     let help _ execEnv =
@@ -44,7 +44,7 @@ type VoidScriptEditorModule(publish : Message -> unit) =
 
     let write raw execEnv =
         VoidScriptEditor.parseFilePath raw
-        |> Command.Write
+        |> VMCommand.Write
         |> publish
 
     member x.Commands = [

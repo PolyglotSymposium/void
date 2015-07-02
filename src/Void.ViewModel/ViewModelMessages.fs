@@ -29,4 +29,5 @@ type VMEvent =
 [<RequireQualifiedAccess>]
 type VMCommand =
     | Edit of FileOrBufferId
+    | Write of FileOrBufferId
     interface Message
