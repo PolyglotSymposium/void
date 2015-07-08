@@ -17,8 +17,12 @@ type Event =
     | CommandMode_TextAppended of string
     | EditorInitialized of EditorState
     | ErrorOccurred of Error
+    | FileOpenedForEditing of string seq
+    | FileOpenedForViewing of string seq
     | LastWindowClosed
     | LineCommandCompleted
+    | NewFileForEditing of string
+    | NewFileForViewing of string
     | NotificationAdded of UserNotification
     | ModeSet of Mode
     | ModeChanged of ModeChange
@@ -26,6 +30,10 @@ type Event =
 
 type Displayable =
     | Notifications of UserNotification list
+
+[<RequireQualifiedAccess>]
+type EditorOption =
+    | ReadOnly
 
 [<RequireQualifiedAccess>]
 type Command =
@@ -42,9 +50,8 @@ type Command =
     | QuitAllWithoutSaving
     | QuitWithoutSaving
     | Redraw
+    | SetBufferOption of EditorOption
     | ShowNotificationHistory
-    | View of FileIdentifier
-    | ViewTestBuffer // TODO for Debug/Test only
     | Yank
     interface Message
 

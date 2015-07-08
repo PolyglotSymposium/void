@@ -497,6 +497,21 @@ namespace Void.UI
                     case Keys.OemSemicolon:
                         character = ":";
                         break;
+                    case Keys.OemQuotes:
+                        character = "\"";
+                        break;
+                    case Keys.OemQuestion:
+                        character = "?";
+                        break;
+                    case Keys.OemPipe:
+                        character = "|";
+                        break;
+                    case Keys.OemPeriod:
+                        character = ">";
+                        break;
+                    case Keys.Oemcomma:
+                        character = "<";
+                        break;
                 }
                 textOrHotKey = TextOrHotKey.NewText(character);
             } 
@@ -603,7 +618,27 @@ namespace Void.UI
             }
             else if (keyEvent.KeyCode == Keys.OemQuotes)
             {
-                textOrHotKey = TextOrHotKey.NewText("\"");
+                textOrHotKey = TextOrHotKey.NewText("'");
+            }
+            else if (keyEvent.KeyCode == Keys.OemQuestion)
+            {
+                textOrHotKey = TextOrHotKey.NewText("/");
+            }
+            else if (keyEvent.KeyCode == Keys.OemPipe)
+            {
+                textOrHotKey = TextOrHotKey.NewText(@"\");
+            }
+            else if (keyEvent.KeyCode == Keys.OemBackslash)
+            {
+                textOrHotKey = TextOrHotKey.NewText(@"\");
+            }
+            else if (keyEvent.KeyCode == Keys.OemPeriod)
+            {
+                textOrHotKey = TextOrHotKey.NewText(".");
+            }
+            else if (keyEvent.KeyCode == Keys.Oemcomma)
+            {
+                textOrHotKey = TextOrHotKey.NewText(",");
             }
             else if (keyEvent.KeyCode == Keys.Space)
             {

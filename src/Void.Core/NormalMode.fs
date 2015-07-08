@@ -18,7 +18,6 @@ module NormalMode =
             [KeyPress.ShiftZ; KeyPress.ShiftQ], Command.QuitWithoutSaving
             [KeyPress.ShiftZ; KeyPress.ShiftA], Command.QuitAll
             [KeyPress.G; KeyPress.Q; KeyPress.Q], Command.FormatCurrentLine
-            [KeyPress.F12], Command.ViewTestBuffer
         ] |> Map.ofList
 
     let noKeysYet =

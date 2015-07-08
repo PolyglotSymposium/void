@@ -35,11 +35,13 @@ module Init =
             Channel [
                 notificationService.handleCommand
                 viewService.handleCommand
+                Filesystem.handleCommand
                 editorService.handleCommand
             ]
         let eventChannel =
             Channel [
                 notificationService.handleEvent
+                editorService.handleEvent
                 commandBarService
                 viewService.handleEvent
             ]

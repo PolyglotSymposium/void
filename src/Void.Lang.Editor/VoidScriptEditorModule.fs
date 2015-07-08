@@ -33,12 +33,8 @@ type VoidScriptEditorModule(publish : Command -> unit) =
         publish Command.Redraw
 
     let view raw execEnv =
-        match raw with
-        | "%" -> FileIdentifier.CurrentBuffer
-        | "#" -> FileIdentifier.AlternateBuffer
-        // TODO better parsing, include #2, etc
-        | _ -> FileIdentifier.Path raw
-        |> Command.View 
+        edit raw execEnv
+        Command.SetBufferOption EditorOption.ReadOnly
         |> publish
 
     member x.Commands = [

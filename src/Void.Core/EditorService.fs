@@ -5,16 +5,10 @@ type EditorService() =
 
     member x.handleCommand =
         function
-        | Command.Edit _
         | Command.Yank
         | Command.Put
         | Command.FormatCurrentLine ->
             notImplemented
-        | Command.ViewTestBuffer ->
-            let buffer = Buffer.testFile
-            _editorState <- Editor.viewFile _editorState buffer
-            // TODO Should controllers create the events?...
-            Event.BufferLoadedIntoWindow buffer :> Message
         | Command.InitializeVoid ->
             _editorState <- Editor.init CommandLine.noArgs
             Event.EditorInitialized _editorState :> Message
@@ -23,4 +17,26 @@ type EditorService() =
         | Command.QuitAllWithoutSaving
         | Command.QuitWithoutSaving ->
              Event.LastWindowClosed :> Message
+        | _ -> noMessage
+
+    member x.handleEvent =
+        function
+        | Event.FileOpenedForEditing lines ->
+            let buffer = BufferType.File { Buffer.emptyFile with Contents = Seq.toList lines }
+            _editorState <- Editor.viewFile _editorState buffer
+            // TODO Should services really create the events?...
+            Event.BufferLoadedIntoWindow buffer :> Message
+        | Event.FileOpenedForViewing lines ->
+            let buffer = BufferType.File { Buffer.emptyFile with Contents = Seq.toList lines }
+            _editorState <- Editor.viewFile _editorState buffer
+            // TODO Should services really create the events?...
+            Event.BufferLoadedIntoWindow buffer :> Message
+        | Event.NewFileForEditing path ->
+            sprintf "\"%s\" [New file]" path
+            |> UserNotification.Output
+            |> Event.NotificationAdded :> Message
+        | Event.NewFileForViewing path ->
+            sprintf "\"%s\" [New file]" path
+            |> UserNotification.Output
+            |> Event.NotificationAdded :> Message
         | _ -> noMessage

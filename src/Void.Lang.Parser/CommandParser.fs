@@ -67,7 +67,7 @@ module LineCommands =
     let private parseCommandName line =
         let rec parse parsed rest =
             if rest = "" || isCommandDeliminator rest.[0]
-            then (parsed, rest)
+            then (parsed, rest.TrimStart())
             else parse (sprintf "%s%c" parsed rest.[0]) rest.[1..]
         in parse "" line
 
