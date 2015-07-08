@@ -51,11 +51,10 @@
     <Compile Include="Requests.fs" />
     <Compile Include="NormalMode.fs" />
     <Compile Include="CommandMode.fs" />
-    <Compile Include="Editor.fs" />
-    <Compile Include="ModeService.fs" />
-    <Compile Include="NotificationService.fs" />
-    <Compile Include="EditorService.fs" />
     <Compile Include="Service.fs" />
+    <Compile Include="Notifications.fs" />
+    <Compile Include="ModeService.fs" />
+    <Compile Include="EditorService.fs" />
     <Compile Include="Filesystem.fs" />
     <Compile Include="BufferList.fs" />
   </ItemGroup>

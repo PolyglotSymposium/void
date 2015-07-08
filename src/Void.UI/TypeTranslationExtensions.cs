@@ -512,6 +512,9 @@ namespace Void.UI
                     case Keys.Oemcomma:
                         character = "<";
                         break;
+                    case Keys.Oemtilde:
+                        character = "~";
+                        break;
                 }
                 textOrHotKey = TextOrHotKey.NewText(character);
             } 
@@ -639,6 +642,10 @@ namespace Void.UI
             else if (keyEvent.KeyCode == Keys.Oemcomma)
             {
                 textOrHotKey = TextOrHotKey.NewText(",");
+            }
+            else if (keyEvent.KeyCode == Keys.Oemtilde)
+            {
+                textOrHotKey = TextOrHotKey.NewText("`");
             }
             else if (keyEvent.KeyCode == Keys.Space)
             {

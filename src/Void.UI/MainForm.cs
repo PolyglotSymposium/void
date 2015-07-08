@@ -41,7 +41,10 @@ namespace Void.UI
             if (eventMsg.IsViewPortionRendered)
             {
                 _drawings = ((VMEvent.ViewPortionRendered)eventMsg).Item2;
-                TriggerDraw(((VMEvent.ViewPortionRendered)eventMsg).Item1);
+                if (_cellMetrics != null)
+                {
+                    TriggerDraw(((VMEvent.ViewPortionRendered)eventMsg).Item1);
+                }
             }
             if (eventMsg.IsViewModelInitialized)
             {

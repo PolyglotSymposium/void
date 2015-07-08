@@ -17,7 +17,7 @@ type Event =
     | CommandMode_TextAppended of string
     | EditorInitialized
     | ErrorOccurred of Error
-    | FileOpenedForEditing of string seq
+    | FileOpenedForEditing of string * string seq
     | FileSaved of string
     | FileSaveFailed of Error
     | LastWindowClosed // TODO this should be in the view model

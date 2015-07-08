@@ -9,6 +9,7 @@ type MessagingSystem = {
     EventChannel : Channel<Event>
     CommandChannel : Channel<Command>
     VMEventChannel : Channel<VMEvent>
+    VMCommandChannel : Channel<VMCommand>
     Bus : Bus
 }
 
@@ -27,21 +28,24 @@ module Init =
         |> changer.SetInputHandler
 
     let buildVoid inputModeChanger =
-        let notificationService = NotificationService()
+        let notificationServiceEventHandler, notificationServiceCommandHandler = Notifications.Service.build()
+        let bufferListEventHandler, bufferListCommandHandler = BufferList.Service.build()
         let editorService = EditorService()
         let commandBarService = CommandBarService.build()
+        let windowBufferVMCommandHandler = WindowBufferMap.Service.build()
         let viewService = ViewModelService()
         let commandChannel =
             Channel [
-                notificationService.handleCommand
+                bufferListCommandHandler
+                notificationServiceCommandHandler
                 viewService.handleCommand
                 Filesystem.handleCommand
                 editorService.handleCommand
             ]
         let eventChannel =
             Channel [
-                notificationService.handleEvent
-                editorService.handleEvent
+                bufferListEventHandler
+                notificationServiceEventHandler
                 commandBarService
                 viewService.handleEvent
             ]
@@ -49,11 +53,16 @@ module Init =
             Channel [
                 viewService.handleVMEvent
             ]
+        let vmCommandChannel =
+            Channel [
+                windowBufferVMCommandHandler
+            ]
         let bus =
             Bus [
                 commandChannel.publish
                 eventChannel.publish
                 vmEventChannel.publish
+                vmCommandChannel.publish
             ]
         let interpreter = Interpreter.init <| VoidScriptEditorModule(bus.publish).Commands
         let interpreterWrapper = InterpreterWrapperService interpreter
@@ -69,6 +78,7 @@ module Init =
             EventChannel = eventChannel
             CommandChannel = commandChannel
             VMEventChannel = vmEventChannel
+            VMCommandChannel = vmCommandChannel
             Bus = bus
         }
 

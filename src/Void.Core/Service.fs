@@ -3,5 +3,6 @@
 module Service =
     let wrap data handle inputMsg =
         let update, outputMsg = handle !data inputMsg
-        data := update
+        if outputMsg <> noMessage
+        then data := update
         outputMsg

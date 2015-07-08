@@ -50,12 +50,15 @@ module WindowBufferMap =
             | FileOrBufferId.BufferNumber bufferId ->
                 (windowBufferMap, noMessage)
 
-module WindowBufferMapService =
-    open Void.Core
+    let handleEvent windowBufferMap event =
+        noMessage // TODO
 
-    let private vmCommandHandler windowBufferMap =
-        Service.wrap windowBufferMap WindowBufferMap.handleVMCommand
+    module Service =
+        open Void.Core
 
-    let build() =
-        let windowBufferMap = ref WindowBufferMap.empty
-        vmCommandHandler windowBufferMap
+        let private vmCommandHandler windowBufferMap =
+            Service.wrap windowBufferMap handleVMCommand
+
+        let build() =
+            let windowBufferMap = ref empty
+            vmCommandHandler windowBufferMap

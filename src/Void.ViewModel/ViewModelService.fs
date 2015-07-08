@@ -41,7 +41,7 @@ type ViewModelService() =
 
     member x.handleEvent =
         function // TODO clearly the code below needs to be refactored
-        | Event.BufferLoadedIntoWindow buffer ->
+        | Event.BufferAdded (id, buffer) ->
             _viewModel <- ViewModel.loadBuffer buffer _viewModel
             let drawings = Render.currentBufferAsDrawingObjects _viewModel
             let area = GridConvert.boxAround (ViewModel.wholeArea _viewModel) (* TODO shouldn't redraw the whole UI *)
@@ -52,9 +52,4 @@ type ViewModelService() =
                           |> Render.notificationAsDrawingObject area.UpperLeftCell
             let areaInPoints = GridConvert.boxAround area
             VMEvent.ViewPortionRendered(areaInPoints, [drawing]) :> Message
-        | Event.EditorInitialized editor ->
-            _viewModel <- ViewModel.init editor _viewModel 
-            let drawings = Render.currentBufferAsDrawingObjects _viewModel
-            let area = GridConvert.boxAround <| ViewModel.wholeArea _viewModel
-            VMEvent.ViewPortionRendered(area, drawings) :> Message
         | _ -> noMessage

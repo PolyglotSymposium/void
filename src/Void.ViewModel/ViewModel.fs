@@ -43,7 +43,7 @@ module ViewModel =
         }
 
     let toScreenBuffer windowSize buffer =
-        Editor.readLines buffer 1
+        Buffer.readLines buffer 1
         |> bufferFrom windowSize
 
     let private loadBufferIntoWindow buffer window =
@@ -76,6 +76,3 @@ module ViewModel =
             UpperLeftCell = upperLeftCellOfCommandBar viewModel
             Dimensions = { Rows = 1; Columns = viewModel.Size.Columns }
         }
-
-    let init (editorState : BufferList) viewModel =
-        loadBuffer editorState.[0] viewModel

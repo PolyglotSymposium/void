@@ -24,19 +24,30 @@ module Filesystem =
             Error.AccessToPathNotAuthorized path
             |> Event.FileSaveFailed
 
+    let private home() =
+        if Environment.OSVersion.Platform = PlatformID.Unix || Environment.OSVersion.Platform = PlatformID.MacOSX
+        then Environment.GetEnvironmentVariable("HOME")
+        else Environment.ExpandEnvironmentVariables("%HOMEDRIVE%%HOMEPATH%")
+
+    let private expandPath (path : string) =
+        if path.[0] = '~'
+        then
+            sprintf "%s%s" (home()) path.[1..]
+        else path
+
     let handleCommand =
         function
         | Command.OpenFile path ->
+            let path = expandPath path
             if File.Exists path
             then
                 match readLines path with
                 | Lines lines ->
-                    Event.FileOpenedForEditing lines :> Message
+                    Event.FileOpenedForEditing (path, lines) :> Message
                 | Failure error ->
                     UserNotification.Error error
                     |> Event.NotificationAdded :> Message
             else Event.NewFileForEditing path :> Message
-            | _ -> notImplemented
         | Command.SaveToDisk (path, lines) ->
             writeLines path lines :> Message
         | _ -> noMessage
