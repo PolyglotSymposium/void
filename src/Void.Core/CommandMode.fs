@@ -8,6 +8,7 @@ module CommandMode =
         | EntryCancelled
         | CharacterBackspaced
         | TextAppended of string
+        | TextReplaced of string
         | CommandCompleted of string
         interface EventMessage
 

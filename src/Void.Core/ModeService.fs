@@ -73,7 +73,7 @@ type ModeService
 
     member x.handleCommandModeEvent =
         function
-        | CommandMode.Event.CommandCompleted -> 
+        | CommandMode.Event.CommandCompleted _ -> 
             if _mode = Mode.Command
             then CoreCommand.ChangeToMode Mode.Normal :> Message // TODO or whatever mode we were in previously?
             else noMessage

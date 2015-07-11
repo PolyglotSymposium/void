@@ -7,6 +7,7 @@ type HistoryOfCommands = {
 
 module CommandHistory =
 
+    [<RequireQualifiedAccess>]
     type Event =
         | MovedToCommand of string
         | CommandAdded

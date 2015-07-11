@@ -82,7 +82,8 @@ module CommandBar =
         | CommandMode.Event.EntryCancelled -> hide
         | CommandMode.Event.CharacterBackspaced -> characterBackspaced commandBar
         | CommandMode.Event.TextAppended text -> appendText text commandBar
-        | CommandMode.Event.CommandCompleted -> (commandBar, noMessage)
+        | CommandMode.Event.CommandCompleted _ -> (commandBar, noMessage)
+        | CommandMode.Event.TextReplaced text -> (commandBar, noMessage)
 
     module Service =
         open Void.Core

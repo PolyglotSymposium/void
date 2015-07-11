@@ -53,7 +53,7 @@ type ``Editing command mode``() =
     [<Test>]
     member x.``When the command text is parsed successfully, the command text is reset``() =
         CommandMode.handle interpret_success "edit" enter
-        |> should equal ("", CommandMode.Event.CommandCompleted :> Message)
+        |> should equal ("", CommandMode.Event.CommandCompleted  "edit" :> Message)
 
     [<Test>]
     member x.``When the command text is not parsed successfully, the command text is reset``() =
