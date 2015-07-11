@@ -19,8 +19,8 @@ type ``Void``() =
     [<Test>]
     member x.``When I have freshly opened Vim with one window, when I enter the quit command, then the editor exists``() =
         let inputModeChanger = InputModeChangerStub()
-        let messagingSystem = Init.buildVoid inputModeChanger
-        Init.launchVoid messagingSystem
+        let bus = Init.buildVoid inputModeChanger
+        Init.launchVoid bus
         let closed = ref false
         let closeHandler event =
             match event with
@@ -28,7 +28,7 @@ type ``Void``() =
                 closed := true
             | _ -> ()
             noMessage
-        messagingSystem.CoreEventChannel.addHandler closeHandler
+        bus.subscribe closeHandler
 
         match inputModeChanger.getInputHandler() with
         | InputMode.KeyPresses handler ->

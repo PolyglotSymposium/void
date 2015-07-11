@@ -15,11 +15,11 @@ namespace Void.UI
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             var inputModeChanger = new WinFormsInputModeChanger();
-            var messagingSystem = Init.buildVoid(inputModeChanger);
-            var view = new MainForm(messagingSystem.Bus, inputModeChanger);
-            messagingSystem.CoreEventChannel.addHandler(FSharpFuncUtil.Create<CoreEvent, Message>(view.HandleEvent));
-            messagingSystem.VMEventChannel.addHandler(FSharpFuncUtil.Create<VMEvent, Message>(view.HandleViewModelEvent));
-            Init.launchVoid(messagingSystem);
+            Bus bus = Init.buildVoid(inputModeChanger);
+            var view = new MainForm(bus, inputModeChanger);
+            bus.subscribe(FSharpFuncUtil.Create<CoreEvent, Message>(view.HandleEvent));
+            bus.subscribe(FSharpFuncUtil.Create<VMEvent, Message>(view.HandleViewModelEvent));
+            Init.launchVoid(bus);
             Application.Run(view);
         }
     }

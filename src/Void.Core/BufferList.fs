@@ -83,12 +83,7 @@ module BufferList =
             (bufferList, noMessage)
 
     module Service =
-        let private eventHandler bufferList =
-            Service.wrap bufferList handleEvent
-
-        let private commandHandler bufferList =
-            Service.wrap bufferList handleCommand
-
-        let build() =
+        let subscribe (subscribeHandler : SubscribeToBus) =
             let bufferList = ref empty
-            (eventHandler bufferList, commandHandler bufferList)
+            subscribeHandler.subscribe <| Service.wrap bufferList handleCommand
+            subscribeHandler.subscribe <| Service.wrap bufferList handleEvent

@@ -82,8 +82,7 @@ module WindowBufferMap =
     module Service =
         open Void.Core
 
-        let build() =
+        let subscribe (subscribeHandler : SubscribeToBus) =
             let windowBufferMap = ref empty
-            let vmCommandHandler = Service.wrap windowBufferMap handleVMCommand
-            let coreEventHandler = Service.wrap windowBufferMap handleEvent
-            coreEventHandler, vmCommandHandler
+            subscribeHandler.subscribe <| Service.wrap windowBufferMap handleVMCommand
+            subscribeHandler.subscribe <| Service.wrap windowBufferMap handleEvent
