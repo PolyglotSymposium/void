@@ -251,6 +251,8 @@ type HotKey =
     | Backspace
     | Home
     | End
+    | ArrowUp
+    | ArrowDown
     | PageUp
     | PageDown
     | Enter

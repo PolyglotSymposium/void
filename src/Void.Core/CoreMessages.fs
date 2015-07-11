@@ -43,6 +43,12 @@ type CoreCommand =
     | Yank
     interface CommandMessage
 
+[<RequireQualifiedAccess>]
+type CommandHistoryCommand =
+    | MoveToPreviousCommand
+    | MoveToNextCommand
+    interface CommandMessage
+
 [<AutoOpen>]
 module ``This module is auto-opened to provide message aliases`` =
     let notImplemented =
