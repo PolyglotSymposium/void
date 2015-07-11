@@ -64,10 +64,14 @@ module CommandBar =
     let handleEvent commandBar event =
         match event with
         | CoreEvent.ModeChanged { From = _; To = Mode.Command } -> show
-        | CoreEvent.CommandEntryCancelled -> hide
-        | CoreEvent.CommandMode_CharacterBackspaced -> characterBackspaced commandBar
-        | CoreEvent.CommandMode_TextAppended text -> appendText text commandBar
         | _ -> (commandBar, noMessage)
+
+    let handleCommandModeEvent commandBar event =
+        match event with
+        | CommandMode.Event.EntryCancelled -> hide
+        | CommandMode.Event.CharacterBackspaced -> characterBackspaced commandBar
+        | CommandMode.Event.TextAppended text -> appendText text commandBar
+        | CommandMode.Event.CommandCompleted -> (commandBar, noMessage)
 
 module CommandBarService =
     open Void.Core

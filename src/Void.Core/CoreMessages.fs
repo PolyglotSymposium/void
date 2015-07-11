@@ -3,20 +3,16 @@
 [<RequireQualifiedAccess>]
 type CoreEvent =
     | BufferAdded of int * BufferType
-    | CommandEntryCancelled
-    | CommandMode_CharacterBackspaced
-    | CommandMode_TextAppended of string
     | EditorInitialized
     | ErrorOccurred of Error
     | FileOpenedForEditing of string * string seq
     | FileSaved of string
     | LastWindowClosed // TODO this should be in the view model
-    | LineCommandCompleted
     | NewFileForEditing of string
     | NotificationAdded of UserNotification
     | ModeSet of Mode
     | ModeChanged of ModeChange
-    interface Event
+    interface EventMessage
 
 type Displayable =
     | Notifications of UserNotification list
@@ -45,7 +41,7 @@ type CoreCommand =
     | WriteBuffer of int
     | WriteBufferToPath of int * string
     | Yank
-    interface Command
+    interface CommandMessage
 
 [<AutoOpen>]
 module ``This module is auto-opened to provide message aliases`` =

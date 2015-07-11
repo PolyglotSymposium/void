@@ -1,15 +1,16 @@
 ﻿namespace Void.Core
 
-[<RequireQualifiedAccess>]
-type FilesystemCommand =
-    | OpenFile of string
-    | SaveToDisk of string * string seq
-    interface Command
 
 module Filesystem =
     open System
     open System.IO
     open System.Text
+
+    [<RequireQualifiedAccess>]
+    type Command =
+        | OpenFile of string
+        | SaveToDisk of string * string seq
+        interface CommandMessage
 
     type LinesOrFailure =
         | Lines of string seq
@@ -44,7 +45,7 @@ module Filesystem =
 
     let handleCommand =
         function
-        | FilesystemCommand.OpenFile path ->
+        | Command.OpenFile path ->
             let path = expandPath path
             if File.Exists path
             then
@@ -55,6 +56,6 @@ module Filesystem =
                     UserNotification.Error error
                     |> CoreEvent.NotificationAdded :> Message
             else CoreEvent.NewFileForEditing path :> Message
-        | FilesystemCommand.SaveToDisk (path, lines) ->
+        | Command.SaveToDisk (path, lines) ->
             writeLines path lines :> Message
         | _ -> noMessage

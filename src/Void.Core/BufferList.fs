@@ -49,7 +49,7 @@ module BufferList =
 
     let private writeBufferToPath bufferList bufferId path = 
         let lines = Buffer.readLines bufferList.List.[bufferId] 0
-        let msg = FilesystemCommand.SaveToDisk (path, lines) :> Message
+        let msg = Filesystem.Command.SaveToDisk (path, lines) :> Message
         (bufferList, msg)
 
     let private writeBuffer bufferList bufferId = 
@@ -67,10 +67,6 @@ module BufferList =
             Buffer.existingFile path (Seq.toList lines)
             |> addBuffer bufferList
         | CoreEvent.NewFileForEditing path ->
-            // TODO where to trigger this notification?
-            //sprintf "\"%s\" [New file]" path
-            //|> UserNotification.Output
-            //|> Event.NotificationAdded :> Message |> ignore
             addBuffer bufferList (Buffer.newFile path)
         | _ -> 
             (bufferList, noMessage)

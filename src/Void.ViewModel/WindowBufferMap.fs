@@ -53,7 +53,7 @@ module WindowBufferMap =
         | VMCommand.Edit fileOrBufferId ->
             match fileOrBufferId with
             | FileOrBufferId.Path path ->
-                (windowBufferMap, FilesystemCommand.OpenFile path :> Message)
+                (windowBufferMap, Filesystem.Command.OpenFile path :> Message)
             | FileOrBufferId.CurrentBuffer ->
                 (windowBufferMap, noMessage)
             | FileOrBufferId.AlternateBuffer ->

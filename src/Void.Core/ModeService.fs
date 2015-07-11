@@ -68,12 +68,17 @@ type ModeService
 
     member x.handleEvent =
         function
-        | CoreEvent.LineCommandCompleted -> 
+        | CoreEvent.ErrorOccurred (Error.ScriptFragmentParseFailed _) -> 
+            CoreCommand.ChangeToMode Mode.Normal :> Message // TODO or whatever mode we were in previously?
+        | _ -> noMessage
+
+    member x.handleCommandModeEvent =
+        function
+        | CommandMode.Event.CommandCompleted -> 
             if _mode = Mode.Command
             then CoreCommand.ChangeToMode Mode.Normal :> Message // TODO or whatever mode we were in previously?
             else noMessage
-        | CoreEvent.CommandEntryCancelled
-        | CoreEvent.ErrorOccurred (Error.ScriptFragmentParseFailed _) -> 
+        | CommandMode.Event.EntryCancelled ->
             CoreCommand.ChangeToMode Mode.Normal :> Message // TODO or whatever mode we were in previously?
         | _ -> noMessage
 
