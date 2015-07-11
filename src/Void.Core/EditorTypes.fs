@@ -1,12 +1,5 @@
 ﻿namespace Void.Core
 
-[<RequireQualifiedAccess>]
-type FileIdentifier = // TODO this is very sketchy right now
-    | BufferNumber of int // #1, #2 etc
-    | AlternateBuffer // #
-    | CurrentBuffer // %
-    | Path of string
-
 // TODO be very careful to get the abstractions right here!
 // TODO could be very easy to shoot oneself in the foot with the wrong abstraction!
 [<RequireQualifiedAccess>]
@@ -121,20 +114,3 @@ type DataOperations =
     | Up
     | Down
     | Escape // TODO Is there a better word for this?
-
-type Window = {
-    CurrentBuffer : int
-}
-
-type Tab = {
-    Windows : Window list
-}
-
-type EditorLayout = {
-    Tabs : Tab list
-}
-
-type EditorState = {
-    CurrentBuffer : int
-    BufferList : BufferType list
-}

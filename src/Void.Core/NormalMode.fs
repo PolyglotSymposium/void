@@ -1,23 +1,23 @@
 ﻿namespace Void.Core
 open System.Collections.Generic
 
-type NormalBindings = Map<KeyPress list, Command>
+type NormalBindings = Map<KeyPress list, CoreCommand>
 
 module NormalMode =
     type ParseResult =
         | AwaitingKeyPress of KeyPress list
-        | Command of Command
+        | Command of CoreCommand
 
     let defaultBindings = // TODO split out into "Vim default bindings" and "Void default bindings"
         [
-            [KeyPress.Semicolon], Command.ChangeToMode Mode.Command
-            [KeyPress.ControlC], Command.Yank
-            [KeyPress.ControlV], Command.Put
-            [KeyPress.ControlB], Command.ChangeToMode Mode.VisualBlock
-            [KeyPress.ControlL], Command.Redraw
-            [KeyPress.ShiftZ; KeyPress.ShiftQ], Command.QuitWithoutSaving
-            [KeyPress.ShiftZ; KeyPress.ShiftA], Command.QuitAll
-            [KeyPress.G; KeyPress.Q; KeyPress.Q], Command.FormatCurrentLine
+            [KeyPress.Semicolon], CoreCommand.ChangeToMode Mode.Command
+            [KeyPress.ControlC], CoreCommand.Yank
+            [KeyPress.ControlV], CoreCommand.Put
+            [KeyPress.ControlB], CoreCommand.ChangeToMode Mode.VisualBlock
+            [KeyPress.ControlL], CoreCommand.Redraw
+            [KeyPress.ShiftZ; KeyPress.ShiftQ], CoreCommand.QuitWithoutSaving
+            [KeyPress.ShiftZ; KeyPress.ShiftA], CoreCommand.QuitAll
+            [KeyPress.G; KeyPress.Q; KeyPress.Q], CoreCommand.FormatCurrentLine
         ] |> Map.ofList
 
     let noKeysYet =

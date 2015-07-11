@@ -11,7 +11,6 @@ type CommandModeInputHandler(interpret : RequestAPI.InterpretScriptFragment) =
     let handle = CommandMode.handle interpret
     let mutable _buffer = ""
 
-    // This is so far the model of what I think most "Controllers" should look like
     member x.handleTextOrHotKey input =
         let updatedBuffer, message = handle _buffer input
         _buffer <- updatedBuffer
@@ -68,23 +67,28 @@ type ModeService
 
     member x.handleEvent =
         function
-        | Event.LineCommandCompleted -> 
+        | CoreEvent.ErrorOccurred (Error.ScriptFragmentParseFailed _) -> 
+            CoreCommand.ChangeToMode Mode.Normal :> Message // TODO or whatever mode we were in previously?
+        | _ -> noMessage
+
+    member x.handleCommandModeEvent =
+        function
+        | CommandMode.Event.CommandCompleted -> 
             if _mode = Mode.Command
-            then Command.ChangeToMode Mode.Normal :> Message // TODO or whatever mode we were in previously?
+            then CoreCommand.ChangeToMode Mode.Normal :> Message // TODO or whatever mode we were in previously?
             else noMessage
-        | Event.CommandEntryCancelled
-        | Event.ErrorOccurred (Error.ScriptFragmentParseFailed _) -> 
-            Command.ChangeToMode Mode.Normal :> Message // TODO or whatever mode we were in previously?
+        | CommandMode.Event.EntryCancelled ->
+            CoreCommand.ChangeToMode Mode.Normal :> Message // TODO or whatever mode we were in previously?
         | _ -> noMessage
 
     member x.handleCommand =
         function
-        | Command.InitializeVoid ->
+        | CoreCommand.InitializeVoid ->
             setInputMode <| inputHandlerFor _mode
-            Event.ModeSet _mode :> Message
-        | Command.ChangeToMode mode ->
+            CoreEvent.ModeSet _mode :> Message
+        | CoreCommand.ChangeToMode mode ->
             let change = { From = _mode; To = mode }
             _mode <- change.To
             setInputMode <| inputHandlerFor change.To
-            Event.ModeChanged change :> Message
+            CoreEvent.ModeChanged change :> Message
         | _ -> noMessage

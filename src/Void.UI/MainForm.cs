@@ -27,7 +27,7 @@ namespace Void.UI
             WireUpInputEvents();
         }
 
-        public Message HandleEvent(Event eventMsg)
+        public Message HandleEvent(CoreEvent eventMsg)
         {
             if (eventMsg.IsLastWindowClosed)
             {
@@ -41,7 +41,10 @@ namespace Void.UI
             if (eventMsg.IsViewPortionRendered)
             {
                 _drawings = ((VMEvent.ViewPortionRendered)eventMsg).Item2;
-                TriggerDraw(((VMEvent.ViewPortionRendered)eventMsg).Item1);
+                if (_cellMetrics != null)
+                {
+                    TriggerDraw(((VMEvent.ViewPortionRendered)eventMsg).Item1);
+                }
             }
             if (eventMsg.IsViewModelInitialized)
             {
@@ -104,7 +107,7 @@ namespace Void.UI
                 }
                 else
                 {
-                    _bus.publish(Command.Redraw);
+                    _bus.publish(CoreCommand.Redraw);
                 }
             };
         }

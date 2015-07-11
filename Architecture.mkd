@@ -15,12 +15,10 @@ However, this model is conceptually different than the total current state of
 the editor (in other words, there is not a one-to-one between everything in the
 editor's state and the screen, or everything on the screen and the editor's
 state). The model and view model should be written functionally (stateless) and
-wrapped in lightweight stateful services that talk by message-passing (though
-preferably without having to directly dependent on any messaging glue). Thus we
-are shooting for a sort of internally service-oriented, message-based
-architecture. The classes that implement the services should be light on logic
-and heavy on delegation to the functional model/domain code. The models should
-not reference their services.
+wrapped in lightweight stateful (micro)services that talk by message-passing
+(though preferably without having to directly dependent on any messaging glue).
+Thus we are shooting for a sort of internally service-oriented, message-based
+architecture.
 
 Loose coupling is to be maintained by the use of commands and events. The view
 model should be generated from events off the core model. It should not make

@@ -17,7 +17,7 @@ namespace Void.UI
             var inputModeChanger = new WinFormsInputModeChanger();
             var messagingSystem = Init.buildVoid(inputModeChanger);
             var view = new MainForm(messagingSystem.Bus, inputModeChanger);
-            messagingSystem.EventChannel.addHandler(FSharpFuncUtil.Create<Event, Message>(view.HandleEvent));
+            messagingSystem.CoreEventChannel.addHandler(FSharpFuncUtil.Create<CoreEvent, Message>(view.HandleEvent));
             messagingSystem.VMEventChannel.addHandler(FSharpFuncUtil.Create<VMEvent, Message>(view.HandleViewModelEvent));
             Init.launchVoid(messagingSystem);
             Application.Run(view);

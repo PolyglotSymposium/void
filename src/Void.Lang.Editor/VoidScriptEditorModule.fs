@@ -3,38 +3,48 @@
 open Void.Core
 open Void.Lang.Parser
 open Void.Lang.Interpreter
+open Void.ViewModel
 
-type VoidScriptEditorModule(publish : Command -> unit) =
+module VoidScriptEditor =
+    let parseFilePath path =
+        match path with
+        | "%" -> FileOrBufferId.CurrentBuffer
+        | "#" -> FileOrBufferId.AlternateBuffer
+        // TODO better parsing, include #2, etc
+        | _ -> FileOrBufferId.Path path
+
+type VoidScriptEditorModule(publish : Message -> unit) =
     let echo _ execEnv =
-        publish <| Command.Echo ""
+        publish <| CoreCommand.Echo ""
 
     let edit raw execEnv =
-        match raw with
-        | "%" -> FileIdentifier.CurrentBuffer
-        | "#" -> FileIdentifier.AlternateBuffer
-        // TODO better parsing, include #2, etc
-        | _ -> FileIdentifier.Path raw
-        |> Command.Edit 
+        VoidScriptEditor.parseFilePath raw
+        |> VMCommand.Edit 
         |> publish
 
     let help _ execEnv =
-        publish Command.Help
+        publish CoreCommand.Help
 
     let messages _ execEnv =
-        publish Command.ShowNotificationHistory
+        publish CoreCommand.ShowNotificationHistory
 
     let quit _ execEnv =
-        publish Command.Quit
+        publish CoreCommand.Quit
 
     let quitAll _ execEnv =
-        publish Command.QuitAll
+        publish CoreCommand.QuitAll
 
     let redraw _ execEnv =
-        publish Command.Redraw
+        publish CoreCommand.Redraw
 
     let view raw execEnv =
         edit raw execEnv
-        Command.SetBufferOption EditorOption.ReadOnly
+        CoreCommand.SetBufferOption EditorOption.ReadOnly
+        |> publish
+
+    let write raw execEnv =
+        VoidScriptEditor.parseFilePath raw
+        |> VMCommand.Write
         |> publish
 
     member x.Commands = [
@@ -81,5 +91,10 @@ type VoidScriptEditorModule(publish : Command -> unit) =
             FullName = "view"
             // TODO Note that in Vim it can take optional ++opt and +cmd args
             WrapArguments = CommandType.Unparsed view
+        }
+        {
+            ShortName = "w"
+            FullName = "write"
+            WrapArguments = CommandType.Unparsed write
         }
     ]

@@ -7,54 +7,48 @@ type ViewModelService() =
 
     member x.handleCommand =
         function
-        | Command.InitializeVoid ->
+        | CoreCommand.InitializeVoid ->
             VMEvent.ViewModelInitialized _viewModel :> Message
-        | Command.Display _ ->
+        | CoreCommand.Display _ ->
             notImplemented
-        | Command.Redraw ->
+        | CoreCommand.Redraw ->
             (GridConvert.boxAround (ViewModel.wholeArea _viewModel), Render.viewModelAsDrawingObjects _viewModel)
             |> VMEvent.ViewPortionRendered :> Message
         | _ ->
             noMessage
 
-    member x.handleVMEvent event =
+    member x.handleCommandBarEvent event =
         let commandBarOrigin = ViewModel.upperLeftCellOfCommandBar _viewModel
         let renderCommandBar commandBar =
             RenderCommandBar.asDrawingObjects commandBar commandBarOrigin
             |> VMEvent.ViewPortionRendered :> Message
         match event with
-        | VMEvent.CommandBar_CharacterBackspacedFromLine cell ->
+        | CommandBar.Event.CharacterBackspacedFromLine cell ->
             RenderCommandBar.backspacedCharacterAsDrawingObject cell commandBarOrigin
             |> VMEvent.ViewPortionRendered :> Message
-        | VMEvent.CommandBar_Displayed commandBar ->
+        | CommandBar.Event.Displayed commandBar ->
             renderCommandBar commandBar
-        | VMEvent.CommandBar_Hidden commandBar ->
+        | CommandBar.Event.Hidden commandBar ->
             renderCommandBar commandBar
-        | VMEvent.CommandBar_TextAppendedToLine textSegment ->
+        | CommandBar.Event.TextAppendedToLine textSegment ->
             RenderCommandBar.appendedTextAsDrawingObject textSegment commandBarOrigin
             |> VMEvent.ViewPortionRendered :> Message
-        | VMEvent.CommandBar_TextChanged commandBar ->
+        | CommandBar.Event.TextChanged commandBar ->
             renderCommandBar commandBar
-        | VMEvent.CommandBar_TextReflowed commandBar ->
+        | CommandBar.Event.TextReflowed commandBar ->
             renderCommandBar commandBar
-        | _ -> noMessage
 
     member x.handleEvent =
         function // TODO clearly the code below needs to be refactored
-        | Event.BufferLoadedIntoWindow buffer ->
+        | CoreEvent.BufferAdded (id, buffer) ->
             _viewModel <- ViewModel.loadBuffer buffer _viewModel
             let drawings = Render.currentBufferAsDrawingObjects _viewModel
             let area = GridConvert.boxAround (ViewModel.wholeArea _viewModel) (* TODO shouldn't redraw the whole UI *)
             VMEvent.ViewPortionRendered(area, drawings) :> Message
-        | Event.NotificationAdded notification ->
+        | CoreEvent.NotificationAdded notification ->
             let area = ViewModel.areaOfCommandBarOrNotifications _viewModel
             let drawing = ViewModel.toScreenNotification notification
                           |> Render.notificationAsDrawingObject area.UpperLeftCell
             let areaInPoints = GridConvert.boxAround area
             VMEvent.ViewPortionRendered(areaInPoints, [drawing]) :> Message
-        | Event.EditorInitialized editor ->
-            _viewModel <- ViewModel.init editor _viewModel 
-            let drawings = Render.currentBufferAsDrawingObjects _viewModel
-            let area = GridConvert.boxAround <| ViewModel.wholeArea _viewModel
-            VMEvent.ViewPortionRendered(area, drawings) :> Message
         | _ -> noMessage
