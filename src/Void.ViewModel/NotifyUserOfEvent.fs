@@ -20,3 +20,7 @@ module NotifyUserOfEvent =
                 | None -> noMessage
             | _ -> noMessage*)
         | _ -> noMessage
+
+    module Service =
+        let subscribe (subscribeHandler : SubscribeToBus) =
+            subscribeHandler.subscribe handleEvent

@@ -5,16 +5,6 @@ open Void.Lang.Interpreter
 open Void.Lang.Editor
 open Void.ViewModel
 
-type MessagingSystem = {
-    CoreEventChannel : Channel<CoreEvent>
-    CoreCommandChannel : Channel<CoreCommand>
-    CommandModeEventChannel : Channel<CommandMode.Event>
-    FilesystemCommandChannel : Channel<Filesystem.Command>
-    VMEventChannel : Channel<VMEvent>
-    VMCommandChannel : Channel<VMCommand>
-    Bus : Bus
-}
-
 type InputModeChanger =
     abstract member SetInputHandler : InputMode<unit> -> unit
 
@@ -30,42 +20,28 @@ module Init =
         |> changer.SetInputHandler
 
     let buildVoid inputModeChanger =
-        let bufferListEventHandler, bufferListCommandHandler = BufferList.Service.build()
         let editorService = EditorService()
-        let windowBufferVMCommandHandler = WindowBufferMap.Service.build()
         let viewService = ViewModelService()
         let coreCommandChannel =
             Channel [
-                bufferListCommandHandler
                 viewService.handleCommand
                 editorService.handleCommand
             ]
-        let filesystemCommandChannel = Channel [ Filesystem.handleCommand ]
         let coreEventChannel =
             Channel [
-                bufferListEventHandler
-                NotifyUserOfEvent.handleEvent
                 viewService.handleEvent
             ]
-        let commandModeEventChannel =
-            Channel [
-            ]
+        let commandModeEventChannel = Channel [] :> Channel<CommandMode.Event>
         let vmEventChannel =
             Channel [
                 viewService.handleVMEvent
             ]
-        let vmCommandChannel =
-            Channel [
-                windowBufferVMCommandHandler
-            ]
         let bus =
             Bus [
                 coreCommandChannel
-                filesystemCommandChannel
                 coreEventChannel
                 commandModeEventChannel
                 vmEventChannel
-                vmCommandChannel
             ]
         let interpreter = Interpreter.init <| VoidScriptEditorModule(bus.publish).Commands
         let interpreterWrapper = InterpreterWrapperService interpreter
@@ -78,18 +54,13 @@ module Init =
         coreEventChannel.addHandler modeService.handleEvent
         commandModeEventChannel.addHandler modeService.handleCommandModeEvent
 
+        BufferList.Service.subscribe bus
         Notifications.Service.subscribe bus
+        Filesystem.Service.subscribe bus
         CommandBar.Service.subscribe bus
+        WindowBufferMap.Service.subscribe bus
+        NotifyUserOfEvent.Service.subscribe bus
+        bus
 
-        {
-            CoreEventChannel = coreEventChannel
-            CoreCommandChannel = coreCommandChannel
-            CommandModeEventChannel = commandModeEventChannel
-            FilesystemCommandChannel = filesystemCommandChannel
-            VMEventChannel = vmEventChannel
-            VMCommandChannel = vmCommandChannel
-            Bus = bus
-        }
-
-    let launchVoid messagingSystem =
-        messagingSystem.Bus.publish CoreCommand.InitializeVoid
+    let launchVoid (bus : Bus) =
+        bus.publish CoreCommand.InitializeVoid

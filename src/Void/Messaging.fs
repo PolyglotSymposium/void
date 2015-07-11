@@ -37,10 +37,10 @@ type Bus
     ) =
     let mutable _channels = channels
 
-    member x.addChannel channel =
+    member private x.addChannel channel =
         _channels <- channel :: _channels
 
-    member x.publishAll messages =
+    member private x.publishAll messages =
         for message in messages do
             x.publish message
 
@@ -48,12 +48,15 @@ type Bus
         for channel in _channels do
             channel.publish message |> x.publishAll
 
+    member x.subscribe<'TMsg when 'TMsg :> Message> (handle : Handle<'TMsg>) =
+        let tryGetSubscribeAction (channel : Channel) =
+            channel.getBoxedSubscribeActionIfTypeIs<'TMsg>()
+        match List.choose tryGetSubscribeAction _channels with
+        | [subscribe] ->
+            handle
+            |> unbox<('TMsg -> Message) -> unit> subscribe
+        | _ ->
+            x.addChannel <| Channel [ handle ]
+
     interface SubscribeToBus with
-        member x.subscribe<'TMsg when 'TMsg :> Message> (handle : Handle<'TMsg>) =
-            let tryGetSubscribeAction (channel : Channel) =
-                channel.getBoxedSubscribeActionIfTypeIs<'TMsg>()
-            match List.choose tryGetSubscribeAction _channels with
-            | [subscribe] ->
-                handle
-                |> unbox<('TMsg -> Message) -> unit> subscribe
-            | _ -> ()
+        member x.subscribe handle = x.subscribe handle

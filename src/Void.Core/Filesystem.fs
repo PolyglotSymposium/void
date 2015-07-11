@@ -59,3 +59,7 @@ module Filesystem =
         | Command.SaveToDisk (path, lines) ->
             writeLines path lines :> Message
         | _ -> noMessage
+
+    module Service =
+        let subscribe (subscribeHandler : SubscribeToBus) =
+            subscribeHandler.subscribe handleCommand
