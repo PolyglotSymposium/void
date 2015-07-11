@@ -19,7 +19,6 @@ type Event =
     | ErrorOccurred of Error
     | FileOpenedForEditing of string * string seq
     | FileSaved of string
-    | FileSaveFailed of Error
     | LastWindowClosed // TODO this should be in the view model
     | LineCommandCompleted
     | NewFileForEditing of string
@@ -37,6 +36,7 @@ type EditorOption =
 
 [<RequireQualifiedAccess>]
 type Command =
+    | AddNotification of UserNotification
     | ChangeToMode of Mode
     | Display of Displayable
     | Echo of string

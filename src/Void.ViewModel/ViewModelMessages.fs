@@ -24,6 +24,7 @@ type VMEvent =
     | CommandBar_TextReflowed of CommandBarView
     | ViewModelInitialized of MainViewModel // Vim rough equivalent: GUIEnter
     | ViewPortionRendered of PointGrid.Block * seq<DrawingObject>
+    | BufferLoadedIntoWindow
     interface Message
 
 [<RequireQualifiedAccess>]

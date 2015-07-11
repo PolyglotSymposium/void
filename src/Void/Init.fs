@@ -45,6 +45,7 @@ module Init =
         let eventChannel =
             Channel [
                 bufferListEventHandler
+                NotifyUserOfEvent.handleEvent
                 notificationServiceEventHandler
                 commandBarService
                 viewService.handleEvent

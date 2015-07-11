@@ -3,6 +3,7 @@
 module Filesystem =
     open System
     open System.IO
+    open System.Text
 
     type LinesOrFailure =
         | Lines of string seq
@@ -10,19 +11,19 @@ module Filesystem =
 
     let private readLines path =
         try
-            File.ReadLines path |> Lines
+            File.ReadLines(path, Encoding.UTF8) |> Lines
         with
         | :? UnauthorizedAccessException ->
             Error.AccessToPathNotAuthorized path |> Failure
 
     let private writeLines path lines =
         try
-            File.WriteAllLines(path, Seq.toList lines)
+            File.WriteAllLines(path, Seq.toList lines, Encoding.UTF8)
             Event.FileSaved path
         with
         | :? UnauthorizedAccessException ->
             Error.AccessToPathNotAuthorized path
-            |> Event.FileSaveFailed
+            |> Event.ErrorOccurred
 
     let private home() =
         if Environment.OSVersion.Platform = PlatformID.Unix || Environment.OSVersion.Platform = PlatformID.MacOSX

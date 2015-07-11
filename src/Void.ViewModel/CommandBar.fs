@@ -23,10 +23,12 @@ module CommandBar =
         CellGrid.rightOf CellGrid.originCell commandBar.WrappedLines.Head.Length
 
     let private currentLineWillOverflow (textToAppend : string) commandBar =
-        // TODO I get an exception here sometimes
-        let length = commandBar.WrappedLines.Head.Length + textToAppend.Length
-        length >= commandBar.Width ||
-        (commandBar.WrappedLines.Length = 1 && length + 1 = commandBar.Width)
+        if commandBar.WrappedLines = [] // TODO this is a hack to avoid an exception
+        then false
+        else
+            let length = commandBar.WrappedLines.Head.Length + textToAppend.Length
+            length >= commandBar.Width ||
+            (commandBar.WrappedLines.Length = 1 && length + 1 = commandBar.Width)
 
     let private appendText textToAppend commandBar =
         if currentLineWillOverflow textToAppend commandBar

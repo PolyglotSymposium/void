@@ -12,6 +12,10 @@ module Notifications =
         let notification = UserNotification.Output text
         in addNotification notification notifications
 
+    let private showHistory notifications =
+        let msg = Command.Display <| Displayable.Notifications notifications
+        in notifications, msg :> Message
+
     let handleEvent notifications event =
         match event with
         | Event.ErrorOccurred error ->
@@ -20,15 +24,15 @@ module Notifications =
 
     let handleCommand notifications command =
         match command with
+        | Command.AddNotification notification ->
+            addNotification notification notifications
         | Command.ShowNotificationHistory ->
-            Command.Display <| Displayable.Notifications notifications :> Message
-        | _ -> noMessage
+            showHistory notifications
+        | _ -> (notifications, noMessage)
 
     module Service =
-        let private commandHandler notifications command =
-            handleCommand !notifications command
-
         let build() =
             let notifications = ref []
             let eventHandler = Service.wrap notifications handleEvent
-            (eventHandler, commandHandler notifications)
+            let commandHandler = Service.wrap notifications handleCommand
+            (eventHandler, commandHandler)

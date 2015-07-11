@@ -1,14 +1,13 @@
 ﻿namespace Void.ViewModel
 
 type WindowWithBuffers = {
-    WindowId : int
     CurrentBufferId : int
     AlternateBufferId : int option
 }
 
 type BuffersMappedToWindows = {
     CurrentWindowId : int
-    Windows : WindowWithBuffers list
+    Windows : Map<int, WindowWithBuffers>
 }
 
 module WindowBufferMap =
@@ -16,7 +15,6 @@ module WindowBufferMap =
 
     let private firstWindow =
         {
-            WindowId = 0
             CurrentBufferId = 1
             AlternateBufferId = None
         }
@@ -24,8 +22,31 @@ module WindowBufferMap =
     let empty =
         {
             CurrentWindowId = 0
-            Windows = [firstWindow]
+            Windows = Map.empty.Add(0, firstWindow)
         }
+
+    let private currentWindow windowBufferMap =
+        windowBufferMap.Windows.[windowBufferMap.CurrentWindowId]
+
+    let private replaceCurrentWindow windowBufferMap bufferId =
+        windowBufferMap.Windows.Add(windowBufferMap.CurrentWindowId, bufferId)
+
+    let private currentBufferId windowBufferMap =
+        (currentWindow windowBufferMap).CurrentBufferId
+
+    let private setCurrentBuffer bufferId window =
+        {
+            CurrentBufferId = bufferId
+            AlternateBufferId = Some window.CurrentBufferId
+        }
+
+    let private loadBufferIntoCurrentWindow windowBufferMap bufferId =
+        let updated = {
+            windowBufferMap with Windows = currentWindow windowBufferMap
+                                           |> setCurrentBuffer bufferId
+                                           |> replaceCurrentWindow windowBufferMap
+        }
+        (updated, VMEvent.BufferLoadedIntoWindow :> Message)
 
     let handleVMCommand windowBufferMap command =
         match command with
@@ -42,7 +63,8 @@ module WindowBufferMap =
         | VMCommand.Write fileOrBufferId ->
             match fileOrBufferId with
             | FileOrBufferId.Path path ->
-                (windowBufferMap, Command.WriteBufferToPath (0, path) :> Message)
+                let id = currentBufferId windowBufferMap
+                in (windowBufferMap, Command.WriteBufferToPath (id, path) :> Message)
             | FileOrBufferId.CurrentBuffer ->
                 (windowBufferMap, noMessage)
             | FileOrBufferId.AlternateBuffer ->
@@ -51,7 +73,11 @@ module WindowBufferMap =
                 (windowBufferMap, noMessage)
 
     let handleEvent windowBufferMap event =
-        noMessage // TODO
+        match event with
+        | Event.BufferAdded (bufferId, buffer) ->
+            loadBufferIntoCurrentWindow windowBufferMap bufferId
+        | _ ->
+            (windowBufferMap, noMessage)
 
     module Service =
         open Void.Core

@@ -47,6 +47,20 @@ module BufferList =
     let private addEmptyBuffer bufferList =
         addBuffer bufferList Buffer.empty
 
+    let private writeBufferToPath bufferList bufferId path = 
+        let lines = Buffer.readLines bufferList.List.[bufferId] 0
+        let msg = Command.SaveToDisk (path, lines) :> Message
+        (bufferList, msg)
+
+    let private writeBuffer bufferList bufferId = 
+        match bufferList.List.[bufferId] with
+        | BufferType.File fileBuffer ->
+            match fileBuffer.Filepath with
+            | Some path ->
+                writeBufferToPath bufferList bufferId path
+            | None -> bufferList, noMessage
+        | _ -> bufferList, noMessage
+
     let handleEvent bufferList event =
         match event with
         | Event.FileOpenedForEditing (path, lines) ->
@@ -65,6 +79,10 @@ module BufferList =
         match command with
         | Command.InitializeVoid ->
             addEmptyBuffer bufferList
+        | Command.WriteBuffer bufferId ->
+            writeBuffer bufferList bufferId
+        | Command.WriteBufferToPath (bufferId, path) ->
+            writeBufferToPath bufferList bufferId path
         | _ -> 
             (bufferList, noMessage)
 
