@@ -17,27 +17,26 @@ type ViewModelService() =
         | _ ->
             noMessage
 
-    member x.handleVMEvent event =
+    member x.handleCommandBarEvent event =
         let commandBarOrigin = ViewModel.upperLeftCellOfCommandBar _viewModel
         let renderCommandBar commandBar =
             RenderCommandBar.asDrawingObjects commandBar commandBarOrigin
             |> VMEvent.ViewPortionRendered :> Message
         match event with
-        | VMEvent.CommandBar_CharacterBackspacedFromLine cell ->
+        | CommandBar.Event.CharacterBackspacedFromLine cell ->
             RenderCommandBar.backspacedCharacterAsDrawingObject cell commandBarOrigin
             |> VMEvent.ViewPortionRendered :> Message
-        | VMEvent.CommandBar_Displayed commandBar ->
+        | CommandBar.Event.Displayed commandBar ->
             renderCommandBar commandBar
-        | VMEvent.CommandBar_Hidden commandBar ->
+        | CommandBar.Event.Hidden commandBar ->
             renderCommandBar commandBar
-        | VMEvent.CommandBar_TextAppendedToLine textSegment ->
+        | CommandBar.Event.TextAppendedToLine textSegment ->
             RenderCommandBar.appendedTextAsDrawingObject textSegment commandBarOrigin
             |> VMEvent.ViewPortionRendered :> Message
-        | VMEvent.CommandBar_TextChanged commandBar ->
+        | CommandBar.Event.TextChanged commandBar ->
             renderCommandBar commandBar
-        | VMEvent.CommandBar_TextReflowed commandBar ->
+        | CommandBar.Event.TextReflowed commandBar ->
             renderCommandBar commandBar
-        | _ -> noMessage
 
     member x.handleEvent =
         function // TODO clearly the code below needs to be refactored
