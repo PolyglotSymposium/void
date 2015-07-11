@@ -25,10 +25,10 @@ type VMEvent =
     | ViewModelInitialized of MainViewModel // Vim rough equivalent: GUIEnter
     | ViewPortionRendered of PointGrid.Block * seq<DrawingObject>
     | BufferLoadedIntoWindow
-    interface Message
+    interface Event
 
 [<RequireQualifiedAccess>]
 type VMCommand =
     | Edit of FileOrBufferId
     | Write of FileOrBufferId
-    interface Message
+    interface Command

@@ -1,14 +1,5 @@
 ﻿namespace Void.Core
 
-type Message = interface end
-
-[<AutoOpen>]
-module ``This module is auto-opened to provide a null message`` =
-    type private NullMessage =
-        | NoMsg
-        interface Message
-    let noMessage = NoMsg :> Message
-
 [<RequireQualifiedAccess>]
 type CoreEvent =
     | BufferAdded of int * BufferType
@@ -25,7 +16,7 @@ type CoreEvent =
     | NotificationAdded of UserNotification
     | ModeSet of Mode
     | ModeChanged of ModeChange
-    interface Message
+    interface Event
 
 type Displayable =
     | Notifications of UserNotification list
@@ -54,7 +45,7 @@ type CoreCommand =
     | WriteBuffer of int
     | WriteBufferToPath of int * string
     | Yank
-    interface Message
+    interface Command
 
 [<AutoOpen>]
 module ``This module is auto-opened to provide message aliases`` =

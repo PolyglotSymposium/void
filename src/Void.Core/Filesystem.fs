@@ -4,7 +4,7 @@
 type FilesystemCommand =
     | OpenFile of string
     | SaveToDisk of string * string seq
-    interface Message
+    interface Command
 
 module Filesystem =
     open System
