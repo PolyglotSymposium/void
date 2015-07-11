@@ -49,6 +49,13 @@ type CommandHistoryCommand =
     | MoveToNextCommand
     interface CommandMessage
 
+
+[<RequireQualifiedAccess>]
+type CommandHistoryEvent =
+    | MovedToCommand of string
+    | CommandAdded
+    interface Message
+
 [<AutoOpen>]
 module ``This module is auto-opened to provide message aliases`` =
     let notImplemented =

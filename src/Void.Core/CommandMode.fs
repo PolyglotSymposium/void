@@ -44,3 +44,10 @@ module CommandMode =
             (buffer + text, Event.TextAppended text :> Message)
         | TextOrHotKey.HotKey hotKey ->
             handleHotKey interpret buffer hotKey
+
+    let handleHistoryEvent buffer event =
+        match event with
+        | CommandHistoryEvent.MovedToCommand command ->
+            (command, Event.TextReplaced command :> Message)
+        | _ ->
+            (buffer, noMessage)

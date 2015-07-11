@@ -12,10 +12,10 @@ module Init =
     let setInputMode (changer : InputModeChanger) (publish : Message -> unit) (inputMode : InputMode<Message>) =
         match inputMode with
         | InputMode.KeyPresses handler ->
-            (fun keyPress -> handler keyPress |> publish)
+            publish << handler
             |> InputMode.KeyPresses
         | InputMode.TextAndHotKeys handler ->
-            (fun textOrHotKey -> handler textOrHotKey |> publish)
+            publish << handler
             |> InputMode.TextAndHotKeys
         |> changer.SetInputHandler
 
@@ -31,7 +31,6 @@ module Init =
             Channel [
                 viewService.handleEvent
             ]
-        let commandModeEventChannel = Channel [] :> Channel<CommandMode.Event>
         let commandBarEventChannel =
             Channel [
                 viewService.handleCommandBarEvent
@@ -40,7 +39,6 @@ module Init =
             Bus [
                 coreCommandChannel
                 coreEventChannel
-                commandModeEventChannel
                 commandBarEventChannel
             ]
         let interpreter = Interpreter.init <| VoidScriptEditorModule(bus.publish).Commands
@@ -50,10 +48,7 @@ module Init =
                                       VisualModeInputHandler(),
                                       InsertModeInputHandler(),
                                       setInputMode inputModeChanger bus.publish)
-        coreCommandChannel.addHandler modeService.handleCommand
-        coreEventChannel.addHandler modeService.handleEvent
-        commandModeEventChannel.addHandler modeService.handleCommandModeEvent
-
+        modeService.subscribe bus
         BufferList.Service.subscribe bus
         Notifications.Service.subscribe bus
         Filesystem.Service.subscribe bus
