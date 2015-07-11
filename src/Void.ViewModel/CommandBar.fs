@@ -19,6 +19,16 @@ module CommandBar =
             WrappedLines = [""]
         }
 
+    [<RequireQualifiedAccess>]
+    type Event =
+        | CharacterBackspacedFromLine of CellGrid.Cell
+        | Displayed of CommandBarView
+        | Hidden of CommandBarView
+        | TextAppendedToLine of SegmentOfText
+        | TextChanged of CommandBarView
+        | TextReflowed of CommandBarView
+        interface EventMessage
+
     let private lastCell commandBar = 
         CellGrid.rightOf CellGrid.originCell commandBar.WrappedLines.Head.Length
 
@@ -34,32 +44,32 @@ module CommandBar =
         if currentLineWillOverflow textToAppend commandBar
         then
             let bar = { commandBar with WrappedLines = textToAppend :: commandBar.WrappedLines }
-            (bar, VMEvent.CommandBar_TextReflowed bar :> Message)
+            (bar, Event.TextReflowed bar :> Message)
         else
             let line = commandBar.WrappedLines.Head + textToAppend
             let bar = { commandBar with WrappedLines = line :: commandBar.WrappedLines.Tail }
             let textSegment = { LeftMostCell = CellGrid.rightOf (lastCell commandBar) 1; Text = textToAppend }
-            (bar, VMEvent.CommandBar_TextAppendedToLine textSegment :> Message)
+            (bar, Event.TextAppendedToLine textSegment :> Message)
 
     let private characterBackspaced commandBar =
         let backspacedLine = StringUtil.backspace commandBar.WrappedLines.Head
         if backspacedLine = ""
         then
             let bar = { commandBar with WrappedLines =  commandBar.WrappedLines.Tail }
-            in (bar, VMEvent.CommandBar_TextReflowed bar :> Message)
+            in (bar, Event.TextReflowed bar :> Message)
         else
             let lines = backspacedLine :: commandBar.WrappedLines.Tail
             let bar = { commandBar with WrappedLines = lines }
             let clearedCell = lastCell commandBar
-            (bar, VMEvent.CommandBar_CharacterBackspacedFromLine clearedCell :> Message)
+            (bar, Event.CharacterBackspacedFromLine clearedCell :> Message)
 
     let private hide =
         let commandBar = hidden
-        (commandBar, VMEvent.CommandBar_Hidden commandBar :> Message)
+        (commandBar, Event.Hidden commandBar :> Message)
 
     let private show =
         let commandBar = visibleButEmpty
-        in (commandBar, VMEvent.CommandBar_Displayed commandBar :> Message)
+        in (commandBar, Event.Displayed commandBar :> Message)
 
     let handleEvent commandBar event =
         match event with

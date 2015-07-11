@@ -58,7 +58,10 @@ module Init =
             ]
         let vmEventChannel =
             Channel [
-                viewService.handleVMEvent
+            ]
+        let commandBarEventChannel =
+            Channel [
+                viewService.handleCommandBarEvent
             ]
         let vmCommandChannel =
             Channel [
@@ -69,6 +72,7 @@ module Init =
                 coreCommandChannel.publish
                 filesystemCommandChannel.publish
                 coreEventChannel.publish
+                commandBarEventChannel.publish
                 commandModeEventChannel.publish
                 vmEventChannel.publish
                 vmCommandChannel.publish
