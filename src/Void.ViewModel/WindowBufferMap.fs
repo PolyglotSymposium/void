@@ -82,9 +82,8 @@ module WindowBufferMap =
     module Service =
         open Void.Core
 
-        let private vmCommandHandler windowBufferMap =
-            Service.wrap windowBufferMap handleVMCommand
-
         let build() =
             let windowBufferMap = ref empty
-            vmCommandHandler windowBufferMap
+            let vmCommandHandler = Service.wrap windowBufferMap handleVMCommand
+            let coreEventHandler = Service.wrap windowBufferMap handleEvent
+            coreEventHandler, vmCommandHandler

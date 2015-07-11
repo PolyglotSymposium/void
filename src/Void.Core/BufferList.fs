@@ -27,7 +27,7 @@ type Buffers = private {
 }
 
 module BufferList =
-    let private empty = 
+    let empty = 
         {
             List = Map.empty<int, BufferType>
             LastId = 0
@@ -47,7 +47,7 @@ module BufferList =
     let private addEmptyBuffer bufferList =
         addBuffer bufferList Buffer.empty
 
-    let private writeBufferToPath bufferList bufferId path = 
+    let private writeBufferToPath bufferList bufferId path =
         let lines = Buffer.readLines bufferList.List.[bufferId] 0
         let msg = Filesystem.Command.SaveToDisk (path, lines) :> Message
         (bufferList, msg)

@@ -36,6 +36,7 @@ module CommandBar =
             let bar = { commandBar with WrappedLines = textToAppend :: commandBar.WrappedLines }
             (bar, VMEvent.CommandBar_TextReflowed bar :> Message)
         else
+            // TODO: I ran into an exception here
             let line = commandBar.WrappedLines.Head + textToAppend
             let bar = { commandBar with WrappedLines = line :: commandBar.WrappedLines.Tail }
             let textSegment = { LeftMostCell = CellGrid.rightOf (lastCell commandBar) 1; Text = textToAppend }

@@ -19,3 +19,4 @@ type ``Normal mode input handler``() =
         let controller = NormalModeInputHandler()
         handleAndVerifyZQ controller
         handleAndVerifyZQ controller
+        

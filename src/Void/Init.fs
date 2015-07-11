@@ -34,7 +34,7 @@ module Init =
         let bufferListEventHandler, bufferListCommandHandler = BufferList.Service.build()
         let editorService = EditorService()
         let commandBarHandleEvent, commandBarHandleCommandModeEvent = CommandBarService.build()
-        let windowBufferVMCommandHandler = WindowBufferMap.Service.build()
+        let windowBufferMapEventHandler, windowBufferMapCommandHandler = WindowBufferMap.Service.build()
         let viewService = ViewModelService()
         let coreCommandChannel =
             Channel [
@@ -49,6 +49,7 @@ module Init =
                 bufferListEventHandler
                 NotifyUserOfEvent.handleEvent
                 notificationServiceEventHandler
+                windowBufferMapEventHandler
                 commandBarHandleEvent
                 viewService.handleEvent
             ]
@@ -62,7 +63,7 @@ module Init =
             ]
         let vmCommandChannel =
             Channel [
-                windowBufferVMCommandHandler
+                windowBufferMapCommandHandler
             ]
         let bus =
             Bus [
