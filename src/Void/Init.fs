@@ -30,7 +30,6 @@ module Init =
         |> changer.SetInputHandler
 
     let buildVoid inputModeChanger =
-        let notificationServiceEventHandler, notificationServiceCommandHandler = Notifications.Service.build()
         let bufferListEventHandler, bufferListCommandHandler = BufferList.Service.build()
         let editorService = EditorService()
         let commandBarHandleEvent, commandBarHandleCommandModeEvent = CommandBarService.build()
@@ -39,7 +38,6 @@ module Init =
         let coreCommandChannel =
             Channel [
                 bufferListCommandHandler
-                notificationServiceCommandHandler
                 viewService.handleCommand
                 editorService.handleCommand
             ]
@@ -48,7 +46,6 @@ module Init =
             Channel [
                 bufferListEventHandler
                 NotifyUserOfEvent.handleEvent
-                notificationServiceEventHandler
                 commandBarHandleEvent
                 viewService.handleEvent
             ]
@@ -66,12 +63,12 @@ module Init =
             ]
         let bus =
             Bus [
-                coreCommandChannel.publish
-                filesystemCommandChannel.publish
-                coreEventChannel.publish
-                commandModeEventChannel.publish
-                vmEventChannel.publish
-                vmCommandChannel.publish
+                coreCommandChannel
+                filesystemCommandChannel
+                coreEventChannel
+                commandModeEventChannel
+                vmEventChannel
+                vmCommandChannel
             ]
         let interpreter = Interpreter.init <| VoidScriptEditorModule(bus.publish).Commands
         let interpreterWrapper = InterpreterWrapperService interpreter
@@ -83,6 +80,8 @@ module Init =
         coreCommandChannel.addHandler modeService.handleCommand
         coreEventChannel.addHandler modeService.handleEvent
         commandModeEventChannel.addHandler modeService.handleCommandModeEvent
+
+        Notifications.Service.subscribe bus
 
         {
             CoreEventChannel = coreEventChannel
