@@ -33,7 +33,7 @@ module Init =
         let notificationServiceEventHandler, notificationServiceCommandHandler = Notifications.Service.build()
         let bufferListEventHandler, bufferListCommandHandler = BufferList.Service.build()
         let editorService = EditorService()
-        let commandBarService = CommandBarService.build()
+        let commandBarHandleEvent, commandBarHandleCommandModeEvent = CommandBarService.build()
         let windowBufferVMCommandHandler = WindowBufferMap.Service.build()
         let viewService = ViewModelService()
         let coreCommandChannel =
@@ -44,14 +44,17 @@ module Init =
                 editorService.handleCommand
             ]
         let filesystemCommandChannel = Channel [ Filesystem.handleCommand ]
-        let commandModeEventChannel = Channel []
         let coreEventChannel =
             Channel [
                 bufferListEventHandler
                 NotifyUserOfEvent.handleEvent
                 notificationServiceEventHandler
-                commandBarService
+                commandBarHandleEvent
                 viewService.handleEvent
+            ]
+        let commandModeEventChannel =
+            Channel [
+                commandBarHandleCommandModeEvent
             ]
         let vmEventChannel =
             Channel [
@@ -79,6 +82,7 @@ module Init =
                                       setInputMode inputModeChanger bus.publish)
         coreCommandChannel.addHandler modeService.handleCommand
         coreEventChannel.addHandler modeService.handleEvent
+        commandModeEventChannel.addHandler modeService.handleCommandModeEvent
 
         {
             CoreEventChannel = coreEventChannel

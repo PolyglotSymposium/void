@@ -11,7 +11,6 @@ type CommandModeInputHandler(interpret : RequestAPI.InterpretScriptFragment) =
     let handle = CommandMode.handle interpret
     let mutable _buffer = ""
 
-    // This is so far the model of what I think most "Controllers" should look like
     member x.handleTextOrHotKey input =
         let updatedBuffer, message = handle _buffer input
         _buffer <- updatedBuffer

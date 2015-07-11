@@ -76,9 +76,8 @@ module CommandBar =
 module CommandBarService =
     open Void.Core
 
-    let private eventHandler commandBar =
-        Service.wrap commandBar CommandBar.handleEvent
-
     let build() =
         let commandBar = ref CommandBar.hidden
-        eventHandler commandBar
+        let eventHandler = Service.wrap commandBar CommandBar.handleEvent
+        let commandModeEventHandler = Service.wrap commandBar CommandBar.handleCommandModeEvent
+        (eventHandler, commandModeEventHandler)

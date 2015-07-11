@@ -18,7 +18,7 @@ module CommandMode =
         | InterpretScriptFragmentResponse.ParseFailed error ->
             ("", CoreEvent.ErrorOccurred error :> Message)
         | InterpretScriptFragmentResponse.ParseIncomplete ->
-            (buffer + "\n", noMessage)
+            (buffer + System.Environment.NewLine, noMessage)
 
     let private handleHotKey interpret buffer hotKey =
         let cancelled = ("", Event.EntryCancelled :> Message)

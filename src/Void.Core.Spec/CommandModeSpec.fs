@@ -64,4 +64,4 @@ type ``Editing command mode``() =
     member x.``When the command text parse is incomplete, a newline is added to the command text``() =
         CommandMode.handle interpret_parseIncomplete "edit" enter
         |> fst
-        |> should equal "edit\n"
+        |> should equal ("edit" + System.Environment.NewLine)
