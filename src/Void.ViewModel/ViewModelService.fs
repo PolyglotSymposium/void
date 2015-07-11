@@ -7,11 +7,11 @@ type ViewModelService() =
 
     member x.handleCommand =
         function
-        | Command.InitializeVoid ->
+        | CoreCommand.InitializeVoid ->
             VMEvent.ViewModelInitialized _viewModel :> Message
-        | Command.Display _ ->
+        | CoreCommand.Display _ ->
             notImplemented
-        | Command.Redraw ->
+        | CoreCommand.Redraw ->
             (GridConvert.boxAround (ViewModel.wholeArea _viewModel), Render.viewModelAsDrawingObjects _viewModel)
             |> VMEvent.ViewPortionRendered :> Message
         | _ ->
@@ -41,12 +41,12 @@ type ViewModelService() =
 
     member x.handleEvent =
         function // TODO clearly the code below needs to be refactored
-        | Event.BufferAdded (id, buffer) ->
+        | CoreEvent.BufferAdded (id, buffer) ->
             _viewModel <- ViewModel.loadBuffer buffer _viewModel
             let drawings = Render.currentBufferAsDrawingObjects _viewModel
             let area = GridConvert.boxAround (ViewModel.wholeArea _viewModel) (* TODO shouldn't redraw the whole UI *)
             VMEvent.ViewPortionRendered(area, drawings) :> Message
-        | Event.NotificationAdded notification ->
+        | CoreEvent.NotificationAdded notification ->
             let area = ViewModel.areaOfCommandBarOrNotifications _viewModel
             let drawing = ViewModel.toScreenNotification notification
                           |> Render.notificationAsDrawingObject area.UpperLeftCell

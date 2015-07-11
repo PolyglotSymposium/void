@@ -10,7 +10,7 @@ module ``This module is auto-opened to provide a null message`` =
     let noMessage = NoMsg :> Message
 
 [<RequireQualifiedAccess>]
-type Event =
+type CoreEvent =
     | BufferAdded of int * BufferType
     | CommandEntryCancelled
     | CommandMode_CharacterBackspaced
@@ -35,7 +35,7 @@ type EditorOption =
     | ReadOnly
 
 [<RequireQualifiedAccess>]
-type Command =
+type CoreCommand =
     | AddNotification of UserNotification
     | ChangeToMode of Mode
     | Display of Displayable
@@ -59,4 +59,4 @@ type Command =
 [<AutoOpen>]
 module ``This module is auto-opened to provide message aliases`` =
     let notImplemented =
-        Event.ErrorOccurred Error.NotImplemented :> Message
+        CoreEvent.ErrorOccurred Error.NotImplemented :> Message

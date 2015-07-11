@@ -64,7 +64,7 @@ module WindowBufferMap =
             match fileOrBufferId with
             | FileOrBufferId.Path path ->
                 let id = currentBufferId windowBufferMap
-                in (windowBufferMap, Command.WriteBufferToPath (id, path) :> Message)
+                in (windowBufferMap, CoreCommand.WriteBufferToPath (id, path) :> Message)
             | FileOrBufferId.CurrentBuffer ->
                 (windowBufferMap, noMessage)
             | FileOrBufferId.AlternateBuffer ->
@@ -74,7 +74,7 @@ module WindowBufferMap =
 
     let handleEvent windowBufferMap event =
         match event with
-        | Event.BufferAdded (bufferId, buffer) ->
+        | CoreEvent.BufferAdded (bufferId, buffer) ->
             loadBufferIntoCurrentWindow windowBufferMap bufferId
         | _ ->
             (windowBufferMap, noMessage)

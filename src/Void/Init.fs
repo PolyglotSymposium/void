@@ -6,8 +6,8 @@ open Void.Lang.Editor
 open Void.ViewModel
 
 type MessagingSystem = {
-    EventChannel : Channel<Event>
-    CommandChannel : Channel<Command>
+    CoreEventChannel : Channel<CoreEvent>
+    CoreCommandChannel : Channel<CoreCommand>
     FilesystemCommandChannel : Channel<FilesystemCommand>
     VMEventChannel : Channel<VMEvent>
     VMCommandChannel : Channel<VMCommand>
@@ -35,7 +35,7 @@ module Init =
         let commandBarService = CommandBarService.build()
         let windowBufferVMCommandHandler = WindowBufferMap.Service.build()
         let viewService = ViewModelService()
-        let commandChannel =
+        let coreCommandChannel =
             Channel [
                 bufferListCommandHandler
                 notificationServiceCommandHandler
@@ -43,7 +43,7 @@ module Init =
                 editorService.handleCommand
             ]
         let filesystemCommandChannel = Channel [ Filesystem.handleCommand ]
-        let eventChannel =
+        let coreEventChannel =
             Channel [
                 bufferListEventHandler
                 NotifyUserOfEvent.handleEvent
@@ -61,9 +61,9 @@ module Init =
             ]
         let bus =
             Bus [
-                commandChannel.publish
+                coreCommandChannel.publish
                 filesystemCommandChannel.publish
-                eventChannel.publish
+                coreEventChannel.publish
                 vmEventChannel.publish
                 vmCommandChannel.publish
             ]
@@ -74,12 +74,12 @@ module Init =
                                       VisualModeInputHandler(),
                                       InsertModeInputHandler(),
                                       setInputMode inputModeChanger bus.publish)
-        commandChannel.addHandler modeService.handleCommand
-        eventChannel.addHandler modeService.handleEvent
+        coreCommandChannel.addHandler modeService.handleCommand
+        coreEventChannel.addHandler modeService.handleEvent
 
         {
-            EventChannel = eventChannel
-            CommandChannel = commandChannel
+            CoreEventChannel = coreEventChannel
+            CoreCommandChannel = coreCommandChannel
             FilesystemCommandChannel = filesystemCommandChannel
             VMEventChannel = vmEventChannel
             VMCommandChannel = vmCommandChannel
@@ -87,4 +87,4 @@ module Init =
         }
 
     let launchVoid messagingSystem =
-        messagingSystem.Bus.publish Command.InitializeVoid
+        messagingSystem.Bus.publish CoreCommand.InitializeVoid

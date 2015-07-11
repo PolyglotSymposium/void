@@ -24,11 +24,11 @@ type ``Void``() =
         let closed = ref false
         let closeHandler event =
             match event with
-            | Event.LastWindowClosed ->
+            | CoreEvent.LastWindowClosed ->
                 closed := true
             | _ -> ()
             noMessage
-        messagingSystem.EventChannel.addHandler closeHandler
+        messagingSystem.CoreEventChannel.addHandler closeHandler
 
         match inputModeChanger.getInputHandler() with
         | InputMode.KeyPresses handler ->

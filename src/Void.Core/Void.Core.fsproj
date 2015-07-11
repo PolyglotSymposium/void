@@ -47,7 +47,7 @@
     <Compile Include="Keys.fs" />
     <Compile Include="UserNotificationTypes.fs" />
     <Compile Include="EditorTypes.fs" />
-    <Compile Include="Messages.fs" />
+    <Compile Include="CoreMessages.fs" />
     <Compile Include="Requests.fs" />
     <Compile Include="NormalMode.fs" />
     <Compile Include="CommandMode.fs" />

@@ -15,7 +15,7 @@ module VoidScriptEditor =
 
 type VoidScriptEditorModule(publish : Message -> unit) =
     let echo _ execEnv =
-        publish <| Command.Echo ""
+        publish <| CoreCommand.Echo ""
 
     let edit raw execEnv =
         VoidScriptEditor.parseFilePath raw
@@ -23,23 +23,23 @@ type VoidScriptEditorModule(publish : Message -> unit) =
         |> publish
 
     let help _ execEnv =
-        publish Command.Help
+        publish CoreCommand.Help
 
     let messages _ execEnv =
-        publish Command.ShowNotificationHistory
+        publish CoreCommand.ShowNotificationHistory
 
     let quit _ execEnv =
-        publish Command.Quit
+        publish CoreCommand.Quit
 
     let quitAll _ execEnv =
-        publish Command.QuitAll
+        publish CoreCommand.QuitAll
 
     let redraw _ execEnv =
-        publish Command.Redraw
+        publish CoreCommand.Redraw
 
     let view raw execEnv =
         edit raw execEnv
-        Command.SetBufferOption EditorOption.ReadOnly
+        CoreCommand.SetBufferOption EditorOption.ReadOnly
         |> publish
 
     let write raw execEnv =

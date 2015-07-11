@@ -8,7 +8,7 @@ open FsUnit
 type ``Normal mode input handler``() = 
     let handleAndVerifyZQ (handler : NormalModeInputHandler) = 
         handler.handleKeyPress KeyPress.ShiftZ |> should equal noMessage
-        handler.handleKeyPress KeyPress.ShiftQ |> should equal Command.QuitWithoutSaving
+        handler.handleKeyPress KeyPress.ShiftQ |> should equal CoreCommand.QuitWithoutSaving
 
     [<Test>]
     member x.``should return the appropriate command once a mapping is completed``() =

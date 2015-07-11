@@ -3,13 +3,13 @@
 type EditorService() =
     member x.handleCommand =
         function
-        | Command.Yank
-        | Command.Put
-        | Command.FormatCurrentLine ->
+        | CoreCommand.Yank
+        | CoreCommand.Put
+        | CoreCommand.FormatCurrentLine ->
             notImplemented
-        | Command.Quit
-        | Command.QuitAll
-        | Command.QuitAllWithoutSaving
-        | Command.QuitWithoutSaving ->
-             Event.LastWindowClosed :> Message
+        | CoreCommand.Quit
+        | CoreCommand.QuitAll
+        | CoreCommand.QuitAllWithoutSaving
+        | CoreCommand.QuitWithoutSaving ->
+             CoreEvent.LastWindowClosed :> Message
         | _ -> noMessage

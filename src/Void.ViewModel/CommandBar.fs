@@ -63,10 +63,10 @@ module CommandBar =
 
     let handleEvent commandBar event =
         match event with
-        | Event.ModeChanged { From = _; To = Mode.Command } -> show
-        | Event.CommandEntryCancelled -> hide
-        | Event.CommandMode_CharacterBackspaced -> characterBackspaced commandBar
-        | Event.CommandMode_TextAppended text -> appendText text commandBar
+        | CoreEvent.ModeChanged { From = _; To = Mode.Command } -> show
+        | CoreEvent.CommandEntryCancelled -> hide
+        | CoreEvent.CommandMode_CharacterBackspaced -> characterBackspaced commandBar
+        | CoreEvent.CommandMode_TextAppended text -> appendText text commandBar
         | _ -> (commandBar, noMessage)
 
 module CommandBarService =

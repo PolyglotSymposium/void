@@ -2,7 +2,7 @@
 
 module Notifications =
     let private addNotification notification notifications = 
-        (notification :: notifications), Event.NotificationAdded notification :> Message
+        (notification :: notifications), CoreEvent.NotificationAdded notification :> Message
 
     let private addError error notifications =
         let notification = UserNotification.Error error
@@ -13,20 +13,20 @@ module Notifications =
         in addNotification notification notifications
 
     let private showHistory notifications =
-        let msg = Command.Display <| Displayable.Notifications notifications
+        let msg = CoreCommand.Display <| Displayable.Notifications notifications
         in notifications, msg :> Message
 
     let handleEvent notifications event =
         match event with
-        | Event.ErrorOccurred error ->
+        | CoreEvent.ErrorOccurred error ->
             addError error notifications
         | _ -> (notifications, noMessage)
 
     let handleCommand notifications command =
         match command with
-        | Command.AddNotification notification ->
+        | CoreCommand.AddNotification notification ->
             addNotification notification notifications
-        | Command.ShowNotificationHistory ->
+        | CoreCommand.ShowNotificationHistory ->
             showHistory notifications
         | _ -> (notifications, noMessage)
 

@@ -5,8 +5,8 @@ module NotifyUserOfEvent =
 
     let handleEvent event =
         match event with
-        | Event.FileSaved path ->
+        | CoreEvent.FileSaved path ->
             sprintf "\"%s\" written" path
             |> UserNotification.Output
-            |> Command.AddNotification :> Message
+            |> CoreCommand.AddNotification :> Message
         | _ -> noMessage

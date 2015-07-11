@@ -42,7 +42,7 @@ module BufferList =
             List = bufferList.List.Add(id, buffer)
             LastId = id
         }
-        (listPlusOne, Event.BufferAdded (id, buffer) :> Message )
+        (listPlusOne, CoreEvent.BufferAdded (id, buffer) :> Message )
 
     let private addEmptyBuffer bufferList =
         addBuffer bufferList Buffer.empty
@@ -63,10 +63,10 @@ module BufferList =
 
     let handleEvent bufferList event =
         match event with
-        | Event.FileOpenedForEditing (path, lines) ->
+        | CoreEvent.FileOpenedForEditing (path, lines) ->
             Buffer.existingFile path (Seq.toList lines)
             |> addBuffer bufferList
-        | Event.NewFileForEditing path ->
+        | CoreEvent.NewFileForEditing path ->
             // TODO where to trigger this notification?
             //sprintf "\"%s\" [New file]" path
             //|> UserNotification.Output
@@ -77,11 +77,11 @@ module BufferList =
 
     let handleCommand bufferList command =
         match command with
-        | Command.InitializeVoid ->
+        | CoreCommand.InitializeVoid ->
             addEmptyBuffer bufferList
-        | Command.WriteBuffer bufferId ->
+        | CoreCommand.WriteBuffer bufferId ->
             writeBuffer bufferList bufferId
-        | Command.WriteBufferToPath (bufferId, path) ->
+        | CoreCommand.WriteBufferToPath (bufferId, path) ->
             writeBufferToPath bufferList bufferId path
         | _ -> 
             (bufferList, noMessage)

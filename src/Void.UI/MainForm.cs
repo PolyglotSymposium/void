@@ -27,7 +27,7 @@ namespace Void.UI
             WireUpInputEvents();
         }
 
-        public Message HandleEvent(Event eventMsg)
+        public Message HandleEvent(CoreEvent eventMsg)
         {
             if (eventMsg.IsLastWindowClosed)
             {
@@ -107,7 +107,7 @@ namespace Void.UI
                 }
                 else
                 {
-                    _bus.publish(Command.Redraw);
+                    _bus.publish(CoreCommand.Redraw);
                 }
             };
         }

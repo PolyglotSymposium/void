@@ -25,11 +25,11 @@ module Filesystem =
     let private writeLines path lines =
         try
             File.WriteAllLines(path, Seq.toList lines, Encoding.UTF8)
-            Event.FileSaved path
+            CoreEvent.FileSaved path
         with
         | :? UnauthorizedAccessException ->
             Error.AccessToPathNotAuthorized path
-            |> Event.ErrorOccurred
+            |> CoreEvent.ErrorOccurred
 
     let private home() =
         if Environment.OSVersion.Platform = PlatformID.Unix || Environment.OSVersion.Platform = PlatformID.MacOSX
@@ -50,11 +50,11 @@ module Filesystem =
             then
                 match readLines path with
                 | Lines lines ->
-                    Event.FileOpenedForEditing (path, lines) :> Message
+                    CoreEvent.FileOpenedForEditing (path, lines) :> Message
                 | Failure error ->
                     UserNotification.Error error
-                    |> Event.NotificationAdded :> Message
-            else Event.NewFileForEditing path :> Message
+                    |> CoreEvent.NotificationAdded :> Message
+            else CoreEvent.NewFileForEditing path :> Message
         | FilesystemCommand.SaveToDisk (path, lines) ->
             writeLines path lines :> Message
         | _ -> noMessage
