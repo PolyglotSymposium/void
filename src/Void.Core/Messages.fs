@@ -40,7 +40,6 @@ type Command =
     | ChangeToMode of Mode
     | Display of Displayable
     | Echo of string
-    | OpenFile of string
     | FormatCurrentLine
     | Help
     | InitializeVoid
@@ -50,7 +49,6 @@ type Command =
     | QuitAllWithoutSaving
     | QuitWithoutSaving
     | Redraw
-    | SaveToDisk of string * string seq
     | SetBufferOption of EditorOption
     | ShowNotificationHistory
     | WriteBuffer of int

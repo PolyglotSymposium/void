@@ -8,6 +8,7 @@ open Void.ViewModel
 type MessagingSystem = {
     EventChannel : Channel<Event>
     CommandChannel : Channel<Command>
+    FilesystemCommandChannel : Channel<FilesystemCommand>
     VMEventChannel : Channel<VMEvent>
     VMCommandChannel : Channel<VMCommand>
     Bus : Bus
@@ -39,9 +40,9 @@ module Init =
                 bufferListCommandHandler
                 notificationServiceCommandHandler
                 viewService.handleCommand
-                Filesystem.handleCommand
                 editorService.handleCommand
             ]
+        let filesystemCommandChannel = Channel [ Filesystem.handleCommand ]
         let eventChannel =
             Channel [
                 bufferListEventHandler
@@ -61,6 +62,7 @@ module Init =
         let bus =
             Bus [
                 commandChannel.publish
+                filesystemCommandChannel.publish
                 eventChannel.publish
                 vmEventChannel.publish
                 vmCommandChannel.publish
@@ -78,6 +80,7 @@ module Init =
         {
             EventChannel = eventChannel
             CommandChannel = commandChannel
+            FilesystemCommandChannel = filesystemCommandChannel
             VMEventChannel = vmEventChannel
             VMCommandChannel = vmCommandChannel
             Bus = bus

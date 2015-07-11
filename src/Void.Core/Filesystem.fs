@@ -1,5 +1,11 @@
 ﻿namespace Void.Core
 
+[<RequireQualifiedAccess>]
+type FilesystemCommand =
+    | OpenFile of string
+    | SaveToDisk of string * string seq
+    interface Message
+
 module Filesystem =
     open System
     open System.IO
@@ -38,7 +44,7 @@ module Filesystem =
 
     let handleCommand =
         function
-        | Command.OpenFile path ->
+        | FilesystemCommand.OpenFile path ->
             let path = expandPath path
             if File.Exists path
             then
@@ -49,6 +55,6 @@ module Filesystem =
                     UserNotification.Error error
                     |> Event.NotificationAdded :> Message
             else Event.NewFileForEditing path :> Message
-        | Command.SaveToDisk (path, lines) ->
+        | FilesystemCommand.SaveToDisk (path, lines) ->
             writeLines path lines :> Message
         | _ -> noMessage

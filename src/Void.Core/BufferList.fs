@@ -49,7 +49,7 @@ module BufferList =
 
     let private writeBufferToPath bufferList bufferId path = 
         let lines = Buffer.readLines bufferList.List.[bufferId] 0
-        let msg = Command.SaveToDisk (path, lines) :> Message
+        let msg = FilesystemCommand.SaveToDisk (path, lines) :> Message
         (bufferList, msg)
 
     let private writeBuffer bufferList bufferId = 
