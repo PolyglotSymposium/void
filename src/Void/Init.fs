@@ -32,16 +32,16 @@ module Init =
                 viewService.handleEvent
             ]
         let commandModeEventChannel = Channel [] :> Channel<CommandMode.Event>
-        let vmEventChannel =
+        let commandBarEventChannel =
             Channel [
-                viewService.handleVMEvent
+                viewService.handleCommandBarEvent
             ]
         let bus =
             Bus [
                 coreCommandChannel
                 coreEventChannel
                 commandModeEventChannel
-                vmEventChannel
+                commandBarEventChannel
             ]
         let interpreter = Interpreter.init <| VoidScriptEditorModule(bus.publish).Commands
         let interpreterWrapper = InterpreterWrapperService interpreter

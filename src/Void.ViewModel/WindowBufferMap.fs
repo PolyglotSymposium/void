@@ -85,3 +85,4 @@ module WindowBufferMap =
         let subscribe (subscribeHandler : SubscribeToBus) =
             let windowBufferMap = ref empty
             subscribeHandler.subscribe <| Service.wrap windowBufferMap handleVMCommand
+            subscribeHandler.subscribe <| Service.wrap windowBufferMap handleEvent

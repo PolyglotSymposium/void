@@ -25,7 +25,8 @@ module Filesystem =
 
     let private writeLines path lines =
         try
-            File.WriteAllLines(path, Seq.toList lines, Encoding.UTF8)
+            let linesList = Seq.toList lines
+            File.WriteAllLines(path, linesList, Encoding.UTF8)
             CoreEvent.FileSaved path
         with
         | :? UnauthorizedAccessException ->
