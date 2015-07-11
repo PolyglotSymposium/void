@@ -73,11 +73,10 @@ module CommandBar =
         | CommandMode.Event.TextAppended text -> appendText text commandBar
         | CommandMode.Event.CommandCompleted -> (commandBar, noMessage)
 
-module CommandBarService =
-    open Void.Core
+    module Service =
+        open Void.Core
 
-    let build() =
-        let commandBar = ref CommandBar.hidden
-        let eventHandler = Service.wrap commandBar CommandBar.handleEvent
-        let commandModeEventHandler = Service.wrap commandBar CommandBar.handleCommandModeEvent
-        (eventHandler, commandModeEventHandler)
+        let subscribe (subscribeHandler : SubscribeToBus) =
+            let commandBar = ref hidden
+            subscribeHandler.subscribe <| Service.wrap commandBar handleEvent
+            subscribeHandler.subscribe <| Service.wrap commandBar handleCommandModeEvent

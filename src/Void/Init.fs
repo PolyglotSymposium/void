@@ -32,7 +32,6 @@ module Init =
     let buildVoid inputModeChanger =
         let bufferListEventHandler, bufferListCommandHandler = BufferList.Service.build()
         let editorService = EditorService()
-        let commandBarHandleEvent, commandBarHandleCommandModeEvent = CommandBarService.build()
         let windowBufferVMCommandHandler = WindowBufferMap.Service.build()
         let viewService = ViewModelService()
         let coreCommandChannel =
@@ -46,12 +45,10 @@ module Init =
             Channel [
                 bufferListEventHandler
                 NotifyUserOfEvent.handleEvent
-                commandBarHandleEvent
                 viewService.handleEvent
             ]
         let commandModeEventChannel =
             Channel [
-                commandBarHandleCommandModeEvent
             ]
         let vmEventChannel =
             Channel [
@@ -82,6 +79,7 @@ module Init =
         commandModeEventChannel.addHandler modeService.handleCommandModeEvent
 
         Notifications.Service.subscribe bus
+        CommandBar.Service.subscribe bus
 
         {
             CoreEventChannel = coreEventChannel
