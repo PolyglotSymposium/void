@@ -7,19 +7,22 @@ type HistoryOfCommands = {
 
 module CommandHistory =
 
+    let empty = {
+        Commands = []
+        Index = -1
+    }
+
     let private registerCompletedCommand command history =
         let updatedHistory = {
-            Commands = command :: history.Commands
-            Index = history.Index + 1
+            history with Commands = command :: history.Commands
         }
-
         (updatedHistory, CommandHistoryEvent.CommandAdded :> Message)
 
     let private next history =
-        history.Index + 1
+        history.Index - 1
 
     let private previous history =
-        history.Index - 1
+        history.Index + 1
 
     let private move indexModifier history =
         let newIndex = indexModifier history
@@ -45,3 +48,9 @@ module CommandHistory =
             move next history
         | _ ->
             (history, noMessage)
+
+    module Service =
+        let subscribe (subscribeHandler : SubscribeToBus) =
+            let history = ref empty
+            subscribeHandler.subscribe <| Service.wrap history handleEvent
+            subscribeHandler.subscribe <| Service.wrap history handleCommand

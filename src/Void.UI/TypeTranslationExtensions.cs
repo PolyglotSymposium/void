@@ -615,6 +615,14 @@ namespace Void.UI
             {
                 textOrHotKey = TextOrHotKey.NewHotKey(HotKey.Enter);
             }
+            else if (keyEvent.KeyCode == Keys.Up)
+            {
+                textOrHotKey = TextOrHotKey.NewHotKey(HotKey.ArrowUp);
+            }
+            else if (keyEvent.KeyCode == Keys.Down)
+            {
+                textOrHotKey = TextOrHotKey.NewHotKey(HotKey.ArrowDown);
+            }
             else if (keyEvent.KeyCode == Keys.Back)
             {
                 textOrHotKey = TextOrHotKey.NewHotKey(HotKey.Backspace);
