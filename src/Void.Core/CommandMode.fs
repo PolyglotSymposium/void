@@ -49,5 +49,7 @@ module CommandMode =
         match event with
         | CommandHistoryEvent.MovedToCommand command ->
             (command, Event.TextReplaced command :> Message)
+        | CommandHistoryEvent.MovedToEmptyCommand ->
+            ("", Event.TextReplaced "" :> Message)
         | _ ->
             (buffer, noMessage)

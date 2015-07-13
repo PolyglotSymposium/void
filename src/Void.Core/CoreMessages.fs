@@ -53,6 +53,7 @@ type CommandHistoryCommand =
 [<RequireQualifiedAccess>]
 type CommandHistoryEvent =
     | MovedToCommand of string
+    | MovedToEmptyCommand
     | CommandAdded
     interface Message
 

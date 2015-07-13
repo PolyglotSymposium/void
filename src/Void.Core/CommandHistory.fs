@@ -27,11 +27,14 @@ module CommandHistory =
     let private move indexModifier history =
         let newIndex = indexModifier history
         let indexIsWithinBounds = 0 <= newIndex && newIndex < history.Commands.Length
-        if indexIsWithinBounds
-        then
-            let newHistory = { history with Index = newIndex }
-            (newHistory, CommandHistoryEvent.MovedToCommand history.Commands.[newIndex] :> Message)
-        else (history, noMessage)
+        let newHistory = { history with Index = newIndex }
+        match indexIsWithinBounds, newIndex = -1 with
+           | true, false ->
+             (newHistory, CommandHistoryEvent.MovedToCommand history.Commands.[newIndex] :> Message)
+           | false, true ->
+             (newHistory, CommandHistoryEvent.MovedToEmptyCommand :> Message)
+           | _ ->
+             (history, noMessage)
 
     let handleEvent history event =
         match event with
