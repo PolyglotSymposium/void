@@ -7,8 +7,16 @@ open FsUnit
 
 [<TestFixture>]
 type ``Parsing normal mode commands``() = 
+    let bindingsForTest = // TODO split out into "Vim default bindings" and "Void default bindings"
+        [
+            [KeyPress.Semicolon], CoreCommand.ChangeToMode Mode.Command :> CommandMessage
+            [KeyPress.ShiftZ; KeyPress.ShiftQ], CoreCommand.QuitWithoutSaving :> CommandMessage
+            [KeyPress.ShiftZ; KeyPress.ShiftA], CoreCommand.QuitAll :> CommandMessage
+            [KeyPress.G; KeyPress.Q; KeyPress.Q], CoreCommand.FormatCurrentLine :> CommandMessage
+        ] |> Map.ofList
+
     member x.parse keyPress prevKeys =
-        parse defaultBindings keyPress prevKeys
+        parse bindingsForTest keyPress prevKeys
 
     [<Test>]
     member x.``Hitting escape clears any previous keys``() =
@@ -16,7 +24,7 @@ type ``Parsing normal mode commands``() =
 
     [<Test>]
     member x.``After receiving a single key press should translate it into a command``() =
-        x.parse KeyPress.Semicolon [] |> should equal (ParseResult.Command <| CoreCommand.ChangeToMode Mode.Command)
+        x.parse KeyPress.Semicolon [] |> should equal (ParseResult.Command (CoreCommand.ChangeToMode Mode.Command :> CommandMessage))
 
     [<Test>]
     member x.``After receiving a key press with no match should be waiting another key press``() =
