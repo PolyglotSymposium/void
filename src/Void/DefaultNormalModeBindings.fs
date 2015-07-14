@@ -2,11 +2,14 @@
 
 module DefaultNormalModeBindings = 
     open Void.Core
+    open Void.ViewModel
 
     let commonBindings =
         [
             [KeyPress.G; KeyPress.Q; KeyPress.Q], CoreCommand.FormatCurrentLine :> CommandMessage
             [KeyPress.ControlL], CoreCommand.Redraw :> CommandMessage
+            [KeyPress.ControlE], VMCommand.Scroll (1, Down) :> CommandMessage
+            [KeyPress.ControlY], VMCommand.Scroll (1, Up) :> CommandMessage
             [KeyPress.ShiftZ; KeyPress.ShiftQ], CoreCommand.QuitWithoutSaving :> CommandMessage
         ]
 
