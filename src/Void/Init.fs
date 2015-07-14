@@ -50,6 +50,7 @@ module Init =
                                       setInputMode inputModeChanger bus.publish)
         modeService.subscribe bus
         BufferList.Service.subscribe bus
+        DefaultNormalModeBindings.Service.subscribe bus
         CommandHistory.Service.subscribe bus
         Notifications.Service.subscribe bus
         Filesystem.Service.subscribe bus

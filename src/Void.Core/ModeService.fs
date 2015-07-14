@@ -20,17 +20,20 @@ type CommandModeInputHandler(interpret : RequestAPI.InterpretScriptFragment) =
         Service.wrap _buffer CommandMode.handleHistoryEvent
 
 type NormalModeInputHandler() =
-    let mutable _bindings = defaultBindings
+    let _bindings = ref defaultBindings
     let mutable _state = noKeysYet
 
     member x.handleKeyPress keyPress =
-        match parse _bindings keyPress _state with
+        match parse !_bindings keyPress _state with
         | ParseResult.AwaitingKeyPress prevKeys ->
             _state <- prevKeys
             noMessage
-        | ParseResult.Command command ->
+        | ParseResult.CommandMatched command ->
             _state <- noKeysYet
             command :> Message
+
+    member x.handleCommand =
+        Service.wrap _bindings NormalMode.handleCommand
 
 type VisualModeInputHandler() =
     member x.handleKeyPress whatever =
@@ -101,3 +104,4 @@ type ModeService
         subscribeHandler.subscribe x.handleEvent
         subscribeHandler.subscribe x.handleCommand
         subscribeHandler.subscribe commandModeInputHandler.handleHistoryEvent
+        subscribeHandler.subscribe normalModeInputHandler.handleCommand

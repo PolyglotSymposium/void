@@ -4,9 +4,21 @@ open System.Collections.Generic
 type NormalBindings = Map<KeyPress list, CommandMessage>
 
 module NormalMode =
+
+    [<RequireQualifiedAccess>]
+    type Command =
+        | Bind of KeyPress list * CommandMessage
+        interface CommandMessage
+
+    [<RequireQualifiedAccess>]
+    type Event =
+        | KeysBoundToCommand
+        interface EventMessage
+
+    [<RequireQualifiedAccess>]
     type ParseResult =
         | AwaitingKeyPress of KeyPress list
-        | Command of CommandMessage
+        | CommandMatched of CommandMessage
 
     let defaultBindings = // TODO split out into "Vim default bindings" and "Void default bindings"
         [
@@ -33,6 +45,11 @@ module NormalMode =
             let keyPresses = keyPress :: prevKeys
             let inBindOrder = List.rev keyPresses
             if bindings.ContainsKey inBindOrder then
-                bindings.Item inBindOrder |> ParseResult.Command
+                bindings.Item inBindOrder |> ParseResult.CommandMatched
             else
                 ParseResult.AwaitingKeyPress keyPresses
+
+    let handleCommand bindings command =
+        match command with
+        | Command.Bind (keyPresses, bindToCommand) ->
+            bind bindings keyPresses bindToCommand, Event.KeysBoundToCommand :> Message
