@@ -55,7 +55,6 @@
     <Content Include="app.config" />
     <Compile Include="CommandLineSpec.fs" />
     <Compile Include="NormalModeSpec.fs" />
-    <Compile Include="ModeServiceSpec.fs" />
     <Compile Include="CommandModeSpec.fs" />
   </ItemGroup>
   <ItemGroup>
