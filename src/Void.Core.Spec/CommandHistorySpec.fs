@@ -7,8 +7,6 @@ open FsUnit
 [<TestFixture>]
 type ``Command history``() = 
     let empty_history = CommandHistory.empty
-    let register_command name =
-        CommandHistory.handleEvent empty_history <| CommandMode.Event.CommandCompleted name
 
     let move_previous history =
         CommandHistory.handleCommand history CommandHistoryCommand.MoveToPreviousCommand
