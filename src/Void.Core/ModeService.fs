@@ -1,7 +1,5 @@
 ﻿namespace Void.Core
 
-open NormalMode
-
 [<RequireQualifiedAccess>]
 type InputMode<'Output> =
     | KeyPresses of (KeyPress -> 'Output)
@@ -20,16 +18,16 @@ type CommandModeInputHandler(interpret : RequestAPI.InterpretScriptFragment) =
         Service.wrap _buffer CommandMode.handleHistoryEvent
 
 type NormalModeInputHandler() =
-    let _bindings = ref defaultBindings
-    let mutable _state = noKeysYet
+    let _bindings = ref NormalMode.emptyBindings
+    let mutable _state = NormalMode.noKeysYet
 
     member x.handleKeyPress keyPress =
-        match parse !_bindings keyPress _state with
-        | ParseResult.AwaitingKeyPress prevKeys ->
+        match NormalMode.parse !_bindings keyPress _state with
+        | NormalMode.ParseResult.AwaitingKeyPress prevKeys ->
             _state <- prevKeys
             noMessage
-        | ParseResult.CommandMatched command ->
-            _state <- noKeysYet
+        | NormalMode.ParseResult.CommandMatched command ->
+            _state <- NormalMode.noKeysYet
             command :> Message
 
     member x.handleCommand =
