@@ -40,6 +40,10 @@ module CommandBar =
             length >= commandBar.Width ||
             (commandBar.WrappedLines.Length = 1 && length + 1 = commandBar.Width)
 
+    let private replaceText replacement commandBar =
+        let bar = { commandBar with WrappedLines = [replacement] }
+        (bar, Event.TextChanged bar :> Message)
+
     let private appendText textToAppend commandBar =
         if currentLineWillOverflow textToAppend commandBar
         then
@@ -82,7 +86,8 @@ module CommandBar =
         | CommandMode.Event.EntryCancelled -> hide
         | CommandMode.Event.CharacterBackspaced -> characterBackspaced commandBar
         | CommandMode.Event.TextAppended text -> appendText text commandBar
-        | CommandMode.Event.CommandCompleted -> (commandBar, noMessage)
+        | CommandMode.Event.CommandCompleted _ -> (commandBar, noMessage)
+        | CommandMode.Event.TextReplaced text -> replaceText text commandBar
 
     module Service =
         open Void.Core

@@ -58,6 +58,7 @@
     <Compile Include="EditorService.fs" />
     <Compile Include="Filesystem.fs" />
     <Compile Include="BufferList.fs" />
+    <Compile Include="CommandHistory.fs" />
   </ItemGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>

@@ -7,7 +7,7 @@ open FsUnit
 [<TestFixture>]
 type ``Editing command mode``() = 
     let interpret_success request = InterpretScriptFragmentResponse.Completed
-    let error = Error.ScriptFragmentParseFailed "Augh!"
+    let error = Error.ScriptFragmentParseFailed ("Augh!", "Psst!")
     let interpret_parseFailure request = InterpretScriptFragmentResponse.ParseFailed error
     let interpret_parseIncomplete request = InterpretScriptFragmentResponse.ParseIncomplete
     let enter = TextOrHotKey.HotKey HotKey.Enter
@@ -53,7 +53,7 @@ type ``Editing command mode``() =
     [<Test>]
     member x.``When the command text is parsed successfully, the command text is reset``() =
         CommandMode.handle interpret_success "edit" enter
-        |> should equal ("", CommandMode.Event.CommandCompleted :> Message)
+        |> should equal ("", CommandMode.Event.CommandCompleted  "edit" :> Message)
 
     [<Test>]
     member x.``When the command text is not parsed successfully, the command text is reset``() =

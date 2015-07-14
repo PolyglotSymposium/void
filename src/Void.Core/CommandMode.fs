@@ -8,13 +8,14 @@ module CommandMode =
         | EntryCancelled
         | CharacterBackspaced
         | TextAppended of string
-        | CommandCompleted
+        | TextReplaced of string
+        | CommandCompleted of string
         interface EventMessage
 
     let private handleEnter interpret buffer =
         match interpret { Language = "VoidScript"; Fragment = buffer} with
         | InterpretScriptFragmentResponse.Completed ->
-            ("", Event.CommandCompleted :> Message)
+            ("", Event.CommandCompleted buffer :> Message)
         | InterpretScriptFragmentResponse.ParseFailed error ->
             ("", CoreEvent.ErrorOccurred error :> Message)
         | InterpretScriptFragmentResponse.ParseIncomplete ->
@@ -31,6 +32,10 @@ module CommandMode =
             if buffer = ""
             then cancelled
             else (StringUtil.backspace buffer, Event.CharacterBackspaced :> Message)
+        | HotKey.ArrowUp ->
+            (buffer, CommandHistoryCommand.MoveToPreviousCommand :> Message)
+        | HotKey.ArrowDown ->
+            (buffer, CommandHistoryCommand.MoveToNextCommand :> Message)
         | _ -> (buffer, noMessage)
 
     let handle (interpret : RequestAPI.InterpretScriptFragment) buffer input =
@@ -39,3 +44,12 @@ module CommandMode =
             (buffer + text, Event.TextAppended text :> Message)
         | TextOrHotKey.HotKey hotKey ->
             handleHotKey interpret buffer hotKey
+
+    let handleHistoryEvent buffer event =
+        match event with
+        | CommandHistoryEvent.MovedToCommand command ->
+            (command, Event.TextReplaced command :> Message)
+        | CommandHistoryEvent.MovedToEmptyCommand ->
+            ("", Event.TextReplaced "" :> Message)
+        | _ ->
+            (buffer, noMessage)

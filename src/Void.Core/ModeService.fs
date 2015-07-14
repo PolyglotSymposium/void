@@ -9,12 +9,15 @@ type InputMode<'Output> =
 
 type CommandModeInputHandler(interpret : RequestAPI.InterpretScriptFragment) =
     let handle = CommandMode.handle interpret
-    let mutable _buffer = ""
+    let _buffer = ref ""
 
     member x.handleTextOrHotKey input =
-        let updatedBuffer, message = handle _buffer input
-        _buffer <- updatedBuffer
+        let updatedBuffer, message = handle !_buffer input
+        _buffer := updatedBuffer
         message
+
+    member x.handleHistoryEvent =
+        Service.wrap _buffer CommandMode.handleHistoryEvent
 
 type NormalModeInputHandler() =
     let mutable _bindings = defaultBindings
@@ -73,7 +76,7 @@ type ModeService
 
     member x.handleCommandModeEvent =
         function
-        | CommandMode.Event.CommandCompleted -> 
+        | CommandMode.Event.CommandCompleted _ -> 
             if _mode = Mode.Command
             then CoreCommand.ChangeToMode Mode.Normal :> Message // TODO or whatever mode we were in previously?
             else noMessage
@@ -92,3 +95,9 @@ type ModeService
             setInputMode <| inputHandlerFor change.To
             CoreEvent.ModeChanged change :> Message
         | _ -> noMessage
+
+    member x.subscribe (subscribeHandler : SubscribeToBus) =
+        subscribeHandler.subscribe x.handleCommandModeEvent
+        subscribeHandler.subscribe x.handleEvent
+        subscribeHandler.subscribe x.handleCommand
+        subscribeHandler.subscribe commandModeInputHandler.handleHistoryEvent
