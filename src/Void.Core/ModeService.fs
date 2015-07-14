@@ -100,4 +100,4 @@ type ModeService
         subscribeHandler.subscribe x.handleCommandModeEvent
         subscribeHandler.subscribe x.handleEvent
         subscribeHandler.subscribe x.handleCommand
-        subscribeHandler.subscribe commandModeInputHandler.handleHistoryEvent        
+        subscribeHandler.subscribe commandModeInputHandler.handleHistoryEvent

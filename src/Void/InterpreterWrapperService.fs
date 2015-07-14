@@ -12,6 +12,5 @@ type InterpreterWrapperService(interpreter : VoidScriptInterpreter) =
         | InterpretScriptFragmentResult.ParseIncomplete ->
             InterpretScriptFragmentResponse.ParseIncomplete
         | InterpretScriptFragmentResult.ParseFailed error ->
-            ParseErrors.textOf error
-            |> Error.ScriptFragmentParseFailed
+            Error.ScriptFragmentParseFailed (ParseErrors.textOf error, request.Fragment)
             |> InterpretScriptFragmentResponse.ParseFailed

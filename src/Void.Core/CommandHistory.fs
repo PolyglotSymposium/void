@@ -43,6 +43,13 @@ module CommandHistory =
         | _ ->
             (history, noMessage)
 
+    let handleCoreEvent history event =
+        match event with
+        | CoreEvent.ErrorOccurred (Error.ScriptFragmentParseFailed (_, command)) ->
+            registerCompletedCommand command history
+        | _ ->
+          (history, noMessage)
+
     let handleCommand history command =
         match command with
         | CommandHistoryCommand.MoveToPreviousCommand ->
@@ -57,3 +64,4 @@ module CommandHistory =
             let history = ref empty
             subscribeHandler.subscribe <| Service.wrap history handleEvent
             subscribeHandler.subscribe <| Service.wrap history handleCommand
+            subscribeHandler.subscribe <| Service.wrap history handleCoreEvent
