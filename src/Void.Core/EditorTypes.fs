@@ -98,12 +98,6 @@ type FileBuffer = private {
     CursorPosition : CellGrid.Cell
 }
 
-[<RequireQualifiedAccess>]
-type BufferType =
-    | File of FileBuffer
-    | Scratch
-    | Shell
-
 type DataOperations = 
     | Append
     | Insert

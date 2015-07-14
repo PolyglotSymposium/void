@@ -2,7 +2,7 @@
 
 [<RequireQualifiedAccess>]
 type CoreEvent =
-    | BufferAdded of int * BufferType
+    | BufferAdded of int * FileBuffer
     | EditorInitialized
     | ErrorOccurred of Error
     | FileOpenedForEditing of string * string seq
