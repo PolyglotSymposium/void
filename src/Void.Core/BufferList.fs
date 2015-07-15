@@ -7,29 +7,23 @@ module Buffer =
         { Filepath = None; Contents = []; CursorPosition = originCell }
 
     let newFile path =
-        BufferType.File { Filepath = Some path; Contents = []; CursorPosition = originCell }
+        { Filepath = Some path; Contents = []; CursorPosition = originCell }
 
     let existingFile path contents =
-        BufferType.File { Filepath = Some path; Contents = contents; CursorPosition = originCell }
+        { Filepath = Some path; Contents = contents; CursorPosition = originCell }
 
-    let empty =
-        BufferType.File emptyFile
-
-    let readLines buffer start =
-        match buffer with
-        | BufferType.File fileBuffer ->
-            fileBuffer.Contents |> Seq.skip (start - 1) // Line numbers start at 1
-        | _ -> Seq.empty
+    let readLines fileBuffer start =
+        fileBuffer.Contents |> Seq.skip (start - 1) // Line numbers start at 1
 
 type Buffers = private {
-    List : Map<int, BufferType>
+    List : Map<int, FileBuffer>
     LastId : int
 }
 
 module BufferList =
     let empty = 
         {
-            List = Map.empty<int, BufferType>
+            List = Map.empty<int, FileBuffer>
             LastId = 0
         }
 
@@ -45,7 +39,7 @@ module BufferList =
         (listPlusOne, CoreEvent.BufferAdded (id, buffer) :> Message )
 
     let private addEmptyBuffer bufferList =
-        addBuffer bufferList Buffer.empty
+        addBuffer bufferList Buffer.emptyFile
 
     let private writeBufferToPath bufferList bufferId path =
         let lines = Buffer.readLines bufferList.List.[bufferId] 0
@@ -53,13 +47,11 @@ module BufferList =
         (bufferList, msg)
 
     let private writeBuffer bufferList bufferId = 
-        match bufferList.List.[bufferId] with
-        | BufferType.File fileBuffer ->
-            match fileBuffer.Filepath with
-            | Some path ->
-                writeBufferToPath bufferList bufferId path
-            | None -> bufferList, noMessage
-        | _ -> bufferList, noMessage
+        let fileBuffer = bufferList.List.[bufferId]
+        match fileBuffer.Filepath with
+        | Some path ->
+            writeBufferToPath bufferList bufferId path
+        | None -> bufferList, noMessage
 
     let handleEvent bufferList event =
         match event with
