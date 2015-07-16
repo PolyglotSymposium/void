@@ -6,9 +6,9 @@ module DefaultNormalModeBindings =
 
     let commonBindings =
         [
-            [KeyPress.H], VMCommand.Move (Move.Back 1<mCharacter>) :> CommandMessage
+            [KeyPress.H], VMCommand.Move (Move.Backward 1<mCharacter>) :> CommandMessage
             [KeyPress.J], VMCommand.Move (Move.Forward 1<mLine>) :> CommandMessage
-            [KeyPress.K], VMCommand.Move (Move.Back 1<mLine>) :> CommandMessage
+            [KeyPress.K], VMCommand.Move (Move.Backward 1<mLine>) :> CommandMessage
             [KeyPress.L], VMCommand.Move (Move.Forward 1<mCharacter>) :> CommandMessage
 
             [KeyPress.Zero], VMCommand.Move MoveTo<mCharacter,mLine>.First :> CommandMessage
@@ -22,7 +22,7 @@ module DefaultNormalModeBindings =
             [KeyPress.ControlL], CoreCommand.Redraw :> CommandMessage
 
             [KeyPress.ControlE], VMCommand.Scroll (Move.Forward 1<mLine>) :> CommandMessage
-            [KeyPress.ControlY], VMCommand.Scroll (Move.Back 1<mLine>) :> CommandMessage
+            [KeyPress.ControlY], VMCommand.Scroll (Move.Backward 1<mLine>) :> CommandMessage
 
             [KeyPress.ShiftZ; KeyPress.ShiftQ], CoreCommand.QuitWithoutSaving :> CommandMessage
         ]

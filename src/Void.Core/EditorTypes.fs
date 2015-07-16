@@ -107,7 +107,7 @@ type Motion = interface end
 
 [<RequireQualifiedAccess>]
 type Move<[<Measure>]'UnitOfMotion> = // Relative motion
-    | Back of int<'UnitOfMotion>
+    | Backward of int<'UnitOfMotion>
     | Forward of int<'UnitOfMotion>
     interface Motion
 
