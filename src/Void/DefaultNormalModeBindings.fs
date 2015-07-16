@@ -6,10 +6,24 @@ module DefaultNormalModeBindings =
 
     let commonBindings =
         [
-            [KeyPress.G; KeyPress.Q; KeyPress.Q], CoreCommand.FormatCurrentLine :> CommandMessage
+            [KeyPress.H], VMCommand.Move (Move.Back 1<mCharacter>) :> CommandMessage
+            [KeyPress.J], VMCommand.Move (Move.Forward 1<mLine>) :> CommandMessage
+            [KeyPress.K], VMCommand.Move (Move.Back 1<mLine>) :> CommandMessage
+            [KeyPress.L], VMCommand.Move (Move.Forward 1<mCharacter>) :> CommandMessage
+
+            [KeyPress.Zero], VMCommand.Move MoveTo<mCharacter,mLine>.First :> CommandMessage
+            [KeyPress.DollarSign], VMCommand.Move MoveTo<mCharacter,mLine>.Last :> CommandMessage
+
+            [KeyPress.G; KeyPress.G], VMCommand.Move MoveTo<mLine,mBuffer>.First :> CommandMessage
+            [KeyPress.ShiftG], VMCommand.Move MoveTo<mLine,mBuffer>.Last :> CommandMessage
+
+            [KeyPress.G; KeyPress.Q; KeyPress.Q], CoreCommand.FormatCurrentLine :> CommandMessage // TODO this is an abomination of course
+
             [KeyPress.ControlL], CoreCommand.Redraw :> CommandMessage
-            [KeyPress.ControlE], VMCommand.Scroll (1, Down) :> CommandMessage
-            [KeyPress.ControlY], VMCommand.Scroll (1, Up) :> CommandMessage
+
+            [KeyPress.ControlE], VMCommand.Scroll (Move.Forward 1<mLine>) :> CommandMessage
+            [KeyPress.ControlY], VMCommand.Scroll (Move.Back 1<mLine>) :> CommandMessage
+
             [KeyPress.ShiftZ; KeyPress.ShiftQ], CoreCommand.QuitWithoutSaving :> CommandMessage
         ]
 

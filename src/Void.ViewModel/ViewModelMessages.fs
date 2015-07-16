@@ -21,13 +21,10 @@ type VMEvent =
     | BufferLoadedIntoWindow
     interface EventMessage
 
-type Direction =
-    | Up
-    | Down
-
 [<RequireQualifiedAccess>]
 type VMCommand =
     | Edit of FileOrBufferId
     | Write of FileOrBufferId
-    | Scroll of int * Direction
+    | Move of Motion
+    | Scroll of Move<mLine>
     interface CommandMessage

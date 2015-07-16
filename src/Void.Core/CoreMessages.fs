@@ -56,6 +56,18 @@ type CommandHistoryEvent =
     | CommandAdded
     interface Message
 
+[<RequireQualifiedAccess>]
+type BufferCommand =
+    | MoveCursor of Motion
+    interface CommandMessage
+
+type BufferCommandMessage =
+    {
+        BufferId : int
+        Command : BufferCommand
+    }
+    interface CommandMessage
+
 [<AutoOpen>]
 module ``This module is auto-opened to provide message aliases`` =
     let notImplemented =
