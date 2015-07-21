@@ -59,14 +59,15 @@ module Init =
                 commandBarEventChannel
             ]
         let interpreter = Interpreter.init <| VoidScriptEditorModule(bus.publish).Commands
-        let interpreterWrapper = InterpreterWrapperService interpreter
+        let interpreterWrapperService = InterpreterWrapperService interpreter
         let modeService = ModeService(NormalModeInputHandler(),
-                                      CommandModeInputHandler interpreterWrapper.interpretFragment,
+                                      CommandMode.InputHandler(),
                                       VisualModeInputHandler(),
                                       InsertModeInputHandler(),
                                       setInputMode inputModeChanger bus.publish)
         modeService.subscribe bus
         if options.EnableVerboseMessageLogging then MessageLog.Service.subscribe bus
+        interpreterWrapperService.subscribe bus
         BufferList.Service.subscribe bus
         CommandHistory.Service.subscribe bus
         Notifications.Service.subscribe bus
