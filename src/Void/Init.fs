@@ -5,6 +5,19 @@ open Void.Lang.Interpreter
 open Void.Lang.Editor
 open Void.ViewModel
 
+type VoidOptions = {
+    enableVerboseMessageLogging : bool
+}
+
+module Options =
+    let verboseMessagesFlag = "--verbose-message-logging"
+
+    let parse (args : string[]) =
+        let verboseMessages = Array.tryFind (fun x -> x.Equals(verboseMessagesFlag)) args
+        {
+            enableVerboseMessageLogging = Option.isSome verboseMessages
+        }
+
 type InputModeChanger =
     abstract member SetInputHandler : InputMode<unit> -> unit
 
@@ -19,7 +32,7 @@ module Init =
             |> InputMode.TextAndHotKeys
         |> changer.SetInputHandler
 
-    let buildVoid inputModeChanger =
+    let buildVoid inputModeChanger (options : VoidOptions) =
         let editorService = EditorService()
         let viewService = ViewModelService()
         let coreCommandChannel =
@@ -49,6 +62,9 @@ module Init =
                                       InsertModeInputHandler(),
                                       setInputMode inputModeChanger bus.publish)
         modeService.subscribe bus
+        if options.enableVerboseMessageLogging 
+        then MessageLog.Service.subscribe bus
+        else ()
         BufferList.Service.subscribe bus
         CommandHistory.Service.subscribe bus
         Notifications.Service.subscribe bus

@@ -10,12 +10,12 @@ namespace Void.UI
     static class Program
     {
         [STAThread]
-        static void Main()
+        static void Main(string[] args)
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             var inputModeChanger = new WinFormsInputModeChanger();
-            Bus bus = Init.buildVoid(inputModeChanger);
+            Bus bus = Init.buildVoid(inputModeChanger, Options.parse(args));
             var view = new MainForm(bus, inputModeChanger);
             bus.subscribe(FSharpFuncUtil.Create<CoreEvent, Message>(view.HandleEvent));
             bus.subscribe(FSharpFuncUtil.Create<VMEvent, Message>(view.HandleViewModelEvent));
