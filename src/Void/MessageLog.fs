@@ -1,4 +1,6 @@
-﻿namespace Void.Core
+﻿namespace Void
+
+open Void.Core
 
 module MessageLog =
     let handleMessage message =

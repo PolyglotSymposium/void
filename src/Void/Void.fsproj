@@ -44,6 +44,7 @@
   <ItemGroup>
     <Compile Include="InterpreterWrapperService.fs" />
     <Compile Include="Messaging.fs" />
+    <Compile Include="MessageLog.fs" />
     <Compile Include="Init.fs" />
   </ItemGroup>
   <ItemGroup>

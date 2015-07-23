@@ -59,7 +59,6 @@
     <Compile Include="Filesystem.fs" />
     <Compile Include="BufferList.fs" />
     <Compile Include="CommandHistory.fs" />
-    <Compile Include="MessageLog.fs" />
   </ItemGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>

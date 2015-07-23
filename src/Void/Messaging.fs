@@ -21,12 +21,11 @@ type Channel<'TIn when 'TIn :> Message>
 
     interface Channel with
         member x.publish (message : Message) =
-            if message <> noMessage
-            then match message with
+            match message with
                 | :? 'TIn as msg ->
                     Seq.map (fun handle -> handle msg) _handlers
+                    |> Seq.filter (fun msg -> msg <> noMessage)
                 | _ -> Seq.empty
-            else Seq.empty
 
         member x.getBoxedSubscribeActionIfTypeIs<'TMsg>() =
             if typeof<'TIn> = typeof<'TMsg>
