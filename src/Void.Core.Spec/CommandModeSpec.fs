@@ -27,9 +27,21 @@ type ``Editing command mode``() =
         typeIncrement "t" "edi" "edit"
 
     [<Test>]
-    member x.``When enter is pressed, the command text is interpreted``() =
+    member x.``When enter is pressed, the current language for command mode is requested``() =
         CommandMode.handle "edit" enter
-        |> should equal ("edit", { Language = "VoidScript"; Fragment = "edit" } :> Message)
+        |> should equal ("edit", GetCurrentCommandLanguageRequest :> Message)
+
+    [<Test>]
+    member x.``When the current language is received, the command is interpreted for that language``() =
+        let command = ref "edit"
+        CommandMode.handleGetCurrentCommandLanguageResponse command { CurrentCommandLanguage = "python3" }
+        |> should equal ({ Language = "python3"; Fragment = "edit" } :> Message)
+
+    [<Test>]
+    member x.``When there is no response to the request for the current language, the command is interpreted as VoidScript``() =
+        let command = ref "edit"
+        CommandMode.handleNoResponseToGetCurrentCommandLanguage command { Request = GetCurrentCommandLanguageRequest }
+        |> should equal ({ Language = "VoidScript"; Fragment = "edit" } :> Message)
 
     [<Test>]
     member x.``When escape is pressed, command entry is cancelled``() =

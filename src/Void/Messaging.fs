@@ -34,7 +34,7 @@ type Channel<'TIn when 'TIn :> Message>
 
 type RequestChannel<'TRequest when 'TRequest :> RequestMessage>
     (
-        handlers : HandleRequest<'TRequest> list
+        handlers : MaybeHandleRequest<'TRequest> list
     ) =
     let mutable _handlers = handlers
 
@@ -49,7 +49,7 @@ type RequestChannel<'TRequest when 'TRequest :> RequestMessage>
                     _handlers
                     |> Seq.choose (fun handle -> handle msg)
                     |> Seq.map (fun response -> response :> Message)
-                if responses = Seq.empty
+                if Seq.isEmpty responses
                 then Seq.singleton<Message> { Request = msg }
                 else responses
             | _ -> Seq.empty
@@ -86,15 +86,18 @@ type Bus
         | _ ->
             x.addChannel <| Channel [ handle ]
 
-    member x.subscribeToRequest<'TRequest when 'TRequest :> RequestMessage> (handleRequest : HandleRequest<'TRequest>) =
+    member x.subscribeToRequest<'TRequest when 'TRequest :> RequestMessage> (handleRequest : MaybeHandleRequest<'TRequest>) =
         let tryGetSubscribeAction (channel : Channel) =
             channel.getBoxedSubscribeActionIfTypeIs<'TRequest>()
         match List.choose tryGetSubscribeAction _channels with
         | [subscribe] ->
             handleRequest
-            |> unbox<HandleRequest<'TRequest> -> unit> subscribe
+            |> unbox<MaybeHandleRequest<'TRequest> -> unit> subscribe
         | _ ->
             x.addChannel <| RequestChannel [ handleRequest ]
+
+    member x.subscribeToRequest<'TRequest when 'TRequest :> RequestMessage> (handleRequest : HandleRequest<'TRequest>) =
+        x.subscribeToRequest (handleRequest >> Some)
 
     member x.subscribeToResponse<'TRequest, 'TResponse when 'TRequest :> RequestMessage and 'TResponse :> ResponseMessage<'TRequest>> (handleResponse : HandleResponse<'TRequest, 'TResponse>) =
         let tryGetSubscribeAction (channel : Channel) =
@@ -109,5 +112,6 @@ type Bus
 
     interface SubscribeToBus with
         member x.subscribe handle = x.subscribe handle
-        member x.subscribeToRequest handleRequest = x.subscribeToRequest handleRequest
+        member x.subscribeToRequest<'TRequest when 'TRequest :> RequestMessage> (maybeHandleRequest : MaybeHandleRequest<'TRequest>) = x.subscribeToRequest maybeHandleRequest
+        member x.subscribeToRequest<'TRequest when 'TRequest :> RequestMessage> (handleRequest : HandleRequest<'TRequest>) = x.subscribeToRequest handleRequest
         member x.subscribeToResponse handleResponse = x.subscribeToResponse handleResponse

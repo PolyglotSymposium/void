@@ -70,6 +70,7 @@ module Init =
         interpreterWrapperService.subscribe bus
         BufferList.Service.subscribe bus
         CommandHistory.Service.subscribe bus
+        CommandLanguage.Service.subscribe bus
         Notifications.Service.subscribe bus
         Filesystem.Service.subscribe bus
         CommandBar.Service.subscribe bus

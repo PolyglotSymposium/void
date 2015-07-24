@@ -1,32 +1,5 @@
 ﻿namespace Void.Core
 
-type InterpretFullScriptRequest =
-    {
-        Language : string
-        Script : string
-    }
-    interface RequestMessage
-
-[<RequireQualifiedAccess>]
-type InterpretFullScriptResponse =
-    | ParseFailed of Error
-    | Completed
-    interface ResponseMessage<InterpretFullScriptRequest>
-
-type InterpretScriptFragmentRequest =
-    {
-        Language : string
-        Fragment : string
-    }
-    interface RequestMessage
-
-[<RequireQualifiedAccess>]
-type InterpretScriptFragmentResponse =
-    | ParseFailed of Error
-    | ParseIncomplete
-    | Completed
-    interface ResponseMessage<InterpretScriptFragmentRequest>
-
 module CommandMode =
     open Void.Util
 
@@ -39,30 +12,42 @@ module CommandMode =
         | CommandCompleted of string
         interface EventMessage
 
-    let private interpret buffer =
-        buffer, { Language = "VoidScript"; Fragment = buffer} :> Message
+    let private requestLanguageForInterpreting buffer =
+        buffer, GetCurrentCommandLanguageRequest :> Message
+
+    let handleGetCurrentCommandLanguageResponse buffer response =
+        {
+            Language = response.CurrentCommandLanguage
+            Fragment = !buffer
+        } :> Message
+
+    let handleNoResponseToGetCurrentCommandLanguage buffer (msg : NoResponseToRequest<GetCurrentCommandLanguageRequest>) =
+        {
+            Language = "VoidScript"
+            Fragment = !buffer
+        } :> Message
 
     let private handleHotKey buffer hotKey =
         let cancelled = ("", Event.EntryCancelled :> Message)
         match hotKey with
         | HotKey.Enter ->
-            interpret buffer
+            requestLanguageForInterpreting buffer
         | HotKey.Escape ->
             cancelled
         | HotKey.Backspace ->
             if buffer = ""
             then cancelled
-            else (StringUtil.backspace buffer, Event.CharacterBackspaced :> Message)
+            else StringUtil.backspace buffer, Event.CharacterBackspaced :> Message
         | HotKey.ArrowUp ->
-            (buffer, CommandHistoryCommand.MoveToPreviousCommand :> Message)
+            buffer, CommandHistoryCommand.MoveToPreviousCommand :> Message
         | HotKey.ArrowDown ->
-            (buffer, CommandHistoryCommand.MoveToNextCommand :> Message)
+            buffer, CommandHistoryCommand.MoveToNextCommand :> Message
         | _ -> (buffer, noMessage)
 
     let handle buffer input =
         match input with
         | TextOrHotKey.Text text ->
-            (buffer + text, Event.TextAppended text :> Message)
+            buffer + text, Event.TextAppended text :> Message
         | TextOrHotKey.HotKey hotKey ->
             handleHotKey buffer hotKey
 
@@ -84,6 +69,9 @@ module CommandMode =
         | InterpretScriptFragmentResponse.ParseIncomplete ->
             (buffer + System.Environment.NewLine, noMessage)
 
+    let handleNoResponseToInterpretFragmentRequest _ (msg : NoResponseToRequest<InterpretScriptFragmentRequest>) =
+        "", CoreEvent.ErrorOccurred <| Error.UnableToInterpretLanguage msg.Request.Language :> Message
+
     type InputHandler() =
         let _buffer = ref ""
 
@@ -95,3 +83,6 @@ module CommandMode =
         member x.subscribe (subscribeHandler : SubscribeToBus) =
             subscribeHandler.subscribe <| Service.wrap _buffer handleHistoryEvent
             subscribeHandler.subscribeToResponse <| Service.wrap _buffer handleInterpretFragmentResponse
+            subscribeHandler.subscribeToResponse <| handleGetCurrentCommandLanguageResponse _buffer
+            subscribeHandler.subscribe <| Service.wrap _buffer handleNoResponseToInterpretFragmentRequest
+            subscribeHandler.subscribe <| handleNoResponseToGetCurrentCommandLanguage _buffer
