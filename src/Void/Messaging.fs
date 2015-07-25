@@ -9,15 +9,21 @@ type Channel =
      * Now I will do ugly things, with long names! *)
     abstract member getBoxedSubscribeActionIfTypeIs<'TMsg> : unit -> obj option
     
-
 type Channel<'TIn when 'TIn :> Message>
     (
         handlers : Handle<'TIn> list
     ) =
     let mutable _handlers = handlers
 
+    member private x.safetyWrap handle message =
+        try
+            handle message
+        with ex ->
+            printf "Error while handling %A: %A" message ex
+            noMessage
+
     member x.addHandler handler =
-        _handlers <- handler :: _handlers
+        _handlers <- x.safetyWrap handler :: _handlers
 
     interface Channel with
         member x.publish (message : Message) =
@@ -38,8 +44,15 @@ type RequestChannel<'TRequest when 'TRequest :> RequestMessage>
     ) =
     let mutable _handlers = handlers
 
+    member private x.safetyWrap handle message =
+        try
+            handle message
+        with ex ->
+            printf "Error while handling %A: %A" message ex
+            None
+
     member x.addHandler handler =
-        _handlers <- handler :: _handlers
+        _handlers <- x.safetyWrap handler :: _handlers
 
     interface Channel with
         member x.publish (message : Message) =
@@ -73,8 +86,10 @@ type Bus
             x.publish message
 
     member x.publish (message : Message) =
-        for channel in _channels do
-            channel.publish message |> x.publishAll
+        if message <> noMessage
+        then
+            for channel in _channels do
+                channel.publish message |> x.publishAll
 
     member x.subscribe<'TMsg when 'TMsg :> Message> (handle : Handle<'TMsg>) =
         let tryGetSubscribeAction (channel : Channel) =

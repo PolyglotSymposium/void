@@ -17,10 +17,8 @@ module CommandLanguage =
             CurrentCommandLanguage = !language
         } :> ResponseMessage<GetCurrentCommandLanguageRequest>
 
-    let handleCommand language command =
-        match command with
-        | ChangeCurrentCommandLanguageTo newLanguage ->
-            newLanguage, CurrentCommandLanguageChangedTo newLanguage :> Message
+    let handleCommand _ (ChangeCurrentCommandLanguageTo newLanguage) =
+        newLanguage, CurrentCommandLanguageChangedTo newLanguage :> Message
 
     let handleNoResponseToInterpretFragmentRequest _ (msg : NoResponseToRequest<InterpretScriptFragmentRequest>) =
         voidScript, CurrentCommandLanguageChangedTo voidScript :> Message
@@ -29,5 +27,5 @@ module CommandLanguage =
         let subscribe (subscribeHandler : SubscribeToBus) =
             let language = ref voidScript
             subscribeHandler.subscribeToRequest (handleRequest language)
-            subscribeHandler.subscribe <| Service.wrap language  handleCommand
+            subscribeHandler.subscribe <| Service.wrap language handleCommand
             subscribeHandler.subscribe <| Service.wrap language handleNoResponseToInterpretFragmentRequest
