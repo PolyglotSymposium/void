@@ -44,7 +44,7 @@
   <ItemGroup>
     <Compile Include="FSharpUtil.fs" />
     <Compile Include="BaseMessageInterfaces.fs" />
-    <Compile Include="CommandLine.fs" />
+    <Compile Include="Service.fs" />
     <Compile Include="Keys.fs" />
     <Compile Include="UserNotificationTypes.fs" />
     <Compile Include="EditorTypes.fs" />
@@ -52,7 +52,6 @@
     <Compile Include="Requests.fs" />
     <Compile Include="NormalMode.fs" />
     <Compile Include="CommandMode.fs" />
-    <Compile Include="Service.fs" />
     <Compile Include="Notifications.fs" />
     <Compile Include="ModeService.fs" />
     <Compile Include="EditorService.fs" />

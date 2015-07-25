@@ -43,3 +43,19 @@ module NormalMode =
         match command with
         | Command.Bind (keyPresses, bindToCommand) ->
             bind bindings keyPresses bindToCommand, Event.KeysBoundToCommand :> Message
+
+    type InputHandler() =
+        let _bindings = ref emptyBindings
+        let mutable _state = noKeysYet
+
+        member x.handleKeyPress keyPress =
+            match parse !_bindings keyPress _state with
+            | ParseResult.AwaitingKeyPress prevKeys ->
+                _state <- prevKeys
+                noMessage
+            | ParseResult.CommandMatched command ->
+                _state <- noKeysYet
+                command :> Message
+
+        member x.handleCommand =
+            Service.wrap _bindings handleCommand
