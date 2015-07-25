@@ -3,7 +3,6 @@
 [<RequireQualifiedAccess>]
 type CoreEvent =
     | BufferAdded of int * FileBuffer
-    | EditorInitialized
     | ErrorOccurred of Error
     | FileOpenedForEditing of string * string seq
     | FileSaved of string
@@ -56,6 +55,18 @@ type CommandHistoryEvent =
     | MovedToEmptyCommand
     | CommandAdded
     interface Message
+
+[<RequireQualifiedAccess>]
+type BufferCommand =
+    | MoveCursor of Motion
+    interface CommandMessage
+
+type BufferCommandMessage =
+    {
+        BufferId : int
+        Command : BufferCommand
+    }
+    interface CommandMessage
 
 [<AutoOpen>]
 module ``This module is auto-opened to provide message aliases`` =

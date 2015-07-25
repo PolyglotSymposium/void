@@ -68,6 +68,7 @@ module Init =
         modeService.subscribe bus
         if options.EnableVerboseMessageLogging then MessageLog.Service.subscribe bus
         BufferList.Service.subscribe bus
+        DefaultNormalModeBindings.Service.subscribe bus
         CommandHistory.Service.subscribe bus
         Notifications.Service.subscribe bus
         Filesystem.Service.subscribe bus

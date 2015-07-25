@@ -1,24 +1,26 @@
 ﻿namespace Void.Core
 open System.Collections.Generic
 
-type NormalBindings = Map<KeyPress list, CoreCommand>
+type NormalBindings = Map<KeyPress list, CommandMessage>
 
 module NormalMode =
+    let emptyBindings =
+        Map.empty<KeyPress list, CommandMessage>
+
+    [<RequireQualifiedAccess>]
+    type Command =
+        | Bind of KeyPress list * CommandMessage
+        interface CommandMessage
+
+    [<RequireQualifiedAccess>]
+    type Event =
+        | KeysBoundToCommand
+        interface EventMessage
+
+    [<RequireQualifiedAccess>]
     type ParseResult =
         | AwaitingKeyPress of KeyPress list
-        | Command of CoreCommand
-
-    let defaultBindings = // TODO split out into "Vim default bindings" and "Void default bindings"
-        [
-            [KeyPress.Semicolon], CoreCommand.ChangeToMode Mode.Command
-            [KeyPress.ControlC], CoreCommand.Yank
-            [KeyPress.ControlV], CoreCommand.Put
-            [KeyPress.ControlB], CoreCommand.ChangeToMode Mode.VisualBlock
-            [KeyPress.ControlL], CoreCommand.Redraw
-            [KeyPress.ShiftZ; KeyPress.ShiftQ], CoreCommand.QuitWithoutSaving
-            [KeyPress.ShiftZ; KeyPress.ShiftA], CoreCommand.QuitAll
-            [KeyPress.G; KeyPress.Q; KeyPress.Q], CoreCommand.FormatCurrentLine
-        ] |> Map.ofList
+        | CommandMatched of CommandMessage
 
     let noKeysYet =
         List.empty<KeyPress>
@@ -33,6 +35,11 @@ module NormalMode =
             let keyPresses = keyPress :: prevKeys
             let inBindOrder = List.rev keyPresses
             if bindings.ContainsKey inBindOrder then
-                bindings.Item inBindOrder |> ParseResult.Command
+                bindings.Item inBindOrder |> ParseResult.CommandMatched
             else
                 ParseResult.AwaitingKeyPress keyPresses
+
+    let handleCommand bindings command =
+        match command with
+        | Command.Bind (keyPresses, bindToCommand) ->
+            bind bindings keyPresses bindToCommand, Event.KeysBoundToCommand :> Message

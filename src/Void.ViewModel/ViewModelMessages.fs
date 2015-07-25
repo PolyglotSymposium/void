@@ -25,4 +25,6 @@ type VMEvent =
 type VMCommand =
     | Edit of FileOrBufferId
     | Write of FileOrBufferId
+    | Move of Motion
+    | Scroll of Move<mLine>
     interface CommandMessage
