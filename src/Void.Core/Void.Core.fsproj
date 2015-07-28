@@ -43,22 +43,22 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="FSharpUtil.fs" />
-    <Compile Include="BaseMessageInterfaces.fs" />
+    <Compile Include="BaseMessageTypes.fs" />
+    <Compile Include="Service.fs" />
     <Compile Include="CommandLine.fs" />
     <Compile Include="Keys.fs" />
     <Compile Include="UserNotificationTypes.fs" />
     <Compile Include="EditorTypes.fs" />
     <Compile Include="CoreMessages.fs" />
-    <Compile Include="Requests.fs" />
     <Compile Include="NormalMode.fs" />
     <Compile Include="CommandMode.fs" />
-    <Compile Include="Service.fs" />
     <Compile Include="Notifications.fs" />
     <Compile Include="ModeService.fs" />
     <Compile Include="EditorService.fs" />
     <Compile Include="Filesystem.fs" />
     <Compile Include="BufferList.fs" />
     <Compile Include="CommandHistory.fs" />
+    <Compile Include="CommandLanguage.fs" />
   </ItemGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>

@@ -1,6 +1,7 @@
 ﻿namespace Void.Lang.Editor
 
 open Void.Core
+open Void.Core.CommandLanguage
 open Void.Lang.Parser
 open Void.Lang.Interpreter
 open Void.ViewModel
@@ -27,6 +28,13 @@ type VoidScriptEditorModule(publish : Message -> unit) =
 
     let messages _ execEnv =
         publish CoreCommand.ShowNotificationHistory
+
+    let python _ execEnv =
+        publish <| ChangeCurrentCommandLanguageTo "python2"
+    // TODO these really should be registered by the plugin that will provide
+    // the corresponding Python interpreter
+    let python3 _ execEnv =
+        publish <| ChangeCurrentCommandLanguageTo "python3"
 
     let quit _ execEnv =
         publish CoreCommand.Quit
@@ -70,6 +78,16 @@ type VoidScriptEditorModule(publish : Message -> unit) =
             ShortName = "mes"
             FullName = "messages"
             WrapArguments = CommandType.NoArgs messages
+        }
+        {
+            ShortName = "py"
+            FullName = "python"
+            WrapArguments = CommandType.NoArgs python
+        }
+        {
+            ShortName = "py3"
+            FullName = "python3"
+            WrapArguments = CommandType.NoArgs python3
         }
         {
             ShortName = "q"

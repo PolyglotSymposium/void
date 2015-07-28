@@ -12,38 +12,44 @@ module CommandMode =
         | CommandCompleted of string
         interface EventMessage
 
-    let private handleEnter interpret buffer =
-        match interpret { Language = "VoidScript"; Fragment = buffer} with
-        | InterpretScriptFragmentResponse.Completed ->
-            ("", Event.CommandCompleted buffer :> Message)
-        | InterpretScriptFragmentResponse.ParseFailed error ->
-            ("", CoreEvent.ErrorOccurred error :> Message)
-        | InterpretScriptFragmentResponse.ParseIncomplete ->
-            (buffer + System.Environment.NewLine, noMessage)
+    let private requestLanguageForInterpreting buffer =
+        buffer, GetCurrentCommandLanguageRequest :> Message
 
-    let private handleHotKey interpret buffer hotKey =
+    let handleGetCurrentCommandLanguageResponse buffer response =
+        {
+            Language = response.CurrentCommandLanguage
+            Fragment = !buffer
+        } :> Message
+
+    let handleNoResponseToGetCurrentCommandLanguage buffer (msg : NoResponseToRequest<GetCurrentCommandLanguageRequest>) =
+        {
+            Language = "VoidScript"
+            Fragment = !buffer
+        } :> Message
+
+    let private handleHotKey buffer hotKey =
         let cancelled = ("", Event.EntryCancelled :> Message)
         match hotKey with
         | HotKey.Enter ->
-            handleEnter interpret buffer
+            requestLanguageForInterpreting buffer
         | HotKey.Escape ->
             cancelled
         | HotKey.Backspace ->
             if buffer = ""
             then cancelled
-            else (StringUtil.backspace buffer, Event.CharacterBackspaced :> Message)
+            else StringUtil.backspace buffer, Event.CharacterBackspaced :> Message
         | HotKey.ArrowUp ->
-            (buffer, CommandHistoryCommand.MoveToPreviousCommand :> Message)
+            buffer, CommandHistoryCommand.MoveToPreviousCommand :> Message
         | HotKey.ArrowDown ->
-            (buffer, CommandHistoryCommand.MoveToNextCommand :> Message)
+            buffer, CommandHistoryCommand.MoveToNextCommand :> Message
         | _ -> (buffer, noMessage)
 
-    let handle (interpret : RequestAPI.InterpretScriptFragment) buffer input =
+    let handle buffer input =
         match input with
         | TextOrHotKey.Text text ->
-            (buffer + text, Event.TextAppended text :> Message)
+            buffer + text, Event.TextAppended text :> Message
         | TextOrHotKey.HotKey hotKey ->
-            handleHotKey interpret buffer hotKey
+            handleHotKey buffer hotKey
 
     let handleHistoryEvent buffer event =
         match event with
@@ -53,3 +59,30 @@ module CommandMode =
             ("", Event.TextReplaced "" :> Message)
         | _ ->
             (buffer, noMessage)
+
+    let handleInterpretFragmentResponse buffer response =
+        match response with
+        | InterpretScriptFragmentResponse.Completed ->
+            ("", Event.CommandCompleted buffer :> Message)
+        | InterpretScriptFragmentResponse.ParseFailed error ->
+            ("", CoreEvent.ErrorOccurred error :> Message)
+        | InterpretScriptFragmentResponse.ParseIncomplete ->
+            (buffer + System.Environment.NewLine, noMessage)
+
+    let handleNoResponseToInterpretFragmentRequest _ (msg : NoResponseToRequest<InterpretScriptFragmentRequest>) =
+        "", CoreEvent.ErrorOccurred <| Error.UnableToInterpretLanguage msg.Request.Language :> Message
+
+    type InputHandler() =
+        let _buffer = ref ""
+
+        member x.handleTextOrHotKey input =
+            let updatedBuffer, message = handle !_buffer input
+            _buffer := updatedBuffer
+            message
+
+        member x.subscribe (subscribeHandler : SubscribeToBus) =
+            subscribeHandler.subscribe <| Service.wrap _buffer handleHistoryEvent
+            subscribeHandler.subscribeToResponse <| Service.wrap _buffer handleInterpretFragmentResponse
+            subscribeHandler.subscribeToResponse <| handleGetCurrentCommandLanguageResponse _buffer
+            subscribeHandler.subscribe <| Service.wrap _buffer handleNoResponseToInterpretFragmentRequest
+            subscribeHandler.subscribe <| handleNoResponseToGetCurrentCommandLanguage _buffer

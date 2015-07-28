@@ -43,12 +43,38 @@ type CoreCommand =
     | Yank
     interface CommandMessage
 
+type InterpretFullScriptRequest =
+    {
+        Language : string
+        Script : string
+    }
+    interface RequestMessage
+
+[<RequireQualifiedAccess>]
+type InterpretFullScriptResponse =
+    | ParseFailed of Error
+    | Completed
+    interface ResponseMessage<InterpretFullScriptRequest>
+
+type InterpretScriptFragmentRequest =
+    {
+        Language : string
+        Fragment : string
+    }
+    interface RequestMessage
+
+[<RequireQualifiedAccess>]
+type InterpretScriptFragmentResponse =
+    | ParseFailed of Error
+    | ParseIncomplete
+    | Completed
+    interface ResponseMessage<InterpretScriptFragmentRequest>
+
 [<RequireQualifiedAccess>]
 type CommandHistoryCommand =
     | MoveToPreviousCommand
     | MoveToNextCommand
     interface CommandMessage
-
 
 [<RequireQualifiedAccess>]
 type CommandHistoryEvent =
@@ -56,6 +82,16 @@ type CommandHistoryEvent =
     | MovedToEmptyCommand
     | CommandAdded
     interface Message
+
+type GetCurrentCommandLanguageRequest =
+    | GetCurrentCommandLanguageRequest
+    interface RequestMessage
+
+type GetCurrentCommandLanguageResponse =
+    {
+        CurrentCommandLanguage : string
+    }
+    interface ResponseMessage<GetCurrentCommandLanguageRequest>
 
 [<AutoOpen>]
 module ``This module is auto-opened to provide message aliases`` =

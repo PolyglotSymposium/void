@@ -7,18 +7,6 @@ type InputMode<'Output> =
     | KeyPresses of (KeyPress -> 'Output)
     | TextAndHotKeys of (TextOrHotKey -> 'Output)
 
-type CommandModeInputHandler(interpret : RequestAPI.InterpretScriptFragment) =
-    let handle = CommandMode.handle interpret
-    let _buffer = ref ""
-
-    member x.handleTextOrHotKey input =
-        let updatedBuffer, message = handle !_buffer input
-        _buffer := updatedBuffer
-        message
-
-    member x.handleHistoryEvent =
-        Service.wrap _buffer CommandMode.handleHistoryEvent
-
 type NormalModeInputHandler() =
     let mutable _bindings = defaultBindings
     let mutable _state = noKeysYet
@@ -47,7 +35,7 @@ type ModeNotImplementedYet_FakeInputHandler() =
 type ModeService
     (
         normalModeInputHandler : NormalModeInputHandler,
-        commandModeInputHandler : CommandModeInputHandler,
+        commandModeInputHandler : CommandMode.InputHandler,
         visualModeInputHandler : VisualModeInputHandler,
         insertModeInputHandler : InsertModeInputHandler,
         setInputMode : InputMode<Message> -> unit
@@ -100,4 +88,4 @@ type ModeService
         subscribeHandler.subscribe x.handleCommandModeEvent
         subscribeHandler.subscribe x.handleEvent
         subscribeHandler.subscribe x.handleCommand
-        subscribeHandler.subscribe commandModeInputHandler.handleHistoryEvent
+        commandModeInputHandler.subscribe subscribeHandler
