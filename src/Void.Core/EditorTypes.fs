@@ -9,7 +9,7 @@ type Mode =
     | Command
     | Visual
     | VisualBlock // TODO should this be subsumed under Visual?
-    | OperatorPending
+    | OperatorPending // TODO is this a submode of command
     // TODO there are many more modes
 
 type ModeChange = {
@@ -98,13 +98,22 @@ type FileBuffer = private {
     CursorPosition : CellGrid.Cell
 }
 
-type DataOperations = 
-    | Append
-    | Insert
-    | Change
-    | Delete
-    | Left
-    | Right
-    | Up
-    | Down
-    | Escape // TODO Is there a better word for this?
+[<Measure>] type mCharacter
+[<Measure>] type mLine
+[<Measure>] type mPararagraph
+[<Measure>] type mBuffer
+
+type Motion = interface end
+
+[<RequireQualifiedAccess>]
+type Move<[<Measure>]'UnitOfMotion> = // Relative motion
+    | Backward of int<'UnitOfMotion>
+    | Forward of int<'UnitOfMotion>
+    interface Motion
+
+[<RequireQualifiedAccess>]
+type MoveTo<[<Measure>]'InnerUnit, [<Measure>]'OuterUnit> = // Absolute motion
+    | First
+    | Nth of int<'InnerUnit>
+    | Last
+    interface Motion

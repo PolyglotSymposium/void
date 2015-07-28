@@ -3,7 +3,6 @@
 [<RequireQualifiedAccess>]
 type CoreEvent =
     | BufferAdded of int * FileBuffer
-    | EditorInitialized
     | ErrorOccurred of Error
     | FileOpenedForEditing of string * string seq
     | FileSaved of string
@@ -41,6 +40,18 @@ type CoreCommand =
     | WriteBuffer of int
     | WriteBufferToPath of int * string
     | Yank
+    interface CommandMessage
+
+[<RequireQualifiedAccess>]
+type BufferCommand =
+    | MoveCursor of Motion
+    interface CommandMessage
+
+type BufferCommandMessage =
+    {
+        BufferId : int
+        Command : BufferCommand
+    }
     interface CommandMessage
 
 type InterpretFullScriptRequest =

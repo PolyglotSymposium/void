@@ -60,7 +60,7 @@ module Init =
             ]
         let interpreter = Interpreter.init <| VoidScriptEditorModule(bus.publish).Commands
         let interpreterWrapperService = InterpreterWrapperService interpreter
-        let modeService = ModeService(NormalModeInputHandler(),
+        let modeService = ModeService(NormalMode.InputHandler(),
                                       CommandMode.InputHandler(),
                                       VisualModeInputHandler(),
                                       InsertModeInputHandler(),
@@ -69,6 +69,7 @@ module Init =
         if options.EnableVerboseMessageLogging then MessageLog.Service.subscribe bus
         interpreterWrapperService.subscribe bus
         BufferList.Service.subscribe bus
+        DefaultNormalModeBindings.Service.subscribe bus
         CommandHistory.Service.subscribe bus
         CommandLanguage.Service.subscribe bus
         Notifications.Service.subscribe bus

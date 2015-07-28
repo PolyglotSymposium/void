@@ -1,24 +1,9 @@
 ﻿namespace Void.Core
 
-open NormalMode
-
 [<RequireQualifiedAccess>]
 type InputMode<'Output> =
     | KeyPresses of (KeyPress -> 'Output)
     | TextAndHotKeys of (TextOrHotKey -> 'Output)
-
-type NormalModeInputHandler() =
-    let mutable _bindings = defaultBindings
-    let mutable _state = noKeysYet
-
-    member x.handleKeyPress keyPress =
-        match parse _bindings keyPress _state with
-        | ParseResult.AwaitingKeyPress prevKeys ->
-            _state <- prevKeys
-            noMessage
-        | ParseResult.Command command ->
-            _state <- noKeysYet
-            command :> Message
 
 type VisualModeInputHandler() =
     member x.handleKeyPress whatever =
@@ -34,7 +19,7 @@ type ModeNotImplementedYet_FakeInputHandler() =
 
 type ModeService
     (
-        normalModeInputHandler : NormalModeInputHandler,
+        normalModeInputHandler : NormalMode.InputHandler,
         commandModeInputHandler : CommandMode.InputHandler,
         visualModeInputHandler : VisualModeInputHandler,
         insertModeInputHandler : InsertModeInputHandler,
@@ -89,3 +74,4 @@ type ModeService
         subscribeHandler.subscribe x.handleEvent
         subscribeHandler.subscribe x.handleCommand
         commandModeInputHandler.subscribe subscribeHandler
+        subscribeHandler.subscribe normalModeInputHandler.handleCommand

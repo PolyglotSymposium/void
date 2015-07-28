@@ -81,7 +81,7 @@ type Bus
     member private x.addChannel channel =
         _channels <- channel :: _channels
 
-    member private x.publishAll messages =
+    member x.publishAll messages =
         for message in messages do
             x.publish message
 
