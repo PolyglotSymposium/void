@@ -42,9 +42,8 @@ module ViewModel =
             |> Seq.toList
         }
 
-    let toScreenBuffer windowSize buffer =
-        Buffer.readLines buffer 1
-        |> bufferFrom windowSize
+    let toScreenBuffer windowSize (buffer : FileBufferProxy) =
+        bufferFrom windowSize buffer.Contents
 
     let private loadBufferIntoWindow buffer window =
         { window with Buffer = toScreenBuffer window.Area.Dimensions buffer }

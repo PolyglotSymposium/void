@@ -38,26 +38,9 @@ module Init =
 
     let buildVoid inputModeChanger (options : VoidOptions) =
         let editorService = EditorService()
-        let viewService = ViewModelService()
-        let coreCommandChannel =
-            Channel [
-                viewService.handleCommand
-                editorService.handleCommand
-            ]
-        let coreEventChannel =
-            Channel [
-                viewService.handleEvent
-            ]
-        let commandBarEventChannel =
-            Channel [
-                viewService.handleCommandBarEvent
-            ]
-        let bus =
-            Bus [
-                coreCommandChannel
-                coreEventChannel
-                commandBarEventChannel
-            ]
+        let viewModelService = ViewModelService()
+        let coreCommandChannel = Channel [ editorService.handleCommand ]
+        let bus = Bus [ coreCommandChannel ]
         let interpreter = Interpreter.init <| VoidScriptEditorModule(bus.publish).Commands
         let interpreterWrapperService = InterpreterWrapperService interpreter
         let modeService = ModeService(NormalMode.InputHandler(),
@@ -66,6 +49,7 @@ module Init =
                                       InsertModeInputHandler(),
                                       setInputMode inputModeChanger bus.publish)
         modeService.subscribe bus
+        viewModelService.subscribe bus
         if options.EnableVerboseMessageLogging then MessageLog.Service.subscribe bus
         interpreterWrapperService.subscribe bus
         BufferList.Service.subscribe bus

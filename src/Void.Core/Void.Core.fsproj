@@ -47,7 +47,10 @@
     <Compile Include="Service.fs" />
     <Compile Include="Keys.fs" />
     <Compile Include="UserNotificationTypes.fs" />
-    <Compile Include="EditorTypes.fs" />
+    <Compile Include="ModeTypes.fs" />
+    <Compile Include="Grids.fs" />
+    <Compile Include="Motion.fs" />
+    <Compile Include="CommandModeMessages.fs" />
     <Compile Include="CoreMessages.fs" />
     <Compile Include="NormalMode.fs" />
     <Compile Include="CommandMode.fs" />

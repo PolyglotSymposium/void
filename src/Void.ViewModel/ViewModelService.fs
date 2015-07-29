@@ -38,13 +38,16 @@ type ViewModelService() =
         | CommandBar.Event.TextReflowed commandBar ->
             renderCommandBar commandBar
 
-    member x.handleEvent =
-        function // TODO clearly the code below needs to be refactored
-        | CoreEvent.BufferAdded (id, buffer) ->
+    member x.handleBufferEvent event =
+        match event.Event with
+        | BufferEvent.Added buffer ->
             _viewModel <- ViewModel.loadBuffer buffer _viewModel
             let drawings = Render.currentBufferAsDrawingObjects _viewModel
             let area = GridConvert.boxAround (ViewModel.wholeArea _viewModel) (* TODO shouldn't redraw the whole UI *)
             VMEvent.ViewPortionRendered(area, drawings) :> Message
+
+    member x.handleEvent =
+        function // TODO clearly the code below needs to be refactored
         | CoreEvent.NotificationAdded notification ->
             let area = ViewModel.areaOfCommandBarOrNotifications _viewModel
             let drawing = ViewModel.toScreenNotification notification
@@ -52,3 +55,8 @@ type ViewModelService() =
             let areaInPoints = GridConvert.boxAround area
             VMEvent.ViewPortionRendered(areaInPoints, [drawing]) :> Message
         | _ -> noMessage
+
+    member x.subscribe (subscribeHandler : SubscribeToBus) =
+        subscribeHandler.subscribe x.handleEvent
+        subscribeHandler.subscribe x.handleCommand
+        subscribeHandler.subscribe x.handleCommandBarEvent

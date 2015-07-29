@@ -1,5 +1,12 @@
 ﻿namespace Void.Core
 
+// TODO This is naive, obviously
+type FileBuffer = private {
+    Filepath : string option
+    Contents : string list
+    CursorPosition : CellGrid.Cell
+}
+
 module Buffer =
     open CellGrid
 
@@ -36,7 +43,11 @@ module BufferList =
             List = bufferList.List.Add(id, buffer)
             LastId = id
         }
-        (listPlusOne, CoreEvent.BufferAdded (id, buffer) :> Message )
+        let bufferProxy = {
+            MaybeFilepath = buffer.Filepath
+            Contents = Seq.ofList buffer.Contents
+        }
+        (listPlusOne, { BufferId = id; Event = BufferEvent.Added bufferProxy } :> Message )
 
     let private addEmptyBuffer bufferList =
         addBuffer bufferList Buffer.emptyFile

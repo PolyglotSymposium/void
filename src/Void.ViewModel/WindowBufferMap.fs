@@ -72,12 +72,10 @@ module WindowBufferMap =
             | FileOrBufferId.BufferNumber bufferId ->
                 (windowBufferMap, noMessage)
 
-    let handleEvent windowBufferMap event =
-        match event with
-        | CoreEvent.BufferAdded (bufferId, buffer) ->
-            loadBufferIntoCurrentWindow windowBufferMap bufferId
-        | _ ->
-            (windowBufferMap, noMessage)
+    let handleBufferEvent windowBufferMap event =
+        match event.Event with
+        | BufferEvent.Added _ ->
+            loadBufferIntoCurrentWindow windowBufferMap event.BufferId
 
     module Service =
         open Void.Core
@@ -85,4 +83,4 @@ module WindowBufferMap =
         let subscribe (subscribeHandler : SubscribeToBus) =
             let windowBufferMap = ref empty
             subscribeHandler.subscribe <| Service.wrap windowBufferMap handleVMCommand
-            subscribeHandler.subscribe <| Service.wrap windowBufferMap handleEvent
+            subscribeHandler.subscribe <| Service.wrap windowBufferMap handleBufferEvent
