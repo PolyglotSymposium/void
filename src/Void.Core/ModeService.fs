@@ -19,7 +19,7 @@ type ModeNotImplementedYet_FakeInputHandler() =
 
 type ModeService
     (
-        normalModeInputHandler : NormalMode.InputHandler,
+        normalModeInputHandler : NormalModeBindings.InputHandler,
         commandModeInputHandler : CommandMode.InputHandler,
         visualModeInputHandler : VisualModeInputHandler,
         insertModeInputHandler : InsertModeInputHandler,

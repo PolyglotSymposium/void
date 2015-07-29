@@ -58,5 +58,6 @@ type ViewModelService() =
 
     member x.subscribe (subscribeHandler : SubscribeToBus) =
         subscribeHandler.subscribe x.handleEvent
+        subscribeHandler.subscribe x.handleBufferEvent
         subscribeHandler.subscribe x.handleCommand
         subscribeHandler.subscribe x.handleCommandBarEvent

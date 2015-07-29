@@ -10,7 +10,7 @@ type KeyPressed =
     }
     interface EventMessage
 
-module NormalMode =
+module NormalModeBindings =
     [<RequireQualifiedAccess>]
     type Command =
         | Bind of KeyPress list * CommandMessage

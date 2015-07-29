@@ -1,7 +1,7 @@
 ﻿namespace Void.Core.Spec
 
 open Void.Core
-open Void.Core.NormalMode
+open Void.Core.NormalModeBindings
 open NUnit.Framework
 open FsUnit
 

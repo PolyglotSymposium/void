@@ -43,7 +43,7 @@ module DefaultNormalModeBindings =
         ]
 
     let bindAllCommands bindings =
-        Seq.map NormalMode.Command.Bind bindings
+        Seq.map NormalModeBindings.Command.Bind bindings
 
     let handleCommand (bus : Bus) command =
         match command with
