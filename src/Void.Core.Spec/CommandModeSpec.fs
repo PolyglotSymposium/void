@@ -4,6 +4,11 @@ open Void.Core
 open NUnit.Framework
 open FsUnit
 
+type RequestSenderStub() =
+    interface RequestSender with
+        member x.makeRequest _ =
+            None
+
 [<TestFixture>]
 type ``Editing command mode``() = 
     let success = InterpretScriptFragmentResponse.Completed
@@ -13,10 +18,11 @@ type ``Editing command mode``() =
     let enter = TextOrHotKey.HotKey HotKey.Enter
     let escape = TextOrHotKey.HotKey HotKey.Escape
     let backspace = TextOrHotKey.HotKey HotKey.Backspace
+    let requestSenderStub = RequestSenderStub()
 
     let typeIncrement increment buffer expected =
         TextOrHotKey.Text increment
-        |> CommandMode.handle buffer
+        |> CommandMode.handle requestSenderStub buffer
         |> should equal (expected, CommandMode.Event.TextAppended increment :> Message)
 
     [<Test>]
@@ -28,7 +34,7 @@ type ``Editing command mode``() =
 
     [<Test>]
     member x.``When enter is pressed, the current language for command mode is requested``() =
-        CommandMode.handle "edit" enter
+        CommandMode.handle requestSenderStub "edit" enter
         |> should equal ("edit", GetCurrentCommandLanguageRequest :> Message)
 
     [<Test>]
@@ -45,17 +51,17 @@ type ``Editing command mode``() =
 
     [<Test>]
     member x.``When escape is pressed, command entry is cancelled``() =
-        CommandMode.handle "edit" escape
+        CommandMode.handle requestSenderStub "edit" escape
         |> should equal ("", CommandMode.Event.EntryCancelled :> Message)
 
     [<Test>]
     member x.``When backspace is pressed, the previous character is remove from the buffer``() =
-        CommandMode.handle "edig" backspace
+        CommandMode.handle requestSenderStub "edig" backspace
         |> should equal ("edi", CommandMode.Event.CharacterBackspaced :> Message)
 
     [<Test>]
     member x.``When backspace is pressed and there are no characters but the prompt, command entry is cancelled``() =
-        CommandMode.handle "" backspace
+        CommandMode.handle requestSenderStub "" backspace
         |> should equal ("", CommandMode.Event.EntryCancelled :> Message)
 
     [<Test>]

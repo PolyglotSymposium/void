@@ -17,12 +17,6 @@ module ``This module is auto-opened to provide a null message`` =
         interface Message
     let noMessage = NoMessage :> Message
 
-type NoResponseToRequest<'TRequest when 'TRequest :> RequestMessage> =
-    {
-        Request : 'TRequest
-    }
-    interface Message
-
 type Handle<'TMsg when 'TMsg :> Message> =
     'TMsg -> Message
 
@@ -35,7 +29,11 @@ type MaybeHandleRequest<'TRequest, 'TResponse when 'TRequest :> RequestMessage a
 type HandleResponse<'TRequest, 'TResponse when 'TRequest :> RequestMessage and 'TResponse :> ResponseMessage<'TRequest>> = 
     'TResponse -> Message
 
+type RequestSender =
+    abstract member makeRequest<'TRequest, 'TResponse when 'TRequest :> RequestMessage and 'TResponse :> ResponseMessage<'TRequest>> : 'TRequest -> 'TResponse option
+
 type Bus =
     abstract member subscribe<'TMsg when 'TMsg :> Message> : Handle<'TMsg> -> unit
     abstract member subscribeToRequest<'TRequest, 'TResponse when 'TRequest :> RequestMessage and 'TResponse :> ResponseMessage<'TRequest>> : HandleRequest<'TRequest, 'TResponse> -> unit
     abstract member subscribeToRequest<'TRequest, 'TResponse when 'TRequest :> RequestMessage and 'TResponse :> ResponseMessage<'TRequest>> : MaybeHandleRequest<'TRequest, 'TResponse> -> unit
+    inherit RequestSender

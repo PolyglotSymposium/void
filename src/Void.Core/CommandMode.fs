@@ -15,23 +15,40 @@ module CommandMode =
     let private requestLanguageForInterpreting buffer =
         buffer, GetCurrentCommandLanguageRequest :> Message
 
-    let handleGetCurrentCommandLanguageResponse buffer response =
+    let interpretFragment buffer maybeResponse =
         {
-            Language = response.CurrentCommandLanguage
-            Fragment = !buffer
-        } :> Message
+            Language =
+                match maybeResponse with
+                | Some response -> response.CurrentCommandLanguage
+                | None -> "VoidScript"
+            Fragment = buffer
+        }
 
-    let handleNoResponseToGetCurrentCommandLanguage buffer (msg : NoResponseToRequest<GetCurrentCommandLanguageRequest>) =
-        {
-            Language = "VoidScript"
-            Fragment = !buffer
-        } :> Message
+    let handleInterpretFragmentResponse buffer maybeResponse =
+        match maybeResponse with
+        | Some response ->
+            match response with
+            | InterpretScriptFragmentResponse.Completed ->
+                "", Event.CommandCompleted buffer :> Message
+            | InterpretScriptFragmentResponse.ParseFailed error ->
+                "", CoreEvent.ErrorOccurred error :> Message
+            | InterpretScriptFragmentResponse.ParseIncomplete ->
+                buffer + System.Environment.NewLine, noMessage
+        | None ->
+            "", CoreEvent.ErrorOccurred <| Error.NoInterpreter :> Message
 
-    let private handleHotKey buffer hotKey =
+    let interpret (requestSender : RequestSender) buffer =
+        GetCurrentCommandLanguageRequest
+        |> requestSender.makeRequest
+        |> interpretFragment buffer
+        |> requestSender.makeRequest
+        |> handleInterpretFragmentResponse buffer
+
+    let private handleHotKey requestSender buffer hotKey =
         let cancelled = ("", Event.EntryCancelled :> Message)
         match hotKey with
         | HotKey.Enter ->
-            requestLanguageForInterpreting buffer
+            interpret requestSender buffer
         | HotKey.Escape ->
             cancelled
         | HotKey.Backspace ->
@@ -44,45 +61,29 @@ module CommandMode =
             buffer, CommandHistoryCommand.MoveToNextCommand :> Message
         | _ -> (buffer, noMessage)
 
-    let handle buffer input =
+    let handle requestSender buffer input =
         match input with
         | TextOrHotKey.Text text ->
             buffer + text, Event.TextAppended text :> Message
         | TextOrHotKey.HotKey hotKey ->
-            handleHotKey buffer hotKey
+            handleHotKey requestSender buffer hotKey
 
     let handleHistoryEvent buffer event =
         match event with
         | CommandHistoryEvent.MovedToCommand command ->
-            (command, Event.TextReplaced command :> Message)
+            command, Event.TextReplaced command :> Message
         | CommandHistoryEvent.MovedToEmptyCommand ->
-            ("", Event.TextReplaced "" :> Message)
+            "", Event.TextReplaced "" :> Message
         | _ ->
-            (buffer, noMessage)
+            buffer, noMessage
 
-    let handleInterpretFragmentResponse buffer response =
-        match response with
-        | InterpretScriptFragmentResponse.Completed ->
-            ("", Event.CommandCompleted buffer :> Message)
-        | InterpretScriptFragmentResponse.ParseFailed error ->
-            ("", CoreEvent.ErrorOccurred error :> Message)
-        | InterpretScriptFragmentResponse.ParseIncomplete ->
-            (buffer + System.Environment.NewLine, noMessage)
-
-    let handleNoResponseToInterpretFragmentRequest _ (msg : NoResponseToRequest<InterpretScriptFragmentRequest>) =
-        "", CoreEvent.ErrorOccurred <| Error.UnableToInterpretLanguage msg.Request.Language :> Message
-
-    type InputHandler() =
+    type InputHandler(requestSender : RequestSender) =
         let _buffer = ref ""
 
         member x.handleTextOrHotKey input =
-            let updatedBuffer, message = handle !_buffer input
+            let updatedBuffer, message = handle requestSender !_buffer input
             _buffer := updatedBuffer
             message
 
         member x.subscribe (bus : Bus) =
             bus.subscribe <| Service.wrap _buffer handleHistoryEvent
-            //bus.subscribeToResponse <| Service.wrap _buffer handleInterpretFragmentResponse
-            //bus.subscribeToResponse <| handleGetCurrentCommandLanguageResponse _buffer
-            bus.subscribe <| Service.wrap _buffer handleNoResponseToInterpretFragmentRequest
-            bus.subscribe <| handleNoResponseToGetCurrentCommandLanguage _buffer

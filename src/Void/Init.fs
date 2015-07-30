@@ -43,7 +43,7 @@ module Init =
         let interpreter = Interpreter.init <| VoidScriptEditorModule(bus.publish).Commands
         let interpreterWrapperService = InterpreterWrapperService interpreter
         let modeService = ModeService(NormalModeBindings.InputHandler(),
-                                      CommandMode.InputHandler(),
+                                      CommandMode.InputHandler(bus),
                                       VisualModeInputHandler(),
                                       InsertModeInputHandler(),
                                       setInputMode inputModeChanger bus.publish)

@@ -60,13 +60,13 @@ type RequestChannel<'TRequest, 'TResponse when 'TRequest :> RequestMessage and '
     member x.addHandler handler =
         _handlers <- x.safetyWrap handler :: _handlers
 
-    member x.request requestMsg =
+    member x.makeRequest requestMsg =
         Seq.tryPick (fun handle -> handle requestMsg) handlers
 
     interface RequestChannel with
         member x.getBoxedRequestFunctionIfResponseTypeIs<'TMsg>() =
             if typeof<'TResponse> = typeof<'TMsg>
-            then Some <| box x.request
+            then Some <| box x.makeRequest
             else None
 
         member x.getBoxedSubscribeActionIfResponseTypeIs<'TMsg>() =
@@ -97,13 +97,13 @@ type BusImpl
             for channel in _channels do
                 channel.publish message |> x.publishAll
 
-    member x.request<'TRequest, 'TResponse when 'TRequest :> RequestMessage and 'TResponse :> ResponseMessage<'TRequest>> requestMsg =
+    member x.makeRequest<'TRequest, 'TResponse when 'TRequest :> RequestMessage and 'TResponse :> ResponseMessage<'TRequest>> request =
         let tryGetRequestFunction (channel : RequestChannel) =
             channel.getBoxedRequestFunctionIfResponseTypeIs<'TResponse>()
         match List.tryPick tryGetRequestFunction _requestChannels with
-        | Some request ->
-            requestMsg
-            |> unbox<MaybeHandleRequest<'TRequest, 'TResponse>> request
+        | Some makeRequest ->
+            request
+            |> unbox<MaybeHandleRequest<'TRequest, 'TResponse>> makeRequest
         | None ->
             None
 
@@ -131,6 +131,7 @@ type BusImpl
         x.subscribeToRequest (handleRequest >> Some)
 
     interface Bus with
+        member x.makeRequest request = x.makeRequest request
         member x.subscribe handle = x.subscribe handle
         member x.subscribeToRequest<'TRequest, 'TResponse when 'TRequest :> RequestMessage and 'TResponse :> ResponseMessage<'TRequest>> (maybeHandleRequest : MaybeHandleRequest<'TRequest, 'TResponse>) = x.subscribeToRequest maybeHandleRequest
         member x.subscribeToRequest<'TRequest, 'TResponse when 'TRequest :> RequestMessage and 'TResponse :> ResponseMessage<'TRequest>> (handleRequest : HandleRequest<'TRequest, 'TResponse>) = x.subscribeToRequest handleRequest
