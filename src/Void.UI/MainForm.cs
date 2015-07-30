@@ -11,14 +11,14 @@ namespace Void.UI
 {
     public partial class MainForm : Form
     {
-        private readonly Bus _bus;
+        private readonly BusImpl _bus;
         private readonly WinFormsInputModeChanger _inputModeChanger;
         private Font _font = new Font(FontFamily.GenericMonospace, 9);
         private CellMetrics _cellMetrics;
         private IEnumerable<DrawingObject> _drawings;
 
 
-        public MainForm(Bus bus, WinFormsInputModeChanger inputModeChanger)
+        public MainForm(BusImpl bus, WinFormsInputModeChanger inputModeChanger)
         {
             _bus = bus;
             _inputModeChanger = inputModeChanger;

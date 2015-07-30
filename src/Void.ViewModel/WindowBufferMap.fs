@@ -94,8 +94,8 @@ module WindowBufferMap =
     module Service =
         open Void.Core
 
-        let subscribe (subscribeHandler : SubscribeToBus) =
+        let subscribe (bus : Bus) =
             let windowBufferMap = ref empty
-            subscribeHandler.subscribe <| Service.wrap windowBufferMap handleVMCommand
-            subscribeHandler.subscribe <| Service.wrap windowBufferMap handleBufferEvent
-            subscribeHandler.subscribe (handleCurrentWindowMessage windowBufferMap)
+            bus.subscribe <| Service.wrap windowBufferMap handleVMCommand
+            bus.subscribe <| Service.wrap windowBufferMap handleBufferEvent
+            bus.subscribe (handleCurrentWindowMessage windowBufferMap)

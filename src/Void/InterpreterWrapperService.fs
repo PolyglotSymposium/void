@@ -20,5 +20,5 @@ type InterpreterWrapperService(interpreter : VoidScriptInterpreter) =
             |> Some
         | _ -> None
 
-    member x.subscribe (subscribeToBus : SubscribeToBus) =
-        subscribeToBus.subscribeToRequest x.handleInterpretFragmentRequest
+    member x.subscribe (bus : Bus) =
+        bus.subscribeToRequest x.handleInterpretFragmentRequest

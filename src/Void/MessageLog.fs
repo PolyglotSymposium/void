@@ -8,5 +8,5 @@ module MessageLog =
         noMessage
 
     module Service =
-        let subscribe (subscribeHandler : SubscribeToBus) =
-            subscribeHandler.subscribe handleMessage 
+        let subscribe (bus : Bus) =
+            bus.subscribe handleMessage 

@@ -67,9 +67,9 @@ type ViewModelService() =
             VMEvent.ViewPortionRendered(areaInPoints, [drawing]) :> Message
         | _ -> noMessage
 
-    member x.subscribe (subscribeHandler : SubscribeToBus) =
-        subscribeHandler.subscribe x.handleEvent
-        subscribeHandler.subscribe x.handleBufferEvent
-        subscribeHandler.subscribe x.handleCommand
-        subscribeHandler.subscribe x.handleVMCommand
-        subscribeHandler.subscribe x.handleCommandBarEvent
+    member x.subscribe (bus : Bus) =
+        bus.subscribe x.handleEvent
+        bus.subscribe x.handleBufferEvent
+        bus.subscribe x.handleCommand
+        bus.subscribe x.handleVMCommand
+        bus.subscribe x.handleCommandBarEvent

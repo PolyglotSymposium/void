@@ -58,8 +58,8 @@ module CommandHistory =
             move next history
 
     module Service =
-        let subscribe (subscribeHandler : SubscribeToBus) =
+        let subscribe (bus : Bus) =
             let history = ref empty
-            subscribeHandler.subscribe <| Service.wrap history handleEvent
-            subscribeHandler.subscribe <| Service.wrap history handleCommand
-            subscribeHandler.subscribe <| Service.wrap history handleCoreEvent
+            bus.subscribe <| Service.wrap history handleEvent
+            bus.subscribe <| Service.wrap history handleCommand
+            bus.subscribe <| Service.wrap history handleCoreEvent

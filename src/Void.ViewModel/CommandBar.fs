@@ -92,7 +92,7 @@ module CommandBar =
     module Service =
         open Void.Core
 
-        let subscribe (subscribeHandler : SubscribeToBus) =
+        let subscribe (bus : Bus) =
             let commandBar = ref hidden
-            subscribeHandler.subscribe <| Service.wrap commandBar handleEvent
-            subscribeHandler.subscribe <| Service.wrap commandBar handleCommandModeEvent
+            bus.subscribe <| Service.wrap commandBar handleEvent
+            bus.subscribe <| Service.wrap commandBar handleCommandModeEvent

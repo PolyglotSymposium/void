@@ -61,5 +61,5 @@ module Filesystem =
             writeLines path lines :> Message
 
     module Service =
-        let subscribe (subscribeHandler : SubscribeToBus) =
-            subscribeHandler.subscribe handleCommand
+        let subscribe (bus : Bus) =
+            bus.subscribe handleCommand

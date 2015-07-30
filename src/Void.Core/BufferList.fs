@@ -110,7 +110,7 @@ module BufferList =
         else None
 
     module Service =
-        let subscribe (subscribeHandler : SubscribeToBus) =
+        let subscribe (bus : Bus) =
             let bufferList = ref empty
-            subscribeHandler.subscribe <| Service.wrap bufferList handleCommand
-            subscribeHandler.subscribe <| Service.wrap bufferList handleEvent
+            bus.subscribe <| Service.wrap bufferList handleCommand
+            bus.subscribe <| Service.wrap bufferList handleEvent

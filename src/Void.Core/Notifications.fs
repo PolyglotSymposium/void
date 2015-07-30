@@ -31,8 +31,8 @@ module Notifications =
         | _ -> (notifications, noMessage)
 
     module Service =
-        let subscribe (subscribeHandler : SubscribeToBus) =
+        let subscribe (bus : Bus) =
             let notifications = ref []
-            subscribeHandler.subscribe <| Service.wrap notifications handleEvent
-            subscribeHandler.subscribe  <| Service.wrap notifications handleCommand
+            bus.subscribe <| Service.wrap notifications handleEvent
+            bus.subscribe  <| Service.wrap notifications handleCommand
              

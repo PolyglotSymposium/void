@@ -24,8 +24,8 @@ module CommandLanguage =
         voidScript, CurrentCommandLanguageChangedTo voidScript :> Message
 
     module Service =
-        let subscribe (subscribeHandler : SubscribeToBus) =
+        let subscribe (bus : Bus) =
             let language = ref voidScript
-            subscribeHandler.subscribeToRequest (handleRequest language)
-            subscribeHandler.subscribe <| Service.wrap language handleCommand
-            subscribeHandler.subscribe <| Service.wrap language handleNoResponseToInterpretFragmentRequest
+            bus.subscribeToRequest (handleRequest language)
+            bus.subscribe <| Service.wrap language handleCommand
+            bus.subscribe <| Service.wrap language handleNoResponseToInterpretFragmentRequest

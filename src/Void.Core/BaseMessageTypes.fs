@@ -35,7 +35,7 @@ type MaybeHandleRequest<'TRequest, 'TResponse when 'TRequest :> RequestMessage a
 type HandleResponse<'TRequest, 'TResponse when 'TRequest :> RequestMessage and 'TResponse :> ResponseMessage<'TRequest>> = 
     'TResponse -> Message
 
-type SubscribeToBus =
+type Bus =
     abstract member subscribe<'TMsg when 'TMsg :> Message> : Handle<'TMsg> -> unit
     abstract member subscribeToRequest<'TRequest, 'TResponse when 'TRequest :> RequestMessage and 'TResponse :> ResponseMessage<'TRequest>> : HandleRequest<'TRequest, 'TResponse> -> unit
     abstract member subscribeToRequest<'TRequest, 'TResponse when 'TRequest :> RequestMessage and 'TResponse :> ResponseMessage<'TRequest>> : MaybeHandleRequest<'TRequest, 'TResponse> -> unit

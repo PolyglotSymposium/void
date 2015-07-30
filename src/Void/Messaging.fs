@@ -74,7 +74,7 @@ type RequestChannel<'TRequest, 'TResponse when 'TRequest :> RequestMessage and '
             then Some <| box x.addHandler
             else None
 
-type Bus
+type BusImpl
     (
         channels : Channel list
     ) =
@@ -130,7 +130,7 @@ type Bus
     member x.subscribeToRequest<'TRequest, 'TResponse when 'TRequest :> RequestMessage and 'TResponse :> ResponseMessage<'TRequest>> (handleRequest : HandleRequest<'TRequest, 'TResponse>) =
         x.subscribeToRequest (handleRequest >> Some)
 
-    interface SubscribeToBus with
+    interface Bus with
         member x.subscribe handle = x.subscribe handle
         member x.subscribeToRequest<'TRequest, 'TResponse when 'TRequest :> RequestMessage and 'TResponse :> ResponseMessage<'TRequest>> (maybeHandleRequest : MaybeHandleRequest<'TRequest, 'TResponse>) = x.subscribeToRequest maybeHandleRequest
         member x.subscribeToRequest<'TRequest, 'TResponse when 'TRequest :> RequestMessage and 'TResponse :> ResponseMessage<'TRequest>> (handleRequest : HandleRequest<'TRequest, 'TResponse>) = x.subscribeToRequest handleRequest
