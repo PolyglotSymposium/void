@@ -20,7 +20,7 @@ module Buffer =
         { Filepath = Some path; Contents = contents; CursorPosition = originCell }
 
     let readLines fileBuffer start =
-        fileBuffer.Contents |> Seq.skip (start - 1) // Line numbers start at 1
+        fileBuffer.Contents |> Seq.skip ((start - 1<mLine>)/1<mLine>) // Line numbers start at 1
 
 type Buffers = private {
     List : Map<int, FileBuffer>
@@ -47,13 +47,13 @@ module BufferList =
             MaybeFilepath = buffer.Filepath
             Contents = Seq.ofList buffer.Contents
         }
-        (listPlusOne, { BufferId = id; Event = BufferEvent.Added bufferProxy } :> Message )
+        (listPlusOne, { BufferId = id; Message = BufferEvent.Added bufferProxy } :> Message )
 
     let private addEmptyBuffer bufferList =
         addBuffer bufferList Buffer.emptyFile
 
     let private writeBufferToPath bufferList bufferId path =
-        let lines = Buffer.readLines bufferList.List.[bufferId] 0
+        let lines = Buffer.readLines bufferList.List.[bufferId] 0<mLine>
         let msg = Filesystem.Command.SaveToDisk (path, lines) :> Message
         (bufferList, msg)
 
@@ -84,6 +84,30 @@ module BufferList =
             writeBufferToPath bufferList bufferId path
         | _ -> 
             (bufferList, noMessage)
+
+    let private package bufferId message =
+        {
+            BufferId = bufferId
+            Message = message
+        }
+
+    let handleGetBufferContentsRequest bufferList envelope =
+        let buffers = (!bufferList).List
+        if buffers.ContainsKey envelope.BufferId
+        then
+            let buffer = buffers.[envelope.BufferId]
+            {
+                FirstLineNumber = envelope.Message.StartingAtLine
+                RequestedContents =
+                    if buffer.Contents.Length*1<mLine> < envelope.Message.StartingAtLine
+                    then Seq.empty
+                    else Buffer.readLines buffer envelope.Message.StartingAtLine
+            }
+            |> package envelope.BufferId
+            :> EnvelopeMessage<GetBufferContentsResponse>
+            //:> EnvelopeMessage<ResponseMessage<GetBufferContentsRequest>>
+            |> Some
+        else None
 
     module Service =
         let subscribe (subscribeHandler : SubscribeToBus) =

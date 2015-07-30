@@ -25,6 +25,7 @@ type WindowView = {
     Area : CellGrid.Block
     Buffer : BufferView
     Cursor : CursorView Visibility
+    TopLineNumber : int<mLine>
 }
 
 (* "Command line" is too equivocal. I mean the ; (or : in Vim) bar at the

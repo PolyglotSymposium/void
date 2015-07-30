@@ -20,6 +20,7 @@ module ViewModel =
             Buffer = defaultBuffer
             Area = lessRowsBelow 1 containingArea
             Cursor = Visible <| CursorView.Block originCell
+            TopLineNumber = 1<mLine>
         }
 
     let defaultViewModel =

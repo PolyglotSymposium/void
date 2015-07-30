@@ -41,35 +41,6 @@ type CoreCommand =
     | Yank
     interface CommandMessage
 
-[<RequireQualifiedAccess>]
-type BufferCommand =
-    | MoveCursor of Motion
-    interface CommandMessage
-
-type BufferCommandMessage =
-    {
-        BufferId : int
-        Command : BufferCommand
-    }
-    interface CommandMessage
-
-type FileBufferProxy = {
-    MaybeFilepath : string option
-    Contents : string seq
-}
-
-[<RequireQualifiedAccess>]
-type BufferEvent =
-    | Added of FileBufferProxy
-    interface CommandMessage
-
-type BufferEventMessage =
-    {
-        BufferId : int
-        Event : BufferEvent
-    }
-    interface CommandMessage
-
 [<AutoOpen>]
 module ``This module is auto-opened to provide message aliases`` =
     let notImplemented =

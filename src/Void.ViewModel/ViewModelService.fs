@@ -17,6 +17,17 @@ type ViewModelService() =
         | _ ->
             noMessage
 
+    member x.handleVMCommand =
+        function
+        | VMCommand.Scroll movement ->
+            match movement with
+            | Move.Backward xLines ->
+                noMessage
+            | Move.Forward xLines ->
+                noMessage
+        | _ ->
+            noMessage
+
     member x.handleCommandBarEvent event =
         let commandBarOrigin = ViewModel.upperLeftCellOfCommandBar _viewModel
         let renderCommandBar commandBar =
@@ -39,7 +50,7 @@ type ViewModelService() =
             renderCommandBar commandBar
 
     member x.handleBufferEvent event =
-        match event.Event with
+        match event.Message with
         | BufferEvent.Added buffer ->
             _viewModel <- ViewModel.loadBuffer buffer _viewModel
             let drawings = Render.currentBufferAsDrawingObjects _viewModel
@@ -60,4 +71,5 @@ type ViewModelService() =
         subscribeHandler.subscribe x.handleEvent
         subscribeHandler.subscribe x.handleBufferEvent
         subscribeHandler.subscribe x.handleCommand
+        subscribeHandler.subscribe x.handleVMCommand
         subscribeHandler.subscribe x.handleCommandBarEvent

@@ -5,6 +5,8 @@ type Message = interface end
 type CommandMessage = inherit Message
 type EventMessage = inherit Message
 
+type EnvelopeMessage<'TInnerMessage when 'TInnerMessage :> Message> = inherit Message
+
 type RequestMessage = inherit Message
 type ResponseMessage<'TRequest when 'TRequest :> RequestMessage> = inherit Message
 

@@ -52,6 +52,7 @@
     <Compile Include="Motion.fs" />
     <Compile Include="CommandModeMessages.fs" />
     <Compile Include="CoreMessages.fs" />
+    <Compile Include="BufferMessages.fs" />
     <Compile Include="NormalModeBindings.fs" />
     <Compile Include="CommandMode.fs" />
     <Compile Include="Notifications.fs" />

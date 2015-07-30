@@ -46,36 +46,50 @@ module WindowBufferMap =
                                            |> setCurrentBuffer bufferId
                                            |> replaceCurrentWindow windowBufferMap
         }
-        (updated, VMEvent.BufferLoadedIntoWindow :> Message)
+        updated, VMEvent.BufferLoadedIntoWindow :> Message
 
     let handleVMCommand windowBufferMap command =
         match command with
         | VMCommand.Edit fileOrBufferId ->
             match fileOrBufferId with
             | FileOrBufferId.Path path ->
-                (windowBufferMap, Filesystem.Command.OpenFile path :> Message)
+                windowBufferMap, Filesystem.Command.OpenFile path :> Message
             | FileOrBufferId.CurrentBuffer ->
-                (windowBufferMap, noMessage)
+                windowBufferMap, noMessage
             | FileOrBufferId.AlternateBuffer ->
-                (windowBufferMap, noMessage)
+                windowBufferMap, noMessage
             | FileOrBufferId.BufferNumber bufferId ->
-                (windowBufferMap, noMessage)
+                windowBufferMap, noMessage
         | VMCommand.Write fileOrBufferId ->
             match fileOrBufferId with
             | FileOrBufferId.Path path ->
                 let id = currentBufferId windowBufferMap
                 in (windowBufferMap, CoreCommand.WriteBufferToPath (id, path) :> Message)
             | FileOrBufferId.CurrentBuffer ->
-                (windowBufferMap, noMessage)
+                windowBufferMap, noMessage
             | FileOrBufferId.AlternateBuffer ->
-                (windowBufferMap, noMessage)
+                windowBufferMap, noMessage
             | FileOrBufferId.BufferNumber bufferId ->
-                (windowBufferMap, noMessage)
+                windowBufferMap, noMessage
+        | _ ->
+            windowBufferMap, noMessage
 
     let handleBufferEvent windowBufferMap event =
-        match event.Event with
+        match event.Message with
         | BufferEvent.Added _ ->
             loadBufferIntoCurrentWindow windowBufferMap event.BufferId
+
+    type CurrentWindowEnvelopeMessage =
+        {
+            ForBufferInCurrentWindow : BufferMessage
+        }
+        interface EnvelopeMessage<BufferMessage>
+
+    let handleCurrentWindowMessage windowBufferMap envelope =
+        {
+            BufferId = currentBufferId !windowBufferMap
+            Message = envelope.ForBufferInCurrentWindow
+        } :> Message
 
     module Service =
         open Void.Core
@@ -84,3 +98,4 @@ module WindowBufferMap =
             let windowBufferMap = ref empty
             subscribeHandler.subscribe <| Service.wrap windowBufferMap handleVMCommand
             subscribeHandler.subscribe <| Service.wrap windowBufferMap handleBufferEvent
+            subscribeHandler.subscribe (handleCurrentWindowMessage windowBufferMap)
