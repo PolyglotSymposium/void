@@ -56,8 +56,6 @@ module CommandHistory =
             move previous history
         | CommandHistoryCommand.MoveToNextCommand ->
             move next history
-        | _ ->
-            (history, noMessage)
 
     module Service =
         let subscribe (subscribeHandler : SubscribeToBus) =
