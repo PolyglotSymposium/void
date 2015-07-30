@@ -82,7 +82,7 @@ module CommandMode =
 
         member x.subscribe (subscribeHandler : SubscribeToBus) =
             subscribeHandler.subscribe <| Service.wrap _buffer handleHistoryEvent
-            subscribeHandler.subscribeToResponse <| Service.wrap _buffer handleInterpretFragmentResponse
-            subscribeHandler.subscribeToResponse <| handleGetCurrentCommandLanguageResponse _buffer
+            //subscribeHandler.subscribeToResponse <| Service.wrap _buffer handleInterpretFragmentResponse
+            //subscribeHandler.subscribeToResponse <| handleGetCurrentCommandLanguageResponse _buffer
             subscribeHandler.subscribe <| Service.wrap _buffer handleNoResponseToInterpretFragmentRequest
             subscribeHandler.subscribe <| handleNoResponseToGetCurrentCommandLanguage _buffer

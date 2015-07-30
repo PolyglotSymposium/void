@@ -26,17 +26,16 @@ type NoResponseToRequest<'TRequest when 'TRequest :> RequestMessage> =
 type Handle<'TMsg when 'TMsg :> Message> =
     'TMsg -> Message
 
-type HandleRequest<'TRequest when 'TRequest :> RequestMessage> = 
-    'TRequest -> ResponseMessage<'TRequest>
+type HandleRequest<'TRequest, 'TResponse when 'TRequest :> RequestMessage and 'TResponse :> ResponseMessage<'TRequest>> = 
+    'TRequest -> 'TResponse
 
-type MaybeHandleRequest<'TRequest when 'TRequest :> RequestMessage> = 
-    'TRequest -> ResponseMessage<'TRequest> option
+type MaybeHandleRequest<'TRequest, 'TResponse when 'TRequest :> RequestMessage and 'TResponse :> ResponseMessage<'TRequest>> = 
+    'TRequest -> 'TResponse option
 
 type HandleResponse<'TRequest, 'TResponse when 'TRequest :> RequestMessage and 'TResponse :> ResponseMessage<'TRequest>> = 
     'TResponse -> Message
 
 type SubscribeToBus =
     abstract member subscribe<'TMsg when 'TMsg :> Message> : Handle<'TMsg> -> unit
-    abstract member subscribeToRequest<'TRequest when 'TRequest :> RequestMessage> : HandleRequest<'TRequest> -> unit
-    abstract member subscribeToRequest<'TRequest when 'TRequest :> RequestMessage> : MaybeHandleRequest<'TRequest> -> unit
-    abstract member subscribeToResponse<'TRequest, 'TResponse when 'TRequest :> RequestMessage and 'TResponse :> ResponseMessage<'TRequest>> : HandleResponse<'TRequest, 'TResponse> -> unit
+    abstract member subscribeToRequest<'TRequest, 'TResponse when 'TRequest :> RequestMessage and 'TResponse :> ResponseMessage<'TRequest>> : HandleRequest<'TRequest, 'TResponse> -> unit
+    abstract member subscribeToRequest<'TRequest, 'TResponse when 'TRequest :> RequestMessage and 'TResponse :> ResponseMessage<'TRequest>> : MaybeHandleRequest<'TRequest, 'TResponse> -> unit

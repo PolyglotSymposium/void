@@ -15,7 +15,7 @@ module CommandLanguage =
     let handleRequest language request =
         {
             CurrentCommandLanguage = !language
-        } :> ResponseMessage<GetCurrentCommandLanguageRequest>
+        }
 
     let handleCommand _ (ChangeCurrentCommandLanguageTo newLanguage) =
         newLanguage, CurrentCommandLanguageChangedTo newLanguage :> Message

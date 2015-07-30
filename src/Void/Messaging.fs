@@ -38,9 +38,15 @@ type Channel<'TIn when 'TIn :> Message>
             then Some <| box x.addHandler
             else None
 
-type RequestChannel<'TRequest when 'TRequest :> RequestMessage>
+type RequestChannel =
+    (* F# Why you no have type classes like Haskell!?!?!
+     * Now I will do ugly things, with long names! *)
+    abstract member getBoxedRequestFunctionIfResponseTypeIs<'TMsg> : unit -> obj option
+    abstract member getBoxedSubscribeActionIfResponseTypeIs<'TMsg> : unit -> obj option
+
+type RequestChannel<'TRequest, 'TResponse when 'TRequest :> RequestMessage and 'TResponse :> ResponseMessage<'TRequest>>
     (
-        handlers : MaybeHandleRequest<'TRequest> list
+        handlers : MaybeHandleRequest<'TRequest, 'TResponse> list
     ) =
     let mutable _handlers = handlers
 
@@ -54,21 +60,17 @@ type RequestChannel<'TRequest when 'TRequest :> RequestMessage>
     member x.addHandler handler =
         _handlers <- x.safetyWrap handler :: _handlers
 
-    interface Channel with
-        member x.publish (message : Message) =
-            match message with
-            | :? 'TRequest as msg ->
-                let responses =
-                    _handlers
-                    |> Seq.choose (fun handle -> handle msg)
-                    |> Seq.map (fun response -> response :> Message)
-                if Seq.isEmpty responses
-                then Seq.singleton<Message> { Request = msg }
-                else responses
-            | _ -> Seq.empty
+    member x.request requestMsg =
+        Seq.tryPick (fun handle -> handle requestMsg) handlers
 
-        member x.getBoxedSubscribeActionIfTypeIs<'TMsg>() =
-            if typeof<'TRequest> = typeof<'TMsg>
+    interface RequestChannel with
+        member x.getBoxedRequestFunctionIfResponseTypeIs<'TMsg>() =
+            if typeof<'TResponse> = typeof<'TMsg>
+            then Some <| box x.request
+            else None
+
+        member x.getBoxedSubscribeActionIfResponseTypeIs<'TMsg>() =
+            if typeof<'TResponse> = typeof<'TMsg>
             then Some <| box x.addHandler
             else None
 
@@ -76,10 +78,14 @@ type Bus
     (
         channels : Channel list
     ) =
+    let mutable _requestChannels = []
     let mutable _channels = channels
 
     member private x.addChannel channel =
         _channels <- channel :: _channels
+
+    member private x.addRequestChannel (requestChannel : RequestChannel) =
+        _requestChannels <- requestChannel :: _requestChannels
 
     member x.publishAll messages =
         for message in messages do
@@ -91,42 +97,40 @@ type Bus
             for channel in _channels do
                 channel.publish message |> x.publishAll
 
+    member x.request<'TRequest, 'TResponse when 'TRequest :> RequestMessage and 'TResponse :> ResponseMessage<'TRequest>> requestMsg =
+        let tryGetRequestFunction (channel : RequestChannel) =
+            channel.getBoxedRequestFunctionIfResponseTypeIs<'TResponse>()
+        match List.tryPick tryGetRequestFunction _requestChannels with
+        | Some request ->
+            requestMsg
+            |> unbox<MaybeHandleRequest<'TRequest, 'TResponse>> request
+        | None ->
+            None
+
     member x.subscribe<'TMsg when 'TMsg :> Message> (handle : Handle<'TMsg>) =
         let tryGetSubscribeAction (channel : Channel) =
             channel.getBoxedSubscribeActionIfTypeIs<'TMsg>()
-        match List.choose tryGetSubscribeAction _channels with
-        | [subscribe] ->
+        match List.tryPick tryGetSubscribeAction _channels with
+        | Some subscribe ->
             handle
             |> unbox<Handle<'TMsg> -> unit> subscribe
-        | _ ->
+        | None ->
             x.addChannel <| Channel [ handle ]
 
-    member x.subscribeToRequest<'TRequest when 'TRequest :> RequestMessage> (handleRequest : MaybeHandleRequest<'TRequest>) =
-        let tryGetSubscribeAction (channel : Channel) =
-            channel.getBoxedSubscribeActionIfTypeIs<'TRequest>()
-        match List.choose tryGetSubscribeAction _channels with
-        | [subscribe] ->
+    member x.subscribeToRequest<'TRequest, 'TResponse when 'TRequest :> RequestMessage and 'TResponse :> ResponseMessage<'TRequest>> (handleRequest : MaybeHandleRequest<'TRequest, 'TResponse>) =
+        let tryGetSubscribeAction (channel : RequestChannel) =
+            channel.getBoxedSubscribeActionIfResponseTypeIs<'TResponse>()
+        match List.tryPick tryGetSubscribeAction _requestChannels with
+        | Some subscribe ->
             handleRequest
-            |> unbox<MaybeHandleRequest<'TRequest> -> unit> subscribe
-        | _ ->
-            x.addChannel <| RequestChannel [ handleRequest ]
+            |> unbox<MaybeHandleRequest<'TRequest, 'TResponse> -> unit> subscribe
+        | None ->
+            x.addRequestChannel <| RequestChannel<'TRequest, 'TResponse> [ handleRequest ]
 
-    member x.subscribeToRequest<'TRequest when 'TRequest :> RequestMessage> (handleRequest : HandleRequest<'TRequest>) =
+    member x.subscribeToRequest<'TRequest, 'TResponse when 'TRequest :> RequestMessage and 'TResponse :> ResponseMessage<'TRequest>> (handleRequest : HandleRequest<'TRequest, 'TResponse>) =
         x.subscribeToRequest (handleRequest >> Some)
-
-    member x.subscribeToResponse<'TRequest, 'TResponse when 'TRequest :> RequestMessage and 'TResponse :> ResponseMessage<'TRequest>> (handleResponse : HandleResponse<'TRequest, 'TResponse>) =
-        let tryGetSubscribeAction (channel : Channel) =
-            channel.getBoxedSubscribeActionIfTypeIs<'TResponse>()
-        match List.choose tryGetSubscribeAction _channels with
-        | [subscribe] ->
-            handleResponse
-            |> unbox<HandleResponse<'TRequest, 'TResponse> -> unit> subscribe
-        | _ ->
-            x.addChannel <| RequestChannel<'TRequest> []
-            x.addChannel <| Channel [ handleResponse ]
 
     interface SubscribeToBus with
         member x.subscribe handle = x.subscribe handle
-        member x.subscribeToRequest<'TRequest when 'TRequest :> RequestMessage> (maybeHandleRequest : MaybeHandleRequest<'TRequest>) = x.subscribeToRequest maybeHandleRequest
-        member x.subscribeToRequest<'TRequest when 'TRequest :> RequestMessage> (handleRequest : HandleRequest<'TRequest>) = x.subscribeToRequest handleRequest
-        member x.subscribeToResponse handleResponse = x.subscribeToResponse handleResponse
+        member x.subscribeToRequest<'TRequest, 'TResponse when 'TRequest :> RequestMessage and 'TResponse :> ResponseMessage<'TRequest>> (maybeHandleRequest : MaybeHandleRequest<'TRequest, 'TResponse>) = x.subscribeToRequest maybeHandleRequest
+        member x.subscribeToRequest<'TRequest, 'TResponse when 'TRequest :> RequestMessage and 'TResponse :> ResponseMessage<'TRequest>> (handleRequest : HandleRequest<'TRequest, 'TResponse>) = x.subscribeToRequest handleRequest
