@@ -3,4 +3,3 @@ notifications:
     auth_token:
       secure: Nmuk9tA9cwOJPNEGhvsKrMEQdrLkQet5dbpxIdh4N9GGvmio2pmM/ChnEBRBstND
     channel: vim_and_text_editors
-    template: "{message}, {commitId}, ..."
