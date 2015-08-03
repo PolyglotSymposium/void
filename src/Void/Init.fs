@@ -39,7 +39,8 @@ module Init =
     let buildVoid inputModeChanger (options : VoidOptions) =
         let editorService = EditorService()
         let viewModelService = ViewModelService()
-        let bus = BusImpl [ Channel [ editorService.handleCommand ] ]
+        let bus = BusImpl()
+        bus.subscribe editorService.handleCommand
         let interpreter = Interpreter.init <| VoidScriptEditorModule(bus.publish).Commands
         let interpreterWrapperService = InterpreterWrapperService interpreter
         let modeService = ModeService(NormalModeBindings.InputHandler(),

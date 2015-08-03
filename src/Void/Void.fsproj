@@ -46,7 +46,7 @@
     <Reference Include="System.Numerics" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="InterpreterWrapperService.fs" />
+    <Compile Include="InterpreterWrapper.fs" />
     <Compile Include="Messaging.fs" />
     <Compile Include="MessageLog.fs" />
     <Compile Include="DefaultNormalModeBindings.fs" />

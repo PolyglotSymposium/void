@@ -85,11 +85,12 @@ module WindowBufferMap =
         }
         interface EnvelopeMessage<BufferMessage>
 
-    let handleCurrentWindowMessage windowBufferMap envelope =
-        {
+    let handleCurrentWindowMessage (requestSender : RequestSender) windowBufferMap envelope =
+        (*requestSender.makeRequest {
             BufferId = currentBufferId !windowBufferMap
             Message = envelope.ForBufferInCurrentWindow
-        } :> Message
+        }*)
+        ()
 
     module Service =
         open Void.Core
@@ -98,4 +99,3 @@ module WindowBufferMap =
             let windowBufferMap = ref empty
             bus.subscribe <| Service.wrap windowBufferMap handleVMCommand
             bus.subscribe <| Service.wrap windowBufferMap handleBufferEvent
-            bus.subscribe (handleCurrentWindowMessage windowBufferMap)
