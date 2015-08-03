@@ -8,6 +8,7 @@ module CommandMode =
         | EntryCancelled
         | CharacterBackspaced
         | TextAppended of string
+        | NewlineAppended
         | TextReplaced of string
         | CommandCompleted of string
         interface EventMessage
@@ -15,7 +16,7 @@ module CommandMode =
     let private requestLanguageForInterpreting buffer =
         buffer, GetCurrentCommandLanguageRequest :> Message
 
-    let interpretFragment buffer maybeResponse =
+    let private interpretFragment buffer maybeResponse =
         {
             Language =
                 match maybeResponse with
@@ -24,7 +25,7 @@ module CommandMode =
             Fragment = buffer
         }
 
-    let handleInterpretFragmentResponse buffer maybeResponse =
+    let private handleInterpretFragmentResponse buffer maybeResponse =
         match maybeResponse with
         | Some response ->
             match response with
@@ -33,11 +34,11 @@ module CommandMode =
             | InterpretScriptFragmentResponse.ParseFailed error ->
                 "", CoreEvent.ErrorOccurred error :> Message
             | InterpretScriptFragmentResponse.ParseIncomplete ->
-                buffer + System.Environment.NewLine, noMessage
+                buffer + System.Environment.NewLine, Event.NewlineAppended :> Message
         | None ->
             "", CoreEvent.ErrorOccurred <| Error.NoInterpreter :> Message
 
-    let interpret (requestSender : RequestSender) buffer =
+    let private interpret (requestSender : RequestSender) buffer =
         GetCurrentCommandLanguageRequest
         |> requestSender.makeRequest
         |> interpretFragment buffer
