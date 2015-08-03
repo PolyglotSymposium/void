@@ -43,7 +43,8 @@ type ModeService
 
     member x.handleEvent =
         function
-        | CoreEvent.ErrorOccurred (Error.ScriptFragmentParseFailed _) -> 
+        | CoreEvent.ErrorOccurred (Error.ScriptFragmentParseFailed _)
+        | CoreEvent.ErrorOccurred Error.NoInterpreter -> 
             CoreCommand.ChangeToMode Mode.Normal :> Message // TODO or whatever mode we were in previously?
         | _ -> noMessage
 
