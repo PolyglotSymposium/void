@@ -49,6 +49,7 @@
     <Compile Include="Color.fs" />
     <Compile Include="ViewModelTypes.fs" />
     <Compile Include="DrawingObjects.fs" />
+    <Compile Include="WindowMessages.fs" />
     <Compile Include="ViewModelMessages.fs" />
     <Compile Include="CommandBar.fs" />
     <Compile Include="Render.fs" />

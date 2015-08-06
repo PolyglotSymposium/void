@@ -79,23 +79,27 @@ module WindowBufferMap =
         | BufferEvent.Added _ ->
             loadBufferIntoCurrentWindow windowBufferMap event.BufferId
 
-    type CurrentWindowEnvelopeMessage =
+    let getWindowContentsResponse getBufferContentsResponse =
         {
-            ForBufferInCurrentWindow : BufferMessage
-        }
-        interface EnvelopeMessage<BufferMessage>
+            FirstLineNumber = getBufferContentsResponse.Message.FirstLineNumber
+            RequestedContents = getBufferContentsResponse.Message.RequestedContents
+        } : GetWindowContentsResponse
 
-    let handleCurrentWindowMessage (requestSender : RequestSender) windowBufferMap envelope =
-        (*requestSender.makeRequest {
+    let handleGetWindowContentsRequest (requestSender : PackagedRequestSender) windowBufferMap (request : GetWindowContentsRequest) =
+        requestSender.makePackagedRequest {
             BufferId = currentBufferId !windowBufferMap
-            Message = envelope.ForBufferInCurrentWindow
-        }*)
-        ()
+            Message = { StartingAtLine = request.StartingAtLine }
+        }
+        |> Option.map getWindowContentsResponse
 
     module Service =
         open Void.Core
 
         let subscribe (bus : Bus) =
             let windowBufferMap = ref empty
-            bus.subscribe <| Service.wrap windowBufferMap handleVMCommand
-            bus.subscribe <| Service.wrap windowBufferMap handleBufferEvent
+            Service.wrap windowBufferMap handleVMCommand
+            |> bus.subscribe
+            Service.wrap windowBufferMap handleBufferEvent
+            |> bus.subscribe
+            handleGetWindowContentsRequest bus windowBufferMap
+            |> bus.subscribeToRequest
