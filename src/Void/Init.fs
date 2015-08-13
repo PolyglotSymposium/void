@@ -59,6 +59,7 @@ module Init =
         Notifications.Service.subscribe bus
         Filesystem.Service.subscribe bus
         CommandBar.Service.subscribe bus
+        RenderCommandBar.Service.subscribe bus
         WindowBufferMap.Service.subscribe bus
         NotifyUserOfEvent.Service.subscribe bus
         bus

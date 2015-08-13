@@ -72,4 +72,40 @@ module RenderCommandBar =
 
         (area, render commandBar area origin)
 
+    let handleCommandBarEvent commandBarOrigin event =
+        let renderCommandBar commandBar =
+            asDrawingObjects commandBar !commandBarOrigin
+            |> VMEvent.ViewPortionRendered :> Message
+        match event with
+        | CommandBar.Event.CharacterBackspacedFromLine cell ->
+            backspacedCharacterAsDrawingObject cell !commandBarOrigin
+            |> VMEvent.ViewPortionRendered :> Message
+        | CommandBar.Event.Displayed commandBar ->
+            renderCommandBar commandBar
+        | CommandBar.Event.Hidden commandBar ->
+            renderCommandBar commandBar
+        | CommandBar.Event.TextAppendedToLine textSegment ->
+            appendedTextAsDrawingObject textSegment !commandBarOrigin
+            |> VMEvent.ViewPortionRendered :> Message
+        | CommandBar.Event.TextChanged commandBar ->
+            renderCommandBar commandBar
+        | CommandBar.Event.TextReflowed commandBar ->
+            renderCommandBar commandBar
 
+    [<RequireQualifiedAccess>]
+    type Event =
+        | CommandBarOriginReset of CellGrid.Cell
+        interface EventMessage
+
+    let handleVMEvent commandBarOrigin event =
+        match event with
+        | VMEvent.ViewModelInitialized viewModel ->
+            let newOrigin = ViewModel.upperLeftCellOfCommandBar viewModel
+            newOrigin, Event.CommandBarOriginReset newOrigin :> Message
+        | _ -> commandBarOrigin, noMessage
+
+    module Service =
+        let subscribe (bus : Bus) =
+            let commandBarOrigin = ref CellGrid.originCell
+            handleCommandBarEvent commandBarOrigin |> bus.subscribe
+            Service.wrap commandBarOrigin handleVMEvent |> bus.subscribe

@@ -28,27 +28,6 @@ type ViewModelService() =
         | _ ->
             noMessage
 
-    member x.handleCommandBarEvent event =
-        let commandBarOrigin = ViewModel.upperLeftCellOfCommandBar _viewModel
-        let renderCommandBar commandBar =
-            RenderCommandBar.asDrawingObjects commandBar commandBarOrigin
-            |> VMEvent.ViewPortionRendered :> Message
-        match event with
-        | CommandBar.Event.CharacterBackspacedFromLine cell ->
-            RenderCommandBar.backspacedCharacterAsDrawingObject cell commandBarOrigin
-            |> VMEvent.ViewPortionRendered :> Message
-        | CommandBar.Event.Displayed commandBar ->
-            renderCommandBar commandBar
-        | CommandBar.Event.Hidden commandBar ->
-            renderCommandBar commandBar
-        | CommandBar.Event.TextAppendedToLine textSegment ->
-            RenderCommandBar.appendedTextAsDrawingObject textSegment commandBarOrigin
-            |> VMEvent.ViewPortionRendered :> Message
-        | CommandBar.Event.TextChanged commandBar ->
-            renderCommandBar commandBar
-        | CommandBar.Event.TextReflowed commandBar ->
-            renderCommandBar commandBar
-
     member x.handleBufferEvent event =
         match event.Message with
         | BufferEvent.Added buffer ->
@@ -72,4 +51,3 @@ type ViewModelService() =
         bus.subscribe x.handleBufferEvent
         bus.subscribe x.handleCommand
         bus.subscribe x.handleVMCommand
-        bus.subscribe x.handleCommandBarEvent
