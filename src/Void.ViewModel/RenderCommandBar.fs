@@ -40,16 +40,16 @@ module RenderCommandBar =
                  renderPrompt origin prompt :: renderLines origin lines
         |> Seq.ofList
 
-    let backspacedCharacterAsDrawingObject cell origin =
+    let private backspacedCharacterAsDrawingObject cell origin =
         let offsetCell = CellGrid.vectorAdd origin cell 
         let area = GridConvert.boxAroundOneCell offsetCell
         let drawing = DrawingObject.Block {
             Area = area
             Color = Colors.defaultColorscheme.Background
         }
-        (area, Seq.singleton drawing)
+        area, Seq.singleton drawing
 
-    let appendedTextAsDrawingObject textSegment origin =
+    let private appendedTextAsDrawingObject textSegment origin =
         let offsetCell = CellGrid.vectorAdd origin textSegment.LeftMostCell 
         let area = GridConvert.boxAroundOneCell offsetCell // TODO but what if it's not one cell?
         let drawing = DrawingObject.Text {
@@ -57,7 +57,7 @@ module RenderCommandBar =
             UpperLeftCorner = GridConvert.upperLeftCornerOf offsetCell
             Color = Colors.defaultColorscheme.Foreground
         }
-        (area, Seq.singleton drawing)
+        area, Seq.singleton drawing
 
     let asDrawingObjects commandBar origin =
         let height =
@@ -70,27 +70,31 @@ module RenderCommandBar =
             Dimensions = { Height = height; Width = commandBar.Width }
         }
 
-        (area, render commandBar area origin)
+        area, render commandBar area origin
+
+    let private renderCommandBar commandBar commandBarOrigin =
+        asDrawingObjects commandBar !commandBarOrigin
+        |> VMEvent.ViewPortionRendered :> Message
 
     let handleCommandBarEvent commandBarOrigin event =
-        let renderCommandBar commandBar =
-            asDrawingObjects commandBar !commandBarOrigin
-            |> VMEvent.ViewPortionRendered :> Message
         match event with
         | CommandBar.Event.CharacterBackspacedFromLine cell ->
             backspacedCharacterAsDrawingObject cell !commandBarOrigin
             |> VMEvent.ViewPortionRendered :> Message
         | CommandBar.Event.Displayed commandBar ->
-            renderCommandBar commandBar
+            renderCommandBar commandBar commandBarOrigin
         | CommandBar.Event.Hidden commandBar ->
-            renderCommandBar commandBar
+            renderCommandBar commandBar commandBarOrigin
         | CommandBar.Event.TextAppendedToLine textSegment ->
             appendedTextAsDrawingObject textSegment !commandBarOrigin
             |> VMEvent.ViewPortionRendered :> Message
         | CommandBar.Event.TextChanged commandBar ->
-            renderCommandBar commandBar
+            renderCommandBar commandBar commandBarOrigin
         | CommandBar.Event.TextReflowed commandBar ->
-            renderCommandBar commandBar
+            renderCommandBar commandBar commandBarOrigin
+
+    let handleCommandBarCommand commandBarOrigin (CommandBar.Command.Redraw commandBar) =
+        renderCommandBar commandBar commandBarOrigin
 
     [<RequireQualifiedAccess>]
     type Event =
@@ -108,4 +112,5 @@ module RenderCommandBar =
         let subscribe (bus : Bus) =
             let commandBarOrigin = ref CellGrid.originCell
             handleCommandBarEvent commandBarOrigin |> bus.subscribe
+            handleCommandBarCommand commandBarOrigin |> bus.subscribe
             Service.wrap commandBarOrigin handleVMEvent |> bus.subscribe

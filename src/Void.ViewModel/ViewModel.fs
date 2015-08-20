@@ -31,7 +31,6 @@ module ViewModel =
             FontSize = defaultFontSize
             TabBar = []
             VisibleWindows = [defaultWindowView Sizing.defaultViewArea]
-            Notifications = []
         }
 
     let bufferFrom (windowSize : Dimensions) lines =
@@ -57,14 +56,6 @@ module ViewModel =
             UpperLeftCell = originCell
             Dimensions = view.Size
         }
-
-    let toScreenNotification =
-        function
-        | UserNotification.Output notificationText -> UserNotificationView.Text notificationText
-        | UserNotification.Error error -> UserNotificationView.Error <| Errors.textOf error
-
-    let addNotification viewModel notification =
-        { viewModel with Notifications = notification :: viewModel.Notifications }
 
     let upperLeftCellOfCommandBar viewModel =
         // TODO this is just hacked together for the moment

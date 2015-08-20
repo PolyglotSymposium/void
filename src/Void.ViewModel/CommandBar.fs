@@ -20,6 +20,11 @@ module CommandBar =
         }
 
     [<RequireQualifiedAccess>]
+    type Command =
+        | Redraw of CommandBarView
+        interface CommandMessage
+
+    [<RequireQualifiedAccess>]
     type Event =
         | CharacterBackspacedFromLine of CellGrid.Cell
         | Displayed of CommandBarView
@@ -85,6 +90,12 @@ module CommandBar =
         | CoreEvent.ModeChanged { From = _; To = Mode.Command } -> show
         | _ -> (commandBar, noMessage)
 
+    let handleCoreCommand commandBar command =
+        match command with
+        | CoreCommand.Redraw ->
+             Command.Redraw !commandBar :> Message
+        | _ -> noMessage
+
     let handleCommandModeEvent commandBar event =
         match event with
         | CommandMode.Event.EntryCancelled -> hide
@@ -99,5 +110,7 @@ module CommandBar =
 
         let subscribe (bus : Bus) =
             let commandBar = ref hidden
-            bus.subscribe <| Service.wrap commandBar handleEvent
-            bus.subscribe <| Service.wrap commandBar handleCommandModeEvent
+            Service.wrap commandBar handleEvent |> bus.subscribe
+            Service.wrap commandBar handleCommandModeEvent |> bus.subscribe
+            handleCoreCommand commandBar |> bus.subscribe
+

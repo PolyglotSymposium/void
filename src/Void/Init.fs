@@ -62,6 +62,8 @@ module Init =
         RenderCommandBar.Service.subscribe bus
         WindowBufferMap.Service.subscribe bus
         NotifyUserOfEvent.Service.subscribe bus
+        Window.Service.subscribe bus
+        RenderNotificationBar.Service.subscribe bus
         bus
 
     let launchVoid (bus : BusImpl) =

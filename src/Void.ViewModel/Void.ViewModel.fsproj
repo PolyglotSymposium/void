@@ -58,6 +58,9 @@
     <Compile Include="ViewModelService.fs" />
     <Compile Include="WindowBufferMap.fs" />
     <Compile Include="NotifyUserOfEvent.fs" />
+    <Compile Include="Window.fs" />
+    <Compile Include="NotificationBar.fs" />
+    <Compile Include="RenderNotificationBar.fs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Void.Core\Void.Core.fsproj">

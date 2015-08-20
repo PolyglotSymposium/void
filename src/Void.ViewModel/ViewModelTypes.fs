@@ -46,11 +46,6 @@ type TabNameView =
     | Unfocused of string
     | Focused of string
 
-[<RequireQualifiedAccess>]
-type UserNotificationView =
-    | Text of string
-    | Error of string
-
 type MainViewModel = {
     Size : CellGrid.Dimensions
     Title : string
@@ -58,5 +53,4 @@ type MainViewModel = {
     FontSize : int
     TabBar : TabNameView list
     VisibleWindows : WindowView list
-    Notifications : UserNotificationView list
 }

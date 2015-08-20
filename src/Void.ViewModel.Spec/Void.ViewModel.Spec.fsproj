@@ -61,6 +61,7 @@
     <Compile Include="ViewModelSpec.fs" />
     <Compile Include="CommandBarSpec.fs" />
     <Compile Include="RenderSpec.fs" />
+    <Compile Include="RenderNotificationBarSpec.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FsUnit.NUnit">

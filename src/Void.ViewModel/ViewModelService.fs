@@ -36,18 +36,7 @@ type ViewModelService() =
             let area = GridConvert.boxAround (ViewModel.wholeArea _viewModel) (* TODO shouldn't redraw the whole UI *)
             VMEvent.ViewPortionRendered(area, drawings) :> Message
 
-    member x.handleEvent =
-        function // TODO clearly the code below needs to be refactored
-        | CoreEvent.NotificationAdded notification ->
-            let area = ViewModel.areaOfCommandBarOrNotifications _viewModel
-            let drawing = ViewModel.toScreenNotification notification
-                          |> Render.notificationAsDrawingObject area.UpperLeftCell
-            let areaInPoints = GridConvert.boxAround area
-            VMEvent.ViewPortionRendered(areaInPoints, [drawing]) :> Message
-        | _ -> noMessage
-
     member x.subscribe (bus : Bus) =
-        bus.subscribe x.handleEvent
         bus.subscribe x.handleBufferEvent
         bus.subscribe x.handleCommand
         bus.subscribe x.handleVMCommand

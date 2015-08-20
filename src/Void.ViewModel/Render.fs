@@ -1,7 +1,6 @@
 ﻿namespace Void.ViewModel
 
 open Void.Core
-
 module Render =
     open Void.Core.CellGrid
 
@@ -14,27 +13,6 @@ module Render =
 
     let textLinesAsDrawingObjects =
         List.mapi textLineAsDrawingObject
-
-    let notificationAsDrawingObject upperLeft notification =
-        match notification with
-        | UserNotificationView.Text text ->
-            {
-                Text = text
-                UpperLeftCorner = GridConvert.upperLeftCornerOf upperLeft
-                Color = Colors.defaultColorscheme.Foreground
-            }
-        | UserNotificationView.Error text ->
-            {
-                Text = text
-                UpperLeftCorner = GridConvert.upperLeftCornerOf upperLeft
-                Color = Colors.defaultColorscheme.Error
-            }
-        |> DrawingObject.Text
-
-    let notificationsAsDrawingObjects width upperLeft notifications =
-        let asDrawingObject =
-            notificationAsDrawingObject upperLeft
-        notifications |> List.map asDrawingObject
 
     let tabBarAsDrawingObjects tabBar = []
 
@@ -69,7 +47,6 @@ module Render =
         [
             tabBarAsDrawingObjects viewModel.TabBar
             windowsAsDrawingObjects viewModel.VisibleWindows
-            notificationsAsDrawingObjects viewModel.Size.Columns originCell viewModel.Notifications 
         ] |> Seq.concat
 
     let currentBufferAsDrawingObjects viewModel =
