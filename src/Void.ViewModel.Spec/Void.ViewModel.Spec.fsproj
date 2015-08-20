@@ -58,9 +58,9 @@
     <Content Include="packages.config" />
     <Content Include="app.config" />
     <Compile Include="RenderCommandBarSpec.fs" />
-    <Compile Include="ViewModelSpec.fs" />
+    <Compile Include="WindowSpec.fs" />
     <Compile Include="CommandBarSpec.fs" />
-    <Compile Include="RenderSpec.fs" />
+    <Compile Include="RenderWindowsSpec.fs" />
     <Compile Include="RenderNotificationBarSpec.fs" />
   </ItemGroup>
   <ItemGroup>

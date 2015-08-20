@@ -1,7 +1,7 @@
 ﻿namespace Void.ViewModel
 
-open Void.Core
-module Render =
+module RenderWindows =
+    open Void.Core
     open Void.Core.CellGrid
 
     let private textLineAsDrawingObject x line =
@@ -14,15 +14,13 @@ module Render =
     let textLinesAsDrawingObjects =
         List.mapi textLineAsDrawingObject
 
-    let tabBarAsDrawingObjects tabBar = []
-
-    let bufferAsDrawingObjects windowArea (buffer : BufferView) =
+    let contentsAsDrawingObjects windowArea (buffer : string list) =
         let background = DrawingObject.Block {
             Area = GridConvert.boxAround windowArea
             Color = Colors.defaultColorscheme.Background
         }
 
-        let bufferLines = textLinesAsDrawingObjects buffer.LinesOfText
+        let bufferLines = textLinesAsDrawingObjects buffer
 
         let rowsNotInBuffer =
             let lineNotInBufferAsDrawingObject i =
@@ -40,16 +38,27 @@ module Render =
 
         List.append (background :: bufferLines) rowsNotInBuffer
 
-    let windowsAsDrawingObjects (windows : WindowView list) =
-        bufferAsDrawingObjects windows.[0].Area windows.[0].Buffer
+    let private renderWindow area contents =
+        let drawings = contentsAsDrawingObjects area contents
+        VMEvent.ViewPortionRendered(GridConvert.boxAround area, drawings) :> Message
 
-    let viewModelAsDrawingObjects viewModel =
+    let asDrawingObjects (windows : WindowView list) =
         [
-            tabBarAsDrawingObjects viewModel.TabBar
-            windowsAsDrawingObjects viewModel.VisibleWindows
+            contentsAsDrawingObjects windows.[0].Area windows.[0].Buffer
         ] |> Seq.concat
 
-    let currentBufferAsDrawingObjects viewModel =
-        viewModel.VisibleWindows.[0].Buffer
-        |> bufferAsDrawingObjects viewModel.VisibleWindows.[0].Area
+    let handleWindowEvent area event =
+        match event with
+        | Window.Event.ContentsUpdated contents ->
+            renderWindow !area contents
+        | Window.Event.Initialized window ->
+            renderWindow !area window.Buffer
 
+    let handleWindowCommand area (Window.Command.RedrawWindow window) =
+        renderWindow !area window.Buffer
+
+    module Service =
+        let subscribe (bus : Bus) =
+            let area = ref zeroBlock
+            handleWindowEvent area |> bus.subscribe
+            handleWindowCommand area |> bus.subscribe

@@ -5,23 +5,13 @@ module Sizing =
     let defaultViewSize = { Rows = 26; Columns = 80 }
     let defaultViewArea = { UpperLeftCell = originCell; Dimensions = defaultViewSize }
 
-module ViewModel =
+module ViewModel = // TODO name suspect at this point
     open Void.Util
     open Void.Core
     open Void.Core.CellGrid
 
     let defaultTitle = "Void - A text editor in the spirit of Vim"
     let defaultFontSize = 9
-    let defaultBuffer = { LinesOfText = [] }
-
-    let defaultWindowView containingArea =
-        {
-            StatusLine = StatusLineView.Focused
-            Buffer = defaultBuffer
-            Area = lessRowsBelow 1 containingArea
-            Cursor = Visible <| CursorView.Block originCell
-            TopLineNumber = 1<mLine>
-        }
 
     let defaultViewModel =
         {
@@ -29,27 +19,7 @@ module ViewModel =
             Title = defaultTitle
             BackgroundColor = Colors.defaultColorscheme.Background
             FontSize = defaultFontSize
-            TabBar = []
-            VisibleWindows = [defaultWindowView Sizing.defaultViewArea]
         }
-
-    let bufferFrom (windowSize : Dimensions) lines =
-        let truncateToWindowWidth = StringUtil.noLongerThan windowSize.Columns
-        {
-            LinesOfText = lines
-            |> SeqUtil.notMoreThan windowSize.Rows
-            |> Seq.map truncateToWindowWidth
-            |> Seq.toList
-        }
-
-    let toScreenBuffer windowSize (buffer : FileBufferProxy) =
-        bufferFrom windowSize buffer.Contents
-
-    let private loadBufferIntoWindow buffer window =
-        { window with Buffer = toScreenBuffer window.Area.Dimensions buffer }
-
-    let loadBuffer buffer view =
-        { view with VisibleWindows = [loadBufferIntoWindow buffer view.VisibleWindows.[0]] }
 
     let wholeArea view =
         {

@@ -11,32 +11,8 @@ type ViewModelService() =
             VMEvent.ViewModelInitialized _viewModel :> Message
         | CoreCommand.Display _ ->
             notImplemented
-        | CoreCommand.Redraw ->
-            (GridConvert.boxAround (ViewModel.wholeArea _viewModel), Render.viewModelAsDrawingObjects _viewModel)
-            |> VMEvent.ViewPortionRendered :> Message
         | _ ->
             noMessage
-
-    member x.handleVMCommand =
-        function
-        | VMCommand.Scroll movement ->
-            match movement with
-            | Move.Backward xLines ->
-                noMessage
-            | Move.Forward xLines ->
-                noMessage
-        | _ ->
-            noMessage
-
-    member x.handleBufferEvent event =
-        match event.Message with
-        | BufferEvent.Added buffer ->
-            _viewModel <- ViewModel.loadBuffer buffer _viewModel
-            let drawings = Render.currentBufferAsDrawingObjects _viewModel
-            let area = GridConvert.boxAround (ViewModel.wholeArea _viewModel) (* TODO shouldn't redraw the whole UI *)
-            VMEvent.ViewPortionRendered(area, drawings) :> Message
 
     member x.subscribe (bus : Bus) =
-        bus.subscribe x.handleBufferEvent
         bus.subscribe x.handleCommand
-        bus.subscribe x.handleVMCommand

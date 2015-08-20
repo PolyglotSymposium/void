@@ -1,5 +1,18 @@
 ﻿namespace Void.ViewModel
 
+(* "Command line" is too equivocal. I mean the ; (or : in Vim) bar at the
+ * bottom of the screen *)
+[<RequireQualifiedAccess>]
+type CommandBarPrompt =
+    | VoidDefault
+    | ClassicVim
+
+type CommandBarView = {
+    Width : int
+    Prompt : CommandBarPrompt Visibility
+    WrappedLines : string list
+}
+
 module CommandBar =
     open Void.Core
     open Void.Core.CellGrid

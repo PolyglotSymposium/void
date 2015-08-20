@@ -30,6 +30,8 @@ module CellGrid =
         Dimensions : Dimensions
     }
     let originCell = { Row = 0; Column = 0 }
+    let zeroDimensions = { Rows = 0; Columns = 0 }
+    let zeroBlock = { UpperLeftCell = originCell; Dimensions = zeroDimensions }
 
     let rightOf cell count =
         { Row = cell.Row; Column = cell.Column + count }

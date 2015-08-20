@@ -63,6 +63,7 @@ module Init =
         WindowBufferMap.Service.subscribe bus
         NotifyUserOfEvent.Service.subscribe bus
         Window.Service.subscribe bus
+        RenderWindows.Service.subscribe bus
         RenderNotificationBar.Service.subscribe bus
         bus
 
