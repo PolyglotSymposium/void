@@ -83,7 +83,7 @@ module BufferList =
         | CoreCommand.WriteBufferToPath (bufferId, path) ->
             writeBufferToPath bufferList bufferId path
         | _ -> 
-            (bufferList, noMessage)
+            bufferList, noMessage
 
     let private package bufferId message =
         {
@@ -104,13 +104,12 @@ module BufferList =
                     else Buffer.readLines buffer envelope.Message.StartingAtLine
             }
             |> package envelope.BufferId
-            :> EnvelopeMessage<GetBufferContentsResponse>
-            //:> EnvelopeMessage<ResponseMessage<GetBufferContentsRequest>>
             |> Some
         else None
 
     module Service =
         let subscribe (bus : Bus) =
             let bufferList = ref empty
-            bus.subscribe <| Service.wrap bufferList handleCommand
-            bus.subscribe <| Service.wrap bufferList handleEvent
+            Service.wrap bufferList handleCommand |> bus.subscribe
+            Service.wrap bufferList handleEvent |> bus.subscribe
+            handleGetBufferContentsRequest bufferList |> bus.subscribeToPackagedRequest

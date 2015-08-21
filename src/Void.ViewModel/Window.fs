@@ -61,16 +61,25 @@ module Window =
         | BufferEvent.Added buffer ->
             loadBufferIntoWindow buffer window
 
-    let handleVMCommand =
-        function
+    let private scroll (requestSender : RequestSender) window xLines =
+        let request : GetWindowContentsRequest = { StartingAtLine = window.TopLineNumber + xLines }
+        match requestSender.makeRequest request with
+        | Some (response : GetWindowContentsResponse) ->
+            let updatedWindow = { window with TopLineNumber = response.FirstLineNumber; Buffer = Seq.toList response.RequestedContents }
+            updatedWindow, Event.ContentsUpdated window :> Message
+        | None -> window, noMessage
+
+    let handleVMCommand requestSender window command =
+        match command with
         | VMCommand.Scroll movement ->
             match movement with
             | Move.Backward xLines ->
-                noMessage
+                // TODO bounds checking
+                scroll requestSender window -xLines
             | Move.Forward xLines ->
-                noMessage
+                scroll requestSender window xLines
         | _ ->
-            noMessage
+            window, noMessage
 
     let handleCoreCommand window command =
         match command with
@@ -91,3 +100,4 @@ module Window =
             Service.wrap window handleBufferEvent |> bus.subscribe
             handleCoreCommand window |> bus.subscribe
             Service.wrap window handleVMEvent |> bus.subscribe
+            Service.wrap window (handleVMCommand bus) |> bus.subscribe
