@@ -9,7 +9,7 @@ type StatusLineView = // TODO much yet to be done here
 
 type WindowView = {
     StatusLine : StatusLineView
-    Area : CellGrid.Block
+    Dimensions : CellGrid.Dimensions
     Buffer : string list
     Cursor : CursorView Visibility
     TopLineNumber : int<mLine>
@@ -21,7 +21,7 @@ module Window =
 
     [<RequireQualifiedAccess>]
     type Event =
-        | ContentsUpdated of string list
+        | ContentsUpdated of WindowView
         | Initialized of WindowView
         interface EventMessage
 
@@ -34,13 +34,13 @@ module Window =
         {
             StatusLine = StatusLineView.Focused
             Buffer = []
-            Area = zeroBlock
+            Dimensions = zeroDimensions
             Cursor = Visible <| CursorView.Block originCell
             TopLineNumber = 1<mLine>
         }
 
     let private windowInArea window containingArea =
-        { zeroWindowView with Area = lessRowsBelow 1 containingArea }
+        { zeroWindowView with Dimensions = (lessRowsBelow 1 containingArea).Dimensions }
 
     let bufferFrom (windowSize : Dimensions) lines =
         let truncateToWindowWidth = StringUtil.noLongerThan windowSize.Columns
@@ -52,9 +52,9 @@ module Window =
     let private toScreenBuffer windowSize (buffer : FileBufferProxy) =
         bufferFrom windowSize buffer.Contents
 
-    let private loadBufferIntoWindow buffer window =
-        let updatedContents = toScreenBuffer window.Area.Dimensions buffer
-        { window with Buffer = updatedContents }, Event.ContentsUpdated updatedContents :> Message
+    let private loadBufferIntoWindow buffer (window : WindowView) =
+        let updatedWindow = { window with Buffer = toScreenBuffer window.Dimensions buffer }
+        updatedWindow, Event.ContentsUpdated updatedWindow :> Message
 
     let handleBufferEvent window event =
         match event.Message with
