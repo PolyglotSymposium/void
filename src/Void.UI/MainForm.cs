@@ -13,9 +13,9 @@ namespace Void.UI
     {
         private readonly BusImpl _bus;
         private readonly WinFormsInputModeChanger _inputModeChanger;
+        private readonly List<DrawingObject> _drawings = new List<DrawingObject>();
         private Font _font = new Font(FontFamily.GenericMonospace, 9);
         private CellMetrics _cellMetrics;
-        private IEnumerable<DrawingObject> _drawings;
 
 
         public MainForm(BusImpl bus, WinFormsInputModeChanger inputModeChanger)
@@ -40,7 +40,7 @@ namespace Void.UI
         {
             if (eventMsg.IsViewPortionRendered)
             {
-                _drawings = ((VMEvent.ViewPortionRendered)eventMsg).Item2;
+                _drawings.AddRange(((VMEvent.ViewPortionRendered)eventMsg).Item2);
                 if (_cellMetrics != null)
                 {
                     TriggerDraw(((VMEvent.ViewPortionRendered)eventMsg).Item1);
@@ -103,7 +103,7 @@ namespace Void.UI
                     {
                         artist.Draw(drawing);
                     }
-                    _drawings = Enumerable.Empty<DrawingObject>();
+                    _drawings.Clear();
                 }
                 else
                 {
