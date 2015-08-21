@@ -89,7 +89,7 @@ type ``Editing command mode``() =
     member x.``When the command text parse is incomplete, a newline is added to the command text``() =
         requestSenderStub.registerResponse parseIncomplete
         CommandMode.handle requestSenderStub "edit" enter
-        |> should equal ("edit" + System.Environment.NewLine, CommandMode.NewlineAppended :> Message)
+        |> should equal ("edit" + System.Environment.NewLine, CommandMode.Event.NewlineAppended :> Message)
 
     [<Test>]
     member x.``When escape is pressed, command entry is cancelled``() =
