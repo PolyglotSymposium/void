@@ -1,8 +1,7 @@
 version: 0.0.0.{build}
-build:
-  verbosity: minimal
-test:
-  assemblies: '**\*.Spec.dll'
+build_script:
+- ./build.bat
+test: off
 notifications:
 - provider: Slack
   auth_token:

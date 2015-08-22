@@ -1,11 +1,8 @@
 language: csharp
 solution: src/Void.sln
-install:
-- nuget restore src/Void.sln
-- nuget install NUnit.Runners -Version 2.6.4 -OutputDirectory testrunner
+sudo: false
 script:
-- xbuild /p:Configuration=Release src/Void.sln
-- mono ./testrunner/NUnit.Runners.2.6.4/tools/nunit-console.exe ./src/Void*Spec/bin/Release/Void*Spec.dll
+- ./build.sh
 notifications:
   slack:
     secure: ClFSQvKGQe0JN8iircAYscyYZT0r+AFn9iUdd3WctxxG6jQTZGkjeAd4XvecTarlhGU/xXe13m2E2PLY7QN3AJIkELdp5HppoM2ih+dz8kGQzTYBVKMXHf533biMQrSgDzqAzUpsLuWh09Yu85LTfrQuqoSA5vsUuGIOzAzgdJg=
