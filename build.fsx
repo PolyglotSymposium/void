@@ -1,8 +1,6 @@
-#r "./src/packages/FAKE/tools/FakeLib.dll"
+#r "./tools/FAKE/tools/FakeLib.dll"
 open Fake
 open Fake.NuGet.Install
-
-RestorePackages()
 
 // Properties
 let buildDir = "./build/"
@@ -10,6 +8,12 @@ let buildDir = "./build/"
 // Targets
 Target "Clean" (fun _ ->
     CleanDirs [buildDir]
+)
+
+Target "RestorePackages" (fun _ ->
+    "src/Void.sln"
+    |> RestoreMSSolutionPackages (fun p ->
+        { p with OutputPath = "src/packages" })
 )
 
 Target "Compile" (fun _ ->
@@ -45,6 +49,7 @@ Target "Default" (fun _ ->
 
 // Dependencies
 "Clean"
+  ==> "RestorePackages"
   ==> "Compile"
   ==> "AcquireUnitTestRunner"
   ==> "Test"
