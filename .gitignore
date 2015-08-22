@@ -19,6 +19,7 @@ build/
 bld/
 [Bb]in/
 [Oo]bj/
+tools/
 
 # Roslyn cache directories
 *.ide/
@@ -187,3 +188,10 @@ UpgradeLog*.htm
 
 # Microsoft Fakes
 FakesAssemblies/
+
+# Vim
+*.swp
+*.swo
+
+# Fake
+.fake
