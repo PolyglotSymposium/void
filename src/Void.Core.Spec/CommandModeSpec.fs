@@ -4,35 +4,6 @@ open Void.Core
 open NUnit.Framework
 open FsUnit
 
-type RequestSenderStub() =
-    let mutable _requests = []
-    let mutable _responses = []
-
-    member x.registerResponse<'TRequest, 'TResponse when 'TRequest :> RequestMessage and 'TResponse :> ResponseMessage<'TRequest>> (response : 'TResponse) =
-        _responses <- box response :: _responses
-
-    member x.tryPickRequest<'TRequest when 'TRequest :> RequestMessage>() =
-        let tryUnbox request =
-            try
-                unbox<'TRequest> request |> Some
-            with _ -> 
-                None
-        _requests |> List.tryPick tryUnbox
-
-    member x.reset() =
-        _requests <- []
-        _responses <- []
-
-    interface RequestSender with
-        member x.makeRequest<'TRequest, 'TResponse when 'TRequest :> RequestMessage and 'TResponse :> ResponseMessage<'TRequest>> (request : 'TRequest) =
-            let tryUnbox response =
-                try
-                    unbox<'TResponse> response |> Some
-                with _ -> 
-                    None
-            _requests <- box request :: _requests
-            _responses |> List.tryPick tryUnbox
-
 [<TestFixture>]
 type ``Editing command mode``() = 
     let success = InterpretScriptFragmentResponse.Completed
@@ -42,7 +13,7 @@ type ``Editing command mode``() =
     let enter = TextOrHotKey.HotKey HotKey.Enter
     let escape = TextOrHotKey.HotKey HotKey.Escape
     let backspace = TextOrHotKey.HotKey HotKey.Backspace
-    let requestSenderStub = RequestSenderStub()
+    let requestSenderStub = CannedResponseRequestSender()
 
     let typeIncrement increment buffer expected =
         TextOrHotKey.Text increment

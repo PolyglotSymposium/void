@@ -42,6 +42,9 @@ module Window =
     let private windowInArea window containingArea =
         { zeroWindowView with Dimensions = (lessRowsBelow 1 containingArea).Dimensions }
 
+    let defaultWindowView =
+        { zeroWindowView with Dimensions = Sizing.defaultViewSize }
+
     let bufferFrom (windowSize : Dimensions) lines =
         let truncateToWindowWidth = StringUtil.noLongerThan windowSize.Columns
         lines
@@ -66,7 +69,7 @@ module Window =
         match requestSender.makeRequest request with
         | Some (response : GetWindowContentsResponse) ->
             let updatedWindow = { window with TopLineNumber = response.FirstLineNumber; Buffer = Seq.toList response.RequestedContents }
-            updatedWindow, Event.ContentsUpdated window :> Message
+            updatedWindow, Event.ContentsUpdated updatedWindow :> Message
         | None -> window, noMessage
 
     let handleVMCommand requestSender window command =
