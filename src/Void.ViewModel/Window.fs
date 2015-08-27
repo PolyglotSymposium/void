@@ -73,16 +73,20 @@ module Window =
         | None -> window, noMessage
 
     let handleVMCommand requestSender window command =
+        let noScroll = window, noMessage
         match command with
         | VMCommand.Scroll movement ->
             match movement with
             | Move.Backward xLines ->
-                // TODO bounds checking
-                scroll requestSender window -xLines
+                if window.TopLineNumber > 1<mLine>
+                then scroll requestSender window -xLines
+                else noScroll
             | Move.Forward xLines ->
-                scroll requestSender window xLines
+                if window.Buffer.Length > 1
+                then scroll requestSender window xLines
+                else noScroll
         | _ ->
-            window, noMessage
+            noScroll
 
     let handleCoreCommand window command =
         match command with

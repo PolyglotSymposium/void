@@ -57,46 +57,100 @@ type ``Scrolling``() =
 
     [<Test>]
     member x.``up when we are already at the top of the file should do nothing``() =
-        []
-        |> should equal []
+        let windowBefore = { Window.defaultWindowView with Buffer = ["a"; "b"; "c"; "d"; "e"; "f"] }
+        ({
+            FirstLineNumber = 4<mLine>
+            RequestedContents = ["d"; "e"; "f"]
+        } : GetWindowContentsResponse) |> requestSenderStub.registerResponse
+
+        Move.Backward 3<mLine>
+        |> VMCommand.Scroll
+        |> Window.handleVMCommand requestSenderStub windowBefore 
+        |> shouldEqual (windowBefore, noMessage)
 
     [<Test>]
     member x.``up one line when the top line is two should work``() =
-        []
-        |> should equal []
+        let windowBefore = { Window.defaultWindowView with Buffer = ["b"; "c"; "d"; "e"; "f"]; TopLineNumber = 2<mLine> }
+        let windowAfter = { windowBefore with TopLineNumber = 1<mLine>; Buffer = ["a"; "b"; "c"; "d"; "e"; "f"] }
+        ({
+            FirstLineNumber = 1<mLine>
+            RequestedContents = ["a"; "b"; "c"; "d"; "e"; "f"]
+        } : GetWindowContentsResponse) |> requestSenderStub.registerResponse
+
+        Move.Backward 1<mLine>
+        |> VMCommand.Scroll
+        |> Window.handleVMCommand requestSenderStub windowBefore 
+        |> shouldEqual (windowAfter, Window.Event.ContentsUpdated windowAfter :> Message)
 
     [<Test>]
     member x.``up three lines when the top line is four should go to the top of the file``() =
-        []
-        |> should equal []
+        let windowBefore = { Window.defaultWindowView with Buffer = ["d"; "e"; "f"]; TopLineNumber = 4<mLine> }
+        let windowAfter = { windowBefore with TopLineNumber = 1<mLine>; Buffer = ["a"; "b"; "c"; "d"; "e"; "f"] }
+        ({
+            FirstLineNumber = 1<mLine>
+            RequestedContents = ["a"; "b"; "c"; "d"; "e"; "f"]
+        } : GetWindowContentsResponse) |> requestSenderStub.registerResponse
+
+        Move.Backward 3<mLine>
+        |> VMCommand.Scroll
+        |> Window.handleVMCommand requestSenderStub windowBefore 
+        |> shouldEqual (windowAfter, Window.Event.ContentsUpdated windowAfter :> Message)
 
     [<Test>]
-    member x.``up three lines when the top line is three should go to the top of the file``() =
-        []
-        |> should equal []
+    member x.``up four lines when the top line is three should go to the top of the file``() =
+        let windowBefore = { Window.defaultWindowView with Buffer = ["d"; "e"; "f"]; TopLineNumber = 3<mLine> }
+        let windowAfter = { windowBefore with TopLineNumber = 1<mLine>; Buffer = ["a"; "b"; "c"; "d"; "e"; "f"] }
+        ({
+            FirstLineNumber = 1<mLine>
+            RequestedContents = ["a"; "b"; "c"; "d"; "e"; "f"]
+        } : GetWindowContentsResponse) |> requestSenderStub.registerResponse
+
+        Move.Backward 4<mLine>
+        |> VMCommand.Scroll
+        |> Window.handleVMCommand requestSenderStub windowBefore 
+        |> shouldEqual (windowAfter, Window.Event.ContentsUpdated windowAfter :> Message)
+
+    [<Test>]
+    member x.``up when the buffer is empty should do nothing``() =
+        let windowBefore = Window.defaultWindowView
+        ({
+            FirstLineNumber = 1<mLine>
+            RequestedContents = []
+        } : GetWindowContentsResponse) |> requestSenderStub.registerResponse
+
+        Move.Backward 1<mLine>
+        |> VMCommand.Scroll
+        |> Window.handleVMCommand requestSenderStub windowBefore 
+        |> shouldEqual (windowBefore, noMessage)
 
     [<Test>]
     member x.``down when the buffer is empty should do nothing``() =
-        []
-        |> should equal []
+        let windowBefore = Window.defaultWindowView
+        ({
+            FirstLineNumber = 1<mLine>
+            RequestedContents = []
+        } : GetWindowContentsResponse) |> requestSenderStub.registerResponse
+
+        Move.Forward 1<mLine>
+        |> VMCommand.Scroll
+        |> Window.handleVMCommand requestSenderStub windowBefore 
+        |> shouldEqual (windowBefore, noMessage)
 
     [<Test>]
     member x.``down when only the last line of the buffer is showing should do nothing``() =
-        []
-        |> should equal []
+        let windowBefore = { Window.defaultWindowView with TopLineNumber = 6<mLine>; Buffer = ["f"] }
+        ({
+            FirstLineNumber = 7<mLine>
+            RequestedContents = []
+        } : GetWindowContentsResponse) |> requestSenderStub.registerResponse
+
+        Move.Forward 1<mLine>
+        |> VMCommand.Scroll
+        |> Window.handleVMCommand requestSenderStub windowBefore 
+        |> shouldEqual (windowBefore, noMessage)
 
     [<Test>]
-    member x.``down one line when there is another line not shown``() =
-        []
-        |> should equal []
-
-    [<Test>]
-    member x.``down one line when there is nothing more when the top line shown is not the bottom line of the file``() =
-        []
-        |> should equal []
-
-    [<Test>]
-    member x.``down multiple lines``() =
+    member x.``down multiple lines from the top``() =
         let windowBefore = { Window.defaultWindowView with Buffer = ["a"; "b"; "c"; "d"; "e"; "f"] }
         let windowAfter = { windowBefore with TopLineNumber = 4<mLine>; Buffer = ["d"; "e"; "f"] }
         ({
