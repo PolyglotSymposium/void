@@ -72,31 +72,37 @@ module Window =
             updatedWindow, Event.ContentsUpdated updatedWindow :> Message
         | None -> window, noMessage
 
+    let scrollByLineMovement requestSender window movement =
+        let noScroll = window, noMessage
+        match movement with
+        | Move.Backward xLines ->
+            if window.TopLineNumber > 1<mLine>
+            then scroll requestSender window -xLines
+            else noScroll
+        | Move.Forward xLines ->
+            if window.Buffer.Length > 1
+            then scroll requestSender window xLines
+            else noScroll
+
+    let scrollHalfScreenHeights requestSender (window : WindowView) movement =
+        let toLines (screenHeights : int<mScreenHeight>) =
+            window.Dimensions.Rows / 2 * screenHeights * 1<mLine>/1<mScreenHeight>
+        match movement with
+        | Move.Backward screenHeights ->
+            toLines screenHeights |> Move.Backward
+        | Move.Forward screenHeights ->
+            toLines screenHeights |> Move.Forward
+        |> scrollByLineMovement requestSender window
+
     let handleVMCommand requestSender window command =
         let noScroll = window, noMessage
         match command with
         | VMCommand.Scroll movement ->
-            match movement with
-            | Move.Backward xLines ->
-                if window.TopLineNumber > 1<mLine>
-                then scroll requestSender window -xLines
-                else noScroll
-            | Move.Forward xLines ->
-                if window.Buffer.Length > 1
-                then scroll requestSender window xLines
-                else noScroll
+            scrollByLineMovement requestSender window movement
         | VMCommand.ScrollHalf movement ->
-            match movement with
-            | Move.Backward screenHeights ->
-                if window.TopLineNumber > 1<mLine>
-                then scroll requestSender window -(window.Dimensions.Rows / 2 * screenHeights * 1<mLine>/1<mScreenHeight>)
-                else noScroll
-            | Move.Forward screenHeights ->
-                if window.Buffer.Length > 1
-                then scroll requestSender window (window.Dimensions.Rows / 2 * screenHeights * 1<mLine>/1<mScreenHeight>)
-                else noScroll
+            scrollHalfScreenHeights requestSender window movement
         | _ ->
-            noScroll
+            window, noMessage
 
     let handleCoreCommand window command =
         match command with
