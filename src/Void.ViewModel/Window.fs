@@ -85,6 +85,16 @@ module Window =
                 if window.Buffer.Length > 1
                 then scroll requestSender window xLines
                 else noScroll
+        | VMCommand.ScrollHalf movement ->
+            match movement with
+            | Move.Backward screenHeights ->
+                if window.TopLineNumber > 1<mLine>
+                then scroll requestSender window -(window.Dimensions.Rows / 2 * screenHeights * 1<mLine>/1<mScreenHeight>)
+                else noScroll
+            | Move.Forward screenHeights ->
+                if window.Buffer.Length > 1
+                then scroll requestSender window (window.Dimensions.Rows / 2 * screenHeights * 1<mLine>/1<mScreenHeight>)
+                else noScroll
         | _ ->
             noScroll
 

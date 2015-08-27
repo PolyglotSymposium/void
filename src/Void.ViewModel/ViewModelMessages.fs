@@ -21,10 +21,13 @@ type VMEvent =
     | BufferLoadedIntoWindow
     interface EventMessage
 
+[<Measure>] type mScreenHeight
+
 [<RequireQualifiedAccess>]
 type VMCommand =
     | Edit of FileOrBufferId
     | Write of FileOrBufferId
     | Move of Motion
     | Scroll of Move<mLine>
+    | ScrollHalf of Move<mScreenHeight>
     interface CommandMessage
