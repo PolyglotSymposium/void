@@ -48,6 +48,7 @@
   <ItemGroup>
     <Compile Include="FSharpUtil.fs" />
     <Compile Include="BaseMessageTypes.fs" />
+    <Compile Include="Messaging.fs" />
     <Compile Include="CannedResponseRequestSender.fs" />
     <Compile Include="Service.fs" />
     <Compile Include="Keys.fs" />

@@ -47,7 +47,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="InterpreterWrapper.fs" />
-    <Compile Include="Messaging.fs" />
     <Compile Include="MessageLog.fs" />
     <Compile Include="DefaultNormalModeBindings.fs" />
     <Compile Include="Init.fs" />
