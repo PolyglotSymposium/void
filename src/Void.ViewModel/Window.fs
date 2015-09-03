@@ -45,6 +45,9 @@ module Window =
     let defaultWindowView =
         { zeroWindowView with Dimensions = Sizing.defaultViewSize }
 
+    let private linesInWindow window = 
+        window.Buffer.Length*1<mLine>
+
     let bufferFrom (windowSize : Dimensions) lines =
         let truncateToWindowWidth = StringUtil.noLongerThan windowSize.Columns
         lines
@@ -80,6 +83,10 @@ module Window =
             then scroll requestSender window -xLines
             else noScroll
         | Move.Forward xLines ->
+            (*let scrollAmount =
+                if linesInWindow window > xLines
+                then xLines
+                else linesInWindow window - 1<mLine>*)
             if window.Buffer.Length > 1
             then scroll requestSender window xLines
             else noScroll
