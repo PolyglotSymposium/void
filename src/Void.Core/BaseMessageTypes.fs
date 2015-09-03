@@ -37,6 +37,7 @@ type PackagedRequestSender =
     abstract member makePackagedRequest<'TRequest, 'TResponse, 'TPackagedRequest, 'TPackagedResponse when 'TRequest :> RequestMessage and 'TResponse :> ResponseMessage<'TRequest> and 'TPackagedRequest :> EnvelopeMessage<'TRequest> and 'TPackagedResponse :> EnvelopeMessage<'TResponse>> : 'TPackagedRequest -> 'TPackagedResponse option
 
 type Bus =
+    abstract member publish : Message -> unit
     abstract member subscribe<'TMsg when 'TMsg :> Message> : Handle<'TMsg> -> unit
     abstract member subscribeToRequest<'TRequest, 'TResponse when 'TRequest :> RequestMessage and 'TResponse :> ResponseMessage<'TRequest>> : HandleRequest<'TRequest, 'TResponse> -> unit
     abstract member subscribeToRequest<'TRequest, 'TResponse when 'TRequest :> RequestMessage and 'TResponse :> ResponseMessage<'TRequest>> : MaybeHandleRequest<'TRequest, 'TResponse> -> unit

@@ -107,21 +107,13 @@ type PackagedRequestChannel<'TRequest, 'TResponse, 'TPackagedRequest, 'TPackaged
             then Some <| box x.addHandler
             else None
 
-type BusImpl() =
+type MessageRouter() =
     let mutable _channels : Channel list = []
-    let mutable _requestChannels : RequestChannel list = []
-    let mutable _packagedRequestChannels : PackagedRequestChannel list = []
 
-    member private x.addChannel channel =
+    member x.addChannel channel =
         _channels <- channel :: _channels
 
-    member private x.addRequestChannel requestChannel =
-        _requestChannels <- requestChannel :: _requestChannels
-
-    member private x.addPackagedRequestChannel packagedRequestChannel =
-        _packagedRequestChannels <- packagedRequestChannel :: _packagedRequestChannels
-
-    member x.publishAll messages =
+    member private x.publishAll messages =
         for message in messages do
             x.publish message
 
@@ -130,26 +122,6 @@ type BusImpl() =
         then
             for channel in _channels do
                 channel.publish message |> x.publishAll
-
-    member x.makeRequest<'TRequest, 'TResponse when 'TRequest :> RequestMessage and 'TResponse :> ResponseMessage<'TRequest>> request =
-        let tryGetRequestFunction (channel : RequestChannel) =
-            channel.getBoxedRequestFunctionIfResponseTypeIs<'TResponse>()
-        match List.tryPick tryGetRequestFunction _requestChannels with
-        | Some makeRequest ->
-            request
-            |> unbox<MaybeHandleRequest<'TRequest, 'TResponse>> makeRequest
-        | None ->
-            None
-
-    member x.makePackagedRequest<'TRequest, 'TResponse, 'TPackagedRequest, 'TPackagedResponse when 'TRequest :> RequestMessage and 'TResponse :> ResponseMessage<'TRequest> and 'TPackagedRequest :> EnvelopeMessage<'TRequest> and 'TPackagedResponse :> EnvelopeMessage<'TResponse>> request =
-        let tryGetRequestFunction (channel : PackagedRequestChannel) =
-            channel.getBoxedRequestFunctionIfResponseTypeIs<'TPackagedResponse>()
-        match List.tryPick tryGetRequestFunction _packagedRequestChannels with
-        | Some makeRequest ->
-            request
-            |> unbox<MaybeHandlePackagedRequest<'TRequest, 'TResponse, 'TPackagedRequest, 'TPackagedResponse>> makeRequest
-        | None ->
-            None
 
     member x.subscribe<'TMsg when 'TMsg :> Message> (handle : Handle<'TMsg>) =
         let tryGetSubscribeAction (channel : Channel) =
@@ -160,6 +132,22 @@ type BusImpl() =
             |> unbox<Handle<'TMsg> -> unit> subscribe
         | None ->
             x.addChannel <| Channel [ handle ]
+
+type RequestRouter() =
+    let mutable _requestChannels : RequestChannel list = []
+
+    member x.addRequestChannel requestChannel =
+        _requestChannels <- requestChannel :: _requestChannels
+
+    member x.makeRequest<'TRequest, 'TResponse when 'TRequest :> RequestMessage and 'TResponse :> ResponseMessage<'TRequest>> request =
+        let tryGetRequestFunction (channel : RequestChannel) =
+            channel.getBoxedRequestFunctionIfResponseTypeIs<'TResponse>()
+        match List.tryPick tryGetRequestFunction _requestChannels with
+        | Some makeRequest ->
+            request
+            |> unbox<MaybeHandleRequest<'TRequest, 'TResponse>> makeRequest
+        | None ->
+            None
 
     member x.subscribeToRequest<'TRequest, 'TResponse when 'TRequest :> RequestMessage and 'TResponse :> ResponseMessage<'TRequest>> (maybeHandleRequest : MaybeHandleRequest<'TRequest, 'TResponse>) =
         let tryGetSubscribeAction (channel : RequestChannel) =
@@ -174,6 +162,22 @@ type BusImpl() =
     member x.subscribeToRequest<'TRequest, 'TResponse when 'TRequest :> RequestMessage and 'TResponse :> ResponseMessage<'TRequest>> (handleRequest : HandleRequest<'TRequest, 'TResponse>) =
         x.subscribeToRequest (handleRequest >> Some)
 
+type PackagedRequestRouter() =
+    let mutable _packagedRequestChannels : PackagedRequestChannel list = []
+
+    member x.addPackagedRequestChannel packagedRequestChannel =
+        _packagedRequestChannels <- packagedRequestChannel :: _packagedRequestChannels
+
+    member x.makePackagedRequest<'TRequest, 'TResponse, 'TPackagedRequest, 'TPackagedResponse when 'TRequest :> RequestMessage and 'TResponse :> ResponseMessage<'TRequest> and 'TPackagedRequest :> EnvelopeMessage<'TRequest> and 'TPackagedResponse :> EnvelopeMessage<'TResponse>> request =
+        let tryGetRequestFunction (channel : PackagedRequestChannel) =
+            channel.getBoxedRequestFunctionIfResponseTypeIs<'TPackagedResponse>()
+        match List.tryPick tryGetRequestFunction _packagedRequestChannels with
+        | Some makeRequest ->
+            request
+            |> unbox<MaybeHandlePackagedRequest<'TRequest, 'TResponse, 'TPackagedRequest, 'TPackagedResponse>> makeRequest
+        | None ->
+            None
+
     member x.subscribeToPackagedRequest<'TRequest, 'TResponse, 'TPackagedRequest, 'TPackagedResponse when 'TRequest :> RequestMessage and 'TResponse :> ResponseMessage<'TRequest> and 'TPackagedRequest :> EnvelopeMessage<'TRequest> and 'TPackagedResponse :> EnvelopeMessage<'TResponse>> (maybeHandlePackagedRequest : MaybeHandlePackagedRequest<'TRequest, 'TResponse, 'TPackagedRequest, 'TPackagedResponse>) =
         let tryGetSubscribeAction (channel : RequestChannel) =
             channel.getBoxedSubscribeActionIfResponseTypeIs<'TPackagedResponse>()
@@ -187,11 +191,25 @@ type BusImpl() =
     member x.subscribeToPackagedRequest<'TRequest, 'TResponse, 'TPackagedRequest, 'TPackagedResponse when 'TRequest :> RequestMessage and 'TResponse :> ResponseMessage<'TRequest> and 'TPackagedRequest :> EnvelopeMessage<'TRequest> and 'TPackagedResponse :> EnvelopeMessage<'TResponse>> (handlePackagedRequest : HandlePackagedRequest<'TRequest, 'TResponse, 'TPackagedRequest, 'TPackagedResponse>) =
         x.subscribeToPackagedRequest (handlePackagedRequest >> Some)
 
+type MessagingSystemFacade() =
+    let messageRouter = MessageRouter()
+    let requestRouter = RequestRouter()
+    let packagedRequestRouter = PackagedRequestRouter()
+
     interface Bus with
-        member x.makeRequest request = x.makeRequest request
-        member x.makePackagedRequest request = x.makePackagedRequest request
-        member x.subscribe handle = x.subscribe handle
-        member x.subscribeToRequest<'TRequest, 'TResponse when 'TRequest :> RequestMessage and 'TResponse :> ResponseMessage<'TRequest>> (maybeHandleRequest : MaybeHandleRequest<'TRequest, 'TResponse>) = x.subscribeToRequest maybeHandleRequest
-        member x.subscribeToRequest<'TRequest, 'TResponse when 'TRequest :> RequestMessage and 'TResponse :> ResponseMessage<'TRequest>> (handleRequest : HandleRequest<'TRequest, 'TResponse>) = x.subscribeToRequest handleRequest
-        member x.subscribeToPackagedRequest<'TRequest, 'TResponse, 'TPackagedRequest, 'TPackagedResponse when 'TRequest :> RequestMessage and 'TResponse :> ResponseMessage<'TRequest> and 'TPackagedRequest :> EnvelopeMessage<'TRequest> and 'TPackagedResponse :> EnvelopeMessage<'TResponse>> (handlePackagedRequest : HandlePackagedRequest<'TRequest, 'TResponse, 'TPackagedRequest, 'TPackagedResponse>) = x.subscribeToPackagedRequest handlePackagedRequest
-        member x.subscribeToPackagedRequest<'TRequest, 'TResponse, 'TPackagedRequest, 'TPackagedResponse when 'TRequest :> RequestMessage and 'TResponse :> ResponseMessage<'TRequest> and 'TPackagedRequest :> EnvelopeMessage<'TRequest> and 'TPackagedResponse :> EnvelopeMessage<'TResponse>> (maybeHandlePackagedRequest : MaybeHandlePackagedRequest<'TRequest, 'TResponse, 'TPackagedRequest, 'TPackagedResponse>) = x.subscribeToPackagedRequest maybeHandlePackagedRequest
+        member x.publish message =
+            messageRouter.publish message
+        member x.makeRequest request =
+            requestRouter.makeRequest request
+        member x.makePackagedRequest request =
+            packagedRequestRouter.makePackagedRequest request
+        member x.subscribe handle =
+            messageRouter.subscribe handle
+        member x.subscribeToRequest<'TRequest, 'TResponse when 'TRequest :> RequestMessage and 'TResponse :> ResponseMessage<'TRequest>> (maybeHandleRequest : MaybeHandleRequest<'TRequest, 'TResponse>) =
+            requestRouter.subscribeToRequest maybeHandleRequest
+        member x.subscribeToRequest<'TRequest, 'TResponse when 'TRequest :> RequestMessage and 'TResponse :> ResponseMessage<'TRequest>> (handleRequest : HandleRequest<'TRequest, 'TResponse>) =
+            requestRouter.subscribeToRequest handleRequest
+        member x.subscribeToPackagedRequest<'TRequest, 'TResponse, 'TPackagedRequest, 'TPackagedResponse when 'TRequest :> RequestMessage and 'TResponse :> ResponseMessage<'TRequest> and 'TPackagedRequest :> EnvelopeMessage<'TRequest> and 'TPackagedResponse :> EnvelopeMessage<'TResponse>> (handlePackagedRequest : HandlePackagedRequest<'TRequest, 'TResponse, 'TPackagedRequest, 'TPackagedResponse>) =
+            packagedRequestRouter.subscribeToPackagedRequest handlePackagedRequest
+        member x.subscribeToPackagedRequest<'TRequest, 'TResponse, 'TPackagedRequest, 'TPackagedResponse when 'TRequest :> RequestMessage and 'TResponse :> ResponseMessage<'TRequest> and 'TPackagedRequest :> EnvelopeMessage<'TRequest> and 'TPackagedResponse :> EnvelopeMessage<'TResponse>> (maybeHandlePackagedRequest : MaybeHandlePackagedRequest<'TRequest, 'TResponse, 'TPackagedRequest, 'TPackagedResponse>) =
+            packagedRequestRouter.subscribeToPackagedRequest maybeHandlePackagedRequest

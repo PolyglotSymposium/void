@@ -47,15 +47,15 @@ module DefaultNormalModeBindings =
     let bindAllCommands bindings =
         Seq.map NormalModeBindings.Command.Bind bindings
 
-    let handleCommand (bus : BusImpl) command =
+    let handleCommand (bus : Bus) command =
         match command with
         | CoreCommand.InitializeVoid ->
-            bindAllCommands voidBindings
-            |> bus.publishAll
+            for message in bindAllCommands voidBindings do
+                bus.publish message
         | _ -> ()
         noMessage
 
 
     module Service =
-        let subscribe (bus : BusImpl) =
+        let subscribe (bus : Bus) =
             bus.subscribe (handleCommand bus)

@@ -39,7 +39,7 @@ module Init =
     let buildVoid inputModeChanger (options : VoidOptions) =
         let editorService = EditorService()
         let viewModelService = ViewModelService()
-        let bus = BusImpl()
+        let bus = MessagingSystemFacade() :> Bus
         bus.subscribe editorService.handleCommand
         let interpreter = Interpreter.init <| VoidScriptEditorModule(bus.publish).Commands
         let interpreterWrapperService = InterpreterWrapperService interpreter
@@ -67,5 +67,5 @@ module Init =
         RenderNotificationBar.Service.subscribe bus
         bus
 
-    let launchVoid (bus : BusImpl) =
+    let launchVoid (bus : Bus) =
         bus.publish CoreCommand.InitializeVoid
