@@ -79,16 +79,20 @@ module Window =
         let noScroll = window, noMessage
         match movement with
         | Move.Backward xLines ->
-            if window.TopLineNumber > 1<mLine>
-            then scroll requestSender window -xLines
+            let scrollAmount =
+                if window.TopLineNumber > xLines
+                then xLines
+                else window.TopLineNumber - 1<mLine>
+            if scrollAmount > 0<mLine>
+            then scroll requestSender window -scrollAmount
             else noScroll
         | Move.Forward xLines ->
-            (*let scrollAmount =
+            let scrollAmount =
                 if linesInWindow window > xLines
                 then xLines
-                else linesInWindow window - 1<mLine>*)
-            if window.Buffer.Length > 1
-            then scroll requestSender window xLines
+                else linesInWindow window - 1<mLine>
+            if scrollAmount > 0<mLine>
+            then scroll requestSender window scrollAmount
             else noScroll
 
     let scrollHalfScreenHeights requestSender (window : WindowView) movement =
