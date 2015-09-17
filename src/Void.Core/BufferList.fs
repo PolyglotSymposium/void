@@ -22,6 +22,9 @@ module Buffer =
     let readLines fileBuffer start =
         fileBuffer.Contents |> Seq.skip ((start - 1<mLine>)/1<mLine>) // Line numbers start at 1
 
+    let handleCommand buffer (BufferCommand.MoveCursor motion) =
+        buffer, noMessage
+
 type Buffers = private {
     List : Map<int, FileBuffer>
     LastId : int

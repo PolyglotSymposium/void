@@ -60,6 +60,7 @@
     <Compile Include="NormalModeSpec.fs" />
     <Compile Include="CommandModeSpec.fs" />
     <Compile Include="CommandHistorySpec.fs" />
+    <Compile Include="BufferSpec.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FsUnit.NUnit">
