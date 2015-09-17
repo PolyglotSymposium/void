@@ -13,6 +13,9 @@ module Buffer =
     let emptyFile =
         { Filepath = None; Contents = []; CursorPosition = originCell }
 
+    let prepend (buffer : FileBuffer) line =
+        { buffer with Contents = line :: buffer.Contents }
+
     let newFile path =
         { Filepath = Some path; Contents = []; CursorPosition = originCell }
 
