@@ -35,7 +35,7 @@ module RenderNotificationBar =
         | CoreEvent.NotificationAdded notification ->
             let area = {
                 UpperLeftCell = !notificationsOrigin
-                Dimensions = { Rows = 1; Columns = 80 }
+                Dimensions = { Rows = 1<mRow>; Columns = 80<mColumn> }
             }
             let drawing = toScreenNotification notification
                           |> notificationAsDrawingObject !notificationsOrigin

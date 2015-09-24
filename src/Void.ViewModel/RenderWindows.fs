@@ -7,7 +7,7 @@ module RenderWindows =
     let private textLineAsDrawingObject x line =
         DrawingObject.Text {
             Text = line
-            UpperLeftCorner = GridConvert.upperLeftCornerOf <| below originCell x
+            UpperLeftCorner = GridConvert.upperLeftCornerOf <| below originCell (x * 1<mRow>)
             Color = Colors.defaultColorscheme.Foreground
         }
 
@@ -26,14 +26,14 @@ module RenderWindows =
             let lineNotInBufferAsDrawingObject i =
                 DrawingObject.Text {
                     Text = "~"
-                    UpperLeftCorner = GridConvert.upperLeftCornerOf { Row = i; Column = 0 }
+                    UpperLeftCorner = GridConvert.upperLeftCornerOf { Row = i * 1<mRow>; Column = 0<mColumn> }
                     Color = Colors.defaultColorscheme.DimForeground
                 }
             let linesWithNoTilde =
                 if bufferLines.Length = 0
                 then 1
                 else bufferLines.Length
-            [linesWithNoTilde..dimensions.Rows-1]
+            [linesWithNoTilde..(dimensions.Rows / 1<mRow> - 1)]
             |> List.map lineNotInBufferAsDrawingObject
 
         List.append (background :: bufferLines) rowsNotInBuffer

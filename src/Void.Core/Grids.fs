@@ -18,19 +18,19 @@ module PointGrid =
 
 module CellGrid =
     type Cell = {
-        Row : int
-        Column : int
+        Row : int<mRow>
+        Column : int<mColumn>
     }
     type Dimensions = {
-        Rows : int
-        Columns : int
+        Rows : int<mRow>
+        Columns : int<mColumn>
     }
     type Block = {
         UpperLeftCell : Cell
         Dimensions : Dimensions
     }
-    let originCell = { Row = 0; Column = 0 }
-    let zeroDimensions = { Rows = 0; Columns = 0 }
+    let originCell = { Row = 0<mRow>; Column = 0<mColumn> }
+    let zeroDimensions = { Rows = 0<mRow>; Columns = 0<mColumn> }
     let zeroBlock = { UpperLeftCell = originCell; Dimensions = zeroDimensions }
 
     let rightOf cell count =
@@ -40,7 +40,7 @@ module CellGrid =
         { Row = cell.Row + count; Column = cell.Column }
 
     let lastRow block =
-        block.Dimensions.Rows - 1
+        block.Dimensions.Rows - 1<mRow>
 
     let lessRows n dimensions =
         { dimensions with Rows = dimensions.Rows - n }
@@ -59,10 +59,10 @@ module GridConvert =
     open CellGrid
 
     let upperLeftCornerOf cell =
-        { X = cell.Column; Y = cell.Row }
+        { X = cell.Column/1<mColumn>; Y = cell.Row/1<mRow> }
 
     let dimensionsInPoints dimensions =
-        { Width = dimensions.Columns; Height = dimensions.Rows }
+        { Width = dimensions.Columns/1<mColumn>; Height = dimensions.Rows/1<mRow> }
 
     let boxAround block =
         {

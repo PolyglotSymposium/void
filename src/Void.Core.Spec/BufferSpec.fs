@@ -11,8 +11,9 @@ type ``Moving the cursor in a buffer``() =
     let k = Move.Backward 1<mLine> :> Motion |> BufferCommand.MoveCursor
     let l = Move.Forward 1<mCharacter> :> Motion |> BufferCommand.MoveCursor
 
-    let oneLineBuffer = Buffer.prepend Buffer.emptyFile "foobar"
-    let oneCharacterBuffer = Buffer.prepend Buffer.emptyFile "o"
+    let oneLineBuffer = Buffer.prepend Buffer.emptyFile "line 1"
+    let twoLineBuffer = Buffer.prepend oneLineBuffer "line 2"
+    let oneCharacterBuffer = Buffer.prepend Buffer.emptyFile "1"
 
     [<Test>]
     member x.``down one line should do nothing in an empty buffer``() =
@@ -53,3 +54,15 @@ type ``Moving the cursor in a buffer``() =
     member x.``forward one character should do nothing in a one-character buffer``() =
         Buffer.handleCommand oneCharacterBuffer l
         |> should equal (oneCharacterBuffer, noMessage)
+
+    (*[<Test>]
+    member x.``down one line should succeed in a two-line buffer``() =
+        Buffer.handleCommand twoLineBuffer j
+        |> snd
+        |> should equal (BufferEvent.CursorMovedTo { Column = 1; Row = 2 })
+
+    [<Test>]
+    member x.``moving up one line should undo moving down one line``() =
+        let moved = Buffer.handleCommand twoLineBuffer j |> fst
+        Buffer.handleCommand moved k
+        |> should equal (twoLineBuffer, BufferEvent.CursorMovedTo { Column = 1; Row = 2} )*)

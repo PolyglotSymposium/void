@@ -23,6 +23,7 @@ type BufferCommand =
 [<RequireQualifiedAccess>]
 type BufferEvent =
     | Added of FileBufferProxy
+    | CursorMovedTo of CellGrid.Cell
     interface EventMessage
     interface BufferMessage
 

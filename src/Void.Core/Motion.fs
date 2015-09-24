@@ -1,10 +1,5 @@
 ﻿namespace Void.Core
 
-[<Measure>] type mCharacter
-[<Measure>] type mLine
-[<Measure>] type mPararagraph
-[<Measure>] type mBuffer
-
 type Motion = interface end
 
 [<RequireQualifiedAccess>]

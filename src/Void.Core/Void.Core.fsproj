@@ -54,6 +54,7 @@
     <Compile Include="Keys.fs" />
     <Compile Include="UserNotificationTypes.fs" />
     <Compile Include="ModeTypes.fs" />
+    <Compile Include="Units.fs" />
     <Compile Include="Grids.fs" />
     <Compile Include="Motion.fs" />
     <Compile Include="CommandModeMessages.fs" />

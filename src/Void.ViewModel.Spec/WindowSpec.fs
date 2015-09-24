@@ -17,7 +17,7 @@ module Assertions =
 
 [<TestFixture>]
 type ``Constructing a buffer view model from a sequence of text lines``() = 
-    let asViewModelBuffer = Window.bufferFrom { Rows = 25; Columns = 80 }
+    let asViewModelBuffer = Window.bufferFrom { Rows = 25<mRow>; Columns = 80<mColumn> }
 
     [<Test>]
     member x.``should create an empty buffer view model from an empty buffer``() =
@@ -215,7 +215,7 @@ type ``Scrolling (by half screen)``() =
 
     [<Test>]
     member x.``down when exactly half a screen is showing should leave the last line showing``() =
-        let dimensions = { Rows = 12; Columns = 60 }
+        let dimensions = { Rows = 12<mRow>; Columns = 60<mColumn> }
         let windowBefore = { Window.defaultWindowView with Buffer = !buffer; Dimensions = dimensions }
         let windowAfter = { windowBefore with TopLineNumber = 6<mLine>; Buffer = ["f"] }
 

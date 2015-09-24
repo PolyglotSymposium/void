@@ -20,7 +20,7 @@ type ``Rendering text lines as drawing objects for a view size``() =
 
 [<TestFixture>]
 type ``Rendering buffers``() = 
-    let render = RenderWindows.contentsAsDrawingObjects { Rows = 25; Columns = 80 }
+    let render = RenderWindows.contentsAsDrawingObjects { Rows = 25<mRow>; Columns = 80<mColumn> }
 
     let shouldAllBeTildes drawingObjects =
         drawingObjects |> Seq.mapi (fun i drawingObject ->

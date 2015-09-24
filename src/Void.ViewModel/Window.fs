@@ -40,7 +40,7 @@ module Window =
         }
 
     let private windowInArea window containingArea =
-        { zeroWindowView with Dimensions = (lessRowsBelow 1 containingArea).Dimensions }
+        { zeroWindowView with Dimensions = (lessRowsBelow 1<mRow> containingArea).Dimensions }
 
     let defaultWindowView =
         { zeroWindowView with Dimensions = Sizing.defaultViewSize }
@@ -49,9 +49,9 @@ module Window =
         window.Buffer.Length*1<mLine>
 
     let bufferFrom (windowSize : Dimensions) lines =
-        let truncateToWindowWidth = StringUtil.noLongerThan windowSize.Columns
+        let truncateToWindowWidth = StringUtil.noLongerThan (windowSize.Columns / 1<mColumn>)
         lines
-        |> SeqUtil.notMoreThan windowSize.Rows
+        |> SeqUtil.notMoreThan (windowSize.Rows / 1<mRow>)
         |> Seq.map truncateToWindowWidth
         |> Seq.toList
 
@@ -66,6 +66,7 @@ module Window =
         match event.Message with
         | BufferEvent.Added buffer ->
             loadBufferIntoWindow buffer window
+        | _ -> window, noMessage
 
     let private scroll (requestSender : RequestSender) window xLines =
         let request : GetWindowContentsRequest = { StartingAtLine = window.TopLineNumber + xLines }
@@ -97,7 +98,7 @@ module Window =
 
     let scrollHalfScreenHeights requestSender (window : WindowView) movement =
         let toLines (screenHeights : int<mScreenHeight>) =
-            window.Dimensions.Rows / 2 * screenHeights * 1<mLine>/1<mScreenHeight>
+            window.Dimensions.Rows / 2<mScreenHeight> * screenHeights * linePerRow
         match movement with
         | Move.Backward screenHeights ->
             toLines screenHeights |> Move.Backward

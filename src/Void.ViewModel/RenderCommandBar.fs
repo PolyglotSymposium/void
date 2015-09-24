@@ -15,8 +15,8 @@ module RenderCommandBar =
     let private renderLines origin lines =
         let startingCellForLineNumber i =
            if i = 0
-           then CellGrid.rightOf origin 1
-           else CellGrid.below origin i
+           then CellGrid.rightOf origin 1<mColumn>
+           else CellGrid.below origin (i * 1<mRow>)
            |> GridConvert.upperLeftCornerOf
 
         let renderLine i text =

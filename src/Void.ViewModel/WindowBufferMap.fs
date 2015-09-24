@@ -78,6 +78,7 @@ module WindowBufferMap =
         match event.Message with
         | BufferEvent.Added _ ->
             loadBufferIntoCurrentWindow windowBufferMap event.BufferId
+        | _ -> windowBufferMap, noMessage
 
     let getWindowContentsResponse getBufferContentsResponse =
         {
