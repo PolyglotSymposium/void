@@ -14,9 +14,13 @@ type FileBufferProxy = {
     Contents : string seq
 }
 
-[<RequireQualifiedAccess>]
-type BufferCommand =
-    | MoveCursor of Motion
+type MoveCursor<[<Measure>]'UnitOfMotion> =
+    | MoveCursor of Move<'UnitOfMotion>
+    interface CommandMessage
+    interface BufferMessage
+
+type MoveCursorTo<[<Measure>]'InnerUnit, [<Measure>]'OuterUnit> =
+    | MoveCursorTo of MoveTo<'InnerUnit, 'OuterUnit>
     interface CommandMessage
     interface BufferMessage
 

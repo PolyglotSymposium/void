@@ -36,8 +36,14 @@ module CellGrid =
     let rightOf cell count =
         { Row = cell.Row; Column = cell.Column + count }
 
+    let leftOf cell count =
+        { Row = cell.Row; Column = cell.Column - count }
+
     let below cell count =
         { Row = cell.Row + count; Column = cell.Column }
+
+    let above cell count =
+        { Row = cell.Row - count; Column = cell.Column }
 
     let lastRow block =
         block.Dimensions.Rows - 1<mRow>

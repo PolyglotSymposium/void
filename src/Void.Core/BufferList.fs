@@ -1,7 +1,7 @@
 ﻿namespace Void.Core
 
-// TODO This is naive, obviously
 type FileBuffer = private {
+    // TODO This is naive, obviously
     Filepath : string option
     Contents : string list
     CursorPosition : CellGrid.Cell
@@ -25,8 +25,27 @@ module Buffer =
     let readLines fileBuffer start =
         fileBuffer.Contents |> Seq.skip ((start - 1<mLine>)/1<mLine>) // Line numbers start at 1
 
-    let handleCommand buffer (BufferCommand.MoveCursor motion) =
-        buffer, noMessage
+    let handleMoveCursorByRows buffer (moveCursor : MoveCursor<mRow>) =
+        match moveCursor with
+        | MoveCursor (Move.Backward rows) ->
+            if buffer.Contents.Length > 1
+            then
+                let newPosition = above buffer.CursorPosition rows
+                { buffer with CursorPosition = newPosition }, BufferEvent.CursorMovedTo newPosition :> Message
+            else buffer, noMessage
+        | MoveCursor (Move.Forward rows) ->
+            if buffer.Contents.Length > 1
+            then
+                let newPosition = below buffer.CursorPosition rows
+                { buffer with CursorPosition = newPosition }, BufferEvent.CursorMovedTo newPosition :> Message
+            else buffer, noMessage
+
+    let handleMoveCursorByColumns buffer (moveCursor : MoveCursor<mColumn>) =
+        match moveCursor with
+        | MoveCursor (Move.Backward columns) ->
+            buffer, noMessage
+        | MoveCursor (Move.Forward columns) ->
+            buffer, noMessage
 
 type Buffers = private {
     List : Map<int, FileBuffer>
