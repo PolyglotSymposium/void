@@ -11,8 +11,16 @@ type ``Moving the cursor in a buffer``() =
     let k = Move.Backward 1<mRow> |> MoveCursor
     let l = Move.Forward 1<mColumn> |> MoveCursor
 
+    let ``3j`` = Move.Forward 3<mRow> |> MoveCursor
+    let ``3k`` = Move.Backward 3<mRow> |> MoveCursor
+    let ``5j`` = Move.Forward 5<mRow> |> MoveCursor
+    let ``5k`` = Move.Backward 5<mRow> |> MoveCursor
+
     let oneLineBuffer = Buffer.prepend Buffer.emptyFile "line 1"
     let twoLineBuffer = Buffer.prepend oneLineBuffer "line 2"
+    let fiveLineBuffer =
+        ["line 1"; "line 2"; "line 3"; "line 4"; "line 5"]
+        |> Buffer.loadContents Buffer.emptyFile
     let oneCharacterBuffer = Buffer.prepend Buffer.emptyFile "1"
 
     let shouldEqual expected actual =
@@ -71,3 +79,27 @@ type ``Moving the cursor in a buffer``() =
         let moved = Buffer.handleMoveCursorByRows twoLineBuffer j |> fst
         Buffer.handleMoveCursorByRows moved k
         |> shouldEqual (twoLineBuffer, BufferEvent.CursorMovedTo CellGrid.originCell :> Message)
+
+    [<Test>]
+    member x.``down three lines should succeed within a five-line buffer``() =
+        Buffer.handleMoveCursorByRows fiveLineBuffer ``3j``
+        |> snd
+        |> should equal (BufferEvent.CursorMovedTo { Column = 0<mColumn>; Row = 3<mRow> })
+
+    [<Test>]
+    member x.``moving up three lines should undo moving down three lines``() =
+        let moved = Buffer.handleMoveCursorByRows fiveLineBuffer ``3j`` |> fst
+        Buffer.handleMoveCursorByRows moved ``3k``
+        |> shouldEqual (fiveLineBuffer, BufferEvent.CursorMovedTo CellGrid.originCell :> Message)
+
+    [<Test>]
+    member x.``trying to move down five lines within a five-line buffer should not overshoot``() =
+        Buffer.handleMoveCursorByRows fiveLineBuffer ``5j``
+        |> snd
+        |> shouldEqual (BufferEvent.CursorMovedTo { Column = 0<mColumn>; Row = 4<mRow> })
+
+    [<Test>]
+    member x.``moving up five lines in a five-line buffer from the bottom should not overshoot``() =
+        let moved = Buffer.handleMoveCursorByRows fiveLineBuffer ``5j`` |> fst
+        Buffer.handleMoveCursorByRows moved ``5k``
+        |> shouldEqual (fiveLineBuffer, BufferEvent.CursorMovedTo CellGrid.originCell :> Message)

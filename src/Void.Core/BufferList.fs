@@ -10,8 +10,14 @@ type FileBuffer = private {
 module Buffer =
     open CellGrid
 
+    let lengthInRows (buffer : FileBuffer) =
+        buffer.Contents.Length * 1<mRow>
+
     let emptyFile =
         { Filepath = None; Contents = []; CursorPosition = originCell }
+
+    let loadContents (buffer : FileBuffer) contents =
+        { buffer with Contents = contents }
 
     let prepend (buffer : FileBuffer) line =
         { buffer with Contents = line :: buffer.Contents }
@@ -28,15 +34,23 @@ module Buffer =
     let handleMoveCursorByRows buffer (moveCursor : MoveCursor<mRow>) =
         match moveCursor with
         | MoveCursor (Move.Backward rows) ->
-            if buffer.Contents.Length > 1
+            let rowsToMove =
+                if buffer.CursorPosition.Row >= rows
+                then rows
+                else buffer.CursorPosition.Row
+            if rowsToMove > 0<mRow>
             then
-                let newPosition = above buffer.CursorPosition rows
+                let newPosition = above buffer.CursorPosition rowsToMove
                 { buffer with CursorPosition = newPosition }, BufferEvent.CursorMovedTo newPosition :> Message
             else buffer, noMessage
         | MoveCursor (Move.Forward rows) ->
-            if buffer.Contents.Length > 1
+            let rowsToMove =
+                if lengthInRows buffer > rows
+                then rows
+                else lengthInRows buffer - 1<mRow>
+            if rowsToMove > 0<mRow>
             then
-                let newPosition = below buffer.CursorPosition rows
+                let newPosition = below buffer.CursorPosition rowsToMove
                 { buffer with CursorPosition = newPosition }, BufferEvent.CursorMovedTo newPosition :> Message
             else buffer, noMessage
 
