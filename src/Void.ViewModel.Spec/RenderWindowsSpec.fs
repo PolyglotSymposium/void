@@ -81,6 +81,23 @@ type ``Rendering buffers``() =
         })
 
     [<Test>]
+    member x.``when the buffer has text and is focused and the cursor is not at the origin, it renders the normal-mode cursor``() =
+        let cursorCell = { Row = 1<mRow>; Column = 1<mColumn> }
+        let cursor = Visible <| CursorView.Block cursorCell
+        let window = { Window.defaultWindowView with Buffer = ["foo"; "bar"; "bez"]; Cursor = cursor }
+        let drawingObjects = RenderWindows.windowAsDrawingObjects window
+        drawingObjects.Length |> should equal 28
+        drawingObjects.[26] |> should equal (DrawingObject.Block {
+            Area = GridConvert.boxAroundOneCell cursorCell
+            Color = Colors.defaultColorscheme.Foreground
+        })
+        drawingObjects.[27] |> should equal (DrawingObject.Text {
+            Text = "a"
+            UpperLeftCorner = GridConvert.upperLeftCornerOf cursorCell
+            Color = Colors.defaultColorscheme.Background
+        })
+
+    [<Test>]
     member x.``when the buffer has multple lines, but less than the rows that are available in the window``() =
         let drawingObjects = render ["line 1"; "line 2"]
         drawingObjects.Length |> should equal 26

@@ -38,6 +38,9 @@ module RenderWindows =
 
         List.append (background :: bufferLines) rowsNotInBuffer
 
+    let private getCharacter (buffer : string list) cell =
+        buffer.[cell.Row/1<mRow>].[cell.Column/1<mColumn>].ToString()
+
     let cursorAsDrawingObjects (window : WindowView) =
         match window.Cursor with
         | Visible cursor ->
@@ -48,8 +51,8 @@ module RenderWindows =
                     Color = Colors.defaultColorscheme.Foreground
                 } :: if window.Buffer.Length > 0
                      then [DrawingObject.Text {
-                        Text = window.Buffer.[0].[0].ToString() // TODO buggy
-                        UpperLeftCorner = PointGrid.originPoint
+                        Text = getCharacter window.Buffer cell
+                        UpperLeftCorner = GridConvert.upperLeftCornerOf cell
                         Color = Colors.defaultColorscheme.Background
                      }]
                      else []
