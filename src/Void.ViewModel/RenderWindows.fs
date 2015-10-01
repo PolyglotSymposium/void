@@ -38,13 +38,34 @@ module RenderWindows =
 
         List.append (background :: bufferLines) rowsNotInBuffer
 
-    let private renderWindow (window : WindowView) =
-        let drawings = contentsAsDrawingObjects window.Dimensions window.Buffer
+    let cursorAsDrawingObjects (window : WindowView) =
+        match window.Cursor with
+        | Visible cursor ->
+            match cursor with
+            | CursorView.Block cell ->
+                DrawingObject.Block {
+                    Area = GridConvert.boxAroundOneCell cell
+                    Color = Colors.defaultColorscheme.Foreground
+                } :: if window.Buffer.Length > 0
+                     then [DrawingObject.Text {
+                        Text = window.Buffer.[0].[0].ToString() // TODO buggy
+                        UpperLeftCorner = PointGrid.originPoint
+                        Color = Colors.defaultColorscheme.Background
+                     }]
+                     else []
+            | CursorView.IBeam _ -> []
+        | Hidden -> []
+
+    let windowAsDrawingObjects (window : WindowView) =
+        List.append (contentsAsDrawingObjects window.Dimensions window.Buffer) (cursorAsDrawingObjects window)
+
+    let private renderWindow window =
+        let drawings = windowAsDrawingObjects window
         VMEvent.ViewPortionRendered(GridConvert.boxAround { UpperLeftCell = originCell; Dimensions = window.Dimensions }, drawings) :> Message
 
     let asDrawingObjects (windows : WindowView list) =
         [
-            contentsAsDrawingObjects windows.[0].Dimensions windows.[0].Buffer
+            windowAsDrawingObjects windows.[0]
         ] |> Seq.concat
 
     let handleWindowEvent =

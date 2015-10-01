@@ -37,7 +37,7 @@ type ``Rendering buffers``() =
         })
 
     [<Test>]
-    member x.``when the buffer is empty it renders as a background-colored area with muted tildes on each line except the first``() =
+    member x.``when the buffer is empty and unfocused it renders as a background-colored area with muted tildes on each line except the first``() =
         // TODO when you open an empty buffer in Vim, why is there no tilde in the first line?
         let drawingObjects =  render []
         drawingObjects.Length |> should equal 25
@@ -45,7 +45,16 @@ type ``Rendering buffers``() =
         drawingObjects.Tail |> shouldAllBeTildes
 
     [<Test>]
-    member x.``when the buffer has one line it renders that line and but otherwise is like an empty buffer``() =
+    member x.``when the buffer is empty and focused it renders the normal-mode cursor at the origin cell``() =
+        let drawingObjects = RenderWindows.windowAsDrawingObjects Window.defaultWindowView
+        drawingObjects.Length |> should equal 26
+        drawingObjects.[25] |> should equal (DrawingObject.Block {
+            Area = GridConvert.boxAroundOneCell originCell
+            Color = Colors.defaultColorscheme.Foreground
+        })
+
+    [<Test>]
+    member x.``when the buffer has one line it renders that line but otherwise is like an empty buffer``() =
         let drawingObjects = render ["only one line"]
         drawingObjects.Length |> should equal 26
         drawingObjects.[0] |> shouldBeBackgroundBlock
@@ -55,6 +64,21 @@ type ``Rendering buffers``() =
             Color = Colors.defaultColorscheme.Foreground
         })
         drawingObjects |> Seq.skip 2 |> shouldAllBeTildes
+
+    [<Test>]
+    member x.``when the buffer has one line and is focused it renders the normal-mode cursor``() =
+        let window = { Window.defaultWindowView with Buffer = ["foo"] }
+        let drawingObjects = RenderWindows.windowAsDrawingObjects window
+        drawingObjects.Length |> should equal 28
+        drawingObjects.[26] |> should equal (DrawingObject.Block {
+            Area = GridConvert.boxAroundOneCell originCell
+            Color = Colors.defaultColorscheme.Foreground
+        })
+        drawingObjects.[27] |> should equal (DrawingObject.Text {
+            Text = "f"
+            UpperLeftCorner = PointGrid.originPoint
+            Color = Colors.defaultColorscheme.Background
+        })
 
     [<Test>]
     member x.``when the buffer has multple lines, but less than the rows that are available in the window``() =

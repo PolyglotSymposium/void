@@ -43,7 +43,7 @@ module Window =
         { zeroWindowView with Dimensions = (lessRowsBelow 1<mRow> containingArea).Dimensions }
 
     let defaultWindowView =
-        { zeroWindowView with Dimensions = Sizing.defaultViewSize }
+        windowInArea zeroWindowView Sizing.defaultViewArea
 
     let private linesInWindow window = 
         window.Buffer.Length*1<mLine>
