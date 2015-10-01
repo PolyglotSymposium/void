@@ -43,17 +43,26 @@ Target "Test" (fun _ ->
             OutputFile = buildDir + "TestResults.xml" })
 )
 
-Target "Default" (fun _ ->
-    trace "Completed!"
+Target "Rebuild" (fun _ ->
+    trace "Rebuild completed!"
+)
+
+Target "JustRunTests" (fun _ ->
+    trace "Test run completed!"
 )
 
 // Dependencies
+"Test"
+  ==> "JustRunTests"
+
 "Clean"
   ==> "RestorePackages"
   ==> "Compile"
   ==> "AcquireUnitTestRunner"
-  ==> "Test"
-  ==> "Default"
+  ==> "Rebuild"
+
+"Test"
+  ==> "Rebuild"
 
 // start build
-RunTargetOrDefault "Default"
+RunTargetOrDefault "Rebuild"
