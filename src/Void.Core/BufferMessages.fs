@@ -27,7 +27,7 @@ type MoveCursorTo<[<Measure>]'InnerUnit, [<Measure>]'OuterUnit> =
 [<RequireQualifiedAccess>]
 type BufferEvent =
     | Added of FileBufferProxy
-    | CursorMovedTo of CellGrid.Cell
+    | CursorMoved of From : CellGrid.Cell * To : CellGrid.Cell
     interface EventMessage
     interface BufferMessage
 

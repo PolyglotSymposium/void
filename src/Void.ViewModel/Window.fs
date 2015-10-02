@@ -23,6 +23,7 @@ module Window =
     type Event =
         | ContentsUpdated of WindowView
         | Initialized of WindowView
+        | CursorMoved of From : Cell * Window : WindowView
         interface EventMessage
 
     [<RequireQualifiedAccess>]
@@ -66,7 +67,9 @@ module Window =
         match event.Message with
         | BufferEvent.Added buffer ->
             loadBufferIntoWindow buffer window
-        | _ -> window, noMessage
+        | BufferEvent.CursorMoved(fromCell, toCell) ->
+            let updatedWindow = { window with Cursor = Visible (CursorView.Block toCell)}
+            updatedWindow, Event.CursorMoved(fromCell, updatedWindow) :> Message
 
     let private scroll (requestSender : RequestSender) window xLines =
         let request : GetWindowContentsRequest = { StartingAtLine = window.TopLineNumber + xLines }

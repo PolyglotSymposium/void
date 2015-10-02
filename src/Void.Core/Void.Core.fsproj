@@ -66,6 +66,7 @@
     <Compile Include="ModeService.fs" />
     <Compile Include="EditorService.fs" />
     <Compile Include="Filesystem.fs" />
+    <Compile Include="Buffer.fs" />
     <Compile Include="BufferList.fs" />
     <Compile Include="CommandHistory.fs" />
     <Compile Include="CommandLanguage.fs" />

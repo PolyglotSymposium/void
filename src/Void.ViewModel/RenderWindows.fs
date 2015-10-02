@@ -41,7 +41,7 @@ module RenderWindows =
     let private getCharacter (buffer : string list) cell =
         buffer.[cell.Row/1<mRow>].[cell.Column/1<mColumn>].ToString()
 
-    let cursorAsDrawingObjects (window : WindowView) =
+    let private cursorAsDrawingObjects (window : WindowView) =
         match window.Cursor with
         | Visible cursor ->
             match cursor with
@@ -77,6 +77,8 @@ module RenderWindows =
             renderWindow window
         | Window.Event.Initialized window ->
             renderWindow window
+        | Window.Event.CursorMoved (fromCell, window) ->
+            renderWindow window // TODO optimize: render only fromCell and toCell
 
     let handleWindowCommand (Window.Command.RedrawWindow window) =
         renderWindow window

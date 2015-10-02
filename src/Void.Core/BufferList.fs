@@ -1,66 +1,5 @@
 ﻿namespace Void.Core
 
-type FileBuffer = private {
-    // TODO This is naive, obviously
-    Filepath : string option
-    Contents : string list
-    CursorPosition : CellGrid.Cell
-}
-
-module Buffer =
-    open CellGrid
-
-    let lengthInRows (buffer : FileBuffer) =
-        buffer.Contents.Length * 1<mRow>
-
-    let emptyFile =
-        { Filepath = None; Contents = []; CursorPosition = originCell }
-
-    let loadContents (buffer : FileBuffer) contents =
-        { buffer with Contents = contents }
-
-    let prepend (buffer : FileBuffer) line =
-        { buffer with Contents = line :: buffer.Contents }
-
-    let newFile path =
-        { Filepath = Some path; Contents = []; CursorPosition = originCell }
-
-    let existingFile path contents =
-        { Filepath = Some path; Contents = contents; CursorPosition = originCell }
-
-    let readLines fileBuffer start =
-        fileBuffer.Contents |> Seq.skip ((start - 1<mLine>)/1<mLine>) // Line numbers start at 1
-
-    let handleMoveCursorByRows buffer (moveCursor : MoveCursor<mRow>) =
-        match moveCursor with
-        | MoveCursor (Move.Backward rows) ->
-            let rowsToMove =
-                if buffer.CursorPosition.Row >= rows
-                then rows
-                else buffer.CursorPosition.Row
-            if rowsToMove > 0<mRow>
-            then
-                let newPosition = above buffer.CursorPosition rowsToMove
-                { buffer with CursorPosition = newPosition }, BufferEvent.CursorMovedTo newPosition :> Message
-            else buffer, noMessage
-        | MoveCursor (Move.Forward rows) ->
-            let rowsToMove =
-                if lengthInRows buffer > rows
-                then rows
-                else lengthInRows buffer - 1<mRow>
-            if rowsToMove > 0<mRow>
-            then
-                let newPosition = below buffer.CursorPosition rowsToMove
-                { buffer with CursorPosition = newPosition }, BufferEvent.CursorMovedTo newPosition :> Message
-            else buffer, noMessage
-
-    let handleMoveCursorByColumns buffer (moveCursor : MoveCursor<mColumn>) =
-        match moveCursor with
-        | MoveCursor (Move.Backward columns) ->
-            buffer, noMessage
-        | MoveCursor (Move.Forward columns) ->
-            buffer, noMessage
-
 type Buffers = private {
     List : Map<int, FileBuffer>
     LastId : int
@@ -146,9 +85,34 @@ module BufferList =
             |> Some
         else None
 
+    let packageCursorEvent bufferId event =
+        match event with
+        | Buffer.CursorEvent.CursorMoved(fromCell, toCell) ->
+            {
+                BufferId = bufferId
+                Message = BufferEvent.CursorMoved(fromCell, toCell)
+            } :> Message
+        | Buffer.CursorEvent.DidNotMove ->
+            noMessage
+
+    let selectBufferAndDelegate handler packageMessage bufferList envelopeMessage =
+        let buffer, message = handler bufferList.List.[envelopeMessage.BufferId] envelopeMessage.Message
+        let updatedBufferList = { bufferList with List = bufferList.List.Add(envelopeMessage.BufferId, buffer)}
+        updatedBufferList, packageMessage envelopeMessage.BufferId message
+
     module Service =
         let subscribe (bus : Bus) =
             let bufferList = ref empty
+
             Service.wrap bufferList handleCommand |> bus.subscribe
             Service.wrap bufferList handleEvent |> bus.subscribe
+
             handleGetBufferContentsRequest bufferList |> bus.subscribeToPackagedRequest
+
+            selectBufferAndDelegate Buffer.handleMoveCursorByRows packageCursorEvent
+            |> Service.wrap bufferList
+            |> bus.subscribe
+
+            selectBufferAndDelegate Buffer.handleMoveCursorByColumns packageCursorEvent
+            |> Service.wrap bufferList
+            |> bus.subscribe

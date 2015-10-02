@@ -4,20 +4,25 @@ module DefaultNormalModeBindings =
     open Void.Core
     open Void.ViewModel
 
+    let move movement =
+        MoveCursor movement |> InCurrentBuffer :> CommandMessage
+    let moveTo place =
+        MoveCursorTo place |> InCurrentBuffer :> CommandMessage
+
     let commonBindings =
         [
-            [KeyPress.H], VMCommand.Move (Move.Backward 1<mCharacter>) :> CommandMessage
-            [KeyPress.J], VMCommand.Move (Move.Forward 1<mLine>) :> CommandMessage
-            [KeyPress.K], VMCommand.Move (Move.Backward 1<mLine>) :> CommandMessage
-            [KeyPress.L], VMCommand.Move (Move.Forward 1<mCharacter>) :> CommandMessage
+            [KeyPress.H], move (Move.Backward 1<mCharacter>)
+            [KeyPress.J], move (Move.Forward 1<mLine>)
+            [KeyPress.K], move (Move.Backward 1<mLine>)
+            [KeyPress.L], move (Move.Forward 1<mCharacter>)
 
-            [KeyPress.Zero], VMCommand.Move MoveTo<mCharacter,mLine>.First :> CommandMessage
-            [KeyPress.DollarSign], VMCommand.Move MoveTo<mCharacter,mLine>.Last :> CommandMessage
+            [KeyPress.Zero], moveTo MoveTo<mCharacter,mLine>.First
+            [KeyPress.DollarSign], moveTo MoveTo<mCharacter,mLine>.Last
 
-            [KeyPress.G; KeyPress.G], VMCommand.Move MoveTo<mLine,mBuffer>.First :> CommandMessage
-            [KeyPress.ShiftG], VMCommand.Move MoveTo<mLine,mBuffer>.Last :> CommandMessage
+            [KeyPress.G; KeyPress.G], moveTo MoveTo<mLine,mBuffer>.First
+            [KeyPress.ShiftG], moveTo MoveTo<mLine,mBuffer>.Last
 
-            [KeyPress.G; KeyPress.Q; KeyPress.Q], CoreCommand.FormatCurrentLine :> CommandMessage // TODO this is an abomination of course
+            [KeyPress.G; KeyPress.Q; KeyPress.G; KeyPress.Q], CoreCommand.FormatCurrentLine :> CommandMessage // TODO this is an abomination of course
 
             [KeyPress.ControlL], CoreCommand.Redraw :> CommandMessage
 
