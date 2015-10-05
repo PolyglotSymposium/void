@@ -35,7 +35,7 @@ module Buffer =
         | DidNotMove
         | CursorMoved of From : Cell * To : Cell
 
-    let handleMoveCursorByRows buffer (moveCursor : MoveCursor<mRow>) =
+    let handleMoveCursorByRows buffer (moveCursor : MoveCursor<ByRow, mRow>) =
         match moveCursor with
         | MoveCursor (Move.Backward rows) ->
             let rowsToMove =
@@ -60,7 +60,7 @@ module Buffer =
                 { buffer with CursorPosition = newPosition }, event
             else buffer, DidNotMove
 
-    let handleMoveCursorByColumns buffer (moveCursor : MoveCursor<mColumn>) =
+    let handleMoveCursorByColumns buffer (moveCursor : MoveCursor<ByColumn, mColumn>) =
         match moveCursor with
         | MoveCursor (Move.Backward columns) ->
             buffer, DidNotMove

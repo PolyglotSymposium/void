@@ -4,17 +4,19 @@ module DefaultNormalModeBindings =
     open Void.Core
     open Void.ViewModel
 
-    let move movement =
-        MoveCursor movement |> InCurrentBuffer :> CommandMessage
+    let move<'TBy, [<Measure>]'TUom> movement =
+        (MoveCursor movement : MoveCursor<'TBy, 'TUom>)
+        |> InCurrentBuffer :> CommandMessage
     let moveTo place =
-        MoveCursorTo place |> InCurrentBuffer :> CommandMessage
+        MoveCursorTo place
+        |> InCurrentBuffer :> CommandMessage
 
     let commonBindings =
         [
-            [KeyPress.H], move (Move.Backward 1<mCharacter>)
-            [KeyPress.J], move (Move.Forward 1<mLine>)
-            [KeyPress.K], move (Move.Backward 1<mLine>)
-            [KeyPress.L], move (Move.Forward 1<mCharacter>)
+            [KeyPress.H], move<ByColumn, mColumn> (Move.Backward 1<mColumn>)
+            [KeyPress.J], move<ByRow, mRow> (Move.Forward 1<mRow>)
+            [KeyPress.K], move<ByRow, mRow> (Move.Backward 1<mRow>)
+            [KeyPress.L], move<ByColumn, mColumn> (Move.Forward 1<mColumn>)
 
             [KeyPress.Zero], moveTo MoveTo<mCharacter,mLine>.First
             [KeyPress.DollarSign], moveTo MoveTo<mCharacter,mLine>.Last

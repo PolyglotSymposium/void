@@ -20,3 +20,6 @@ module UnitConversions =
 
     let ``row#->line#`` ``row#`` =
         ``row#`` * linePerRow + 1<mLine>
+
+type ByRow = ByRow
+type ByColumn = ByColumn

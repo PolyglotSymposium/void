@@ -123,5 +123,5 @@ module WindowBufferMap =
             handleGetWindowContentsRequest bus windowBufferMap
             |> bus.subscribeToRequest
 
-            handleCurrentBufferCommandEnvelope<MoveCursor<mRow>> windowBufferMap
+            handleCurrentBufferCommandEnvelope<MoveCursor<ByRow, mRow>> windowBufferMap
             |> bus.subscribe
