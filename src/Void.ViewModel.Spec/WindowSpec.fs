@@ -74,7 +74,7 @@ type ``Scrolling (by line)``() =
     member x.``up when we are already at the top of the file should do nothing``() =
         let windowBefore = { Window.defaultWindowView with Buffer = !buffer }
 
-        Move.Backward 3<mLine>
+        Move.backward By.line 3
         |> scroll windowBefore 
         |> shouldEqual (windowBefore, noMessage)
 
@@ -83,7 +83,7 @@ type ``Scrolling (by line)``() =
         let windowBefore = { Window.defaultWindowView with Buffer = ["b"; "c"; "d"; "e"; "f"]; TopLineNumber = 2<mLine> }
         let windowAfter = { windowBefore with TopLineNumber = 1<mLine>; Buffer = !buffer }
 
-        Move.Backward 1<mLine>
+        Move.backward By.line 1
         |> scroll windowBefore 
         |> shouldEqual (windowAfter, Window.Event.ContentsUpdated windowAfter :> Message)
 
@@ -92,7 +92,7 @@ type ``Scrolling (by line)``() =
         let windowBefore = { Window.defaultWindowView with Buffer = ["d"; "e"; "f"]; TopLineNumber = 4<mLine> }
         let windowAfter = { windowBefore with TopLineNumber = 1<mLine>; Buffer = !buffer }
 
-        Move.Backward 3<mLine>
+        Move.backward By.line 3
         |> scroll windowBefore 
         |> shouldEqual (windowAfter, Window.Event.ContentsUpdated windowAfter :> Message)
 
@@ -101,7 +101,7 @@ type ``Scrolling (by line)``() =
         let windowBefore = { Window.defaultWindowView with Buffer = ["d"; "e"; "f"]; TopLineNumber = 3<mLine> }
         let windowAfter = { windowBefore with TopLineNumber = 1<mLine>; Buffer = !buffer }
 
-        Move.Backward 4<mLine>
+        Move.backward By.line 4
         |> scroll windowBefore 
         |> shouldEqual (windowAfter, Window.Event.ContentsUpdated windowAfter :> Message)
 
@@ -110,7 +110,7 @@ type ``Scrolling (by line)``() =
         buffer := []
         let windowBefore = Window.defaultWindowView
 
-        Move.Backward 1<mLine>
+        Move.backward By.line 1
         |> scroll windowBefore 
         |> shouldEqual (windowBefore, noMessage)
 
@@ -119,7 +119,7 @@ type ``Scrolling (by line)``() =
         buffer := []
         let windowBefore = Window.defaultWindowView
 
-        Move.Forward 1<mLine>
+        Move.forward By.line 1
         |> scroll windowBefore 
         |> shouldEqual (windowBefore, noMessage)
 
@@ -127,7 +127,7 @@ type ``Scrolling (by line)``() =
     member x.``down when only the last line of the buffer is showing should do nothing``() =
         let windowBefore = { Window.defaultWindowView with TopLineNumber = 6<mLine>; Buffer = ["f"] }
 
-        Move.Forward 1<mLine>
+        Move.forward By.line 1
         |> scroll windowBefore 
         |> shouldEqual (windowBefore, noMessage)
 
@@ -136,7 +136,7 @@ type ``Scrolling (by line)``() =
         let windowBefore = { Window.defaultWindowView with Buffer = !buffer }
         let windowAfter = { windowBefore with TopLineNumber = 4<mLine>; Buffer = ["d"; "e"; "f"] }
 
-        Move.Forward 3<mLine>
+        Move.forward By.line 3
         |> scroll windowBefore 
         |> shouldEqual (windowAfter, Window.Event.ContentsUpdated windowAfter :> Message)
 
@@ -165,7 +165,7 @@ type ``Scrolling (by half screen)``() =
     member x.``up when we are already at the top of the file should do nothing``() =
         let windowBefore = { Window.defaultWindowView with Buffer = !buffer }
 
-        Move.Backward 1<mScreenHeight>
+        Move.backward vmBy.screenHeight 1
         |> scrollHalf windowBefore 
         |> shouldEqual (windowBefore, noMessage)
 
@@ -174,7 +174,7 @@ type ``Scrolling (by half screen)``() =
         let windowBefore = { Window.defaultWindowView with Buffer = ["b"; "c"; "d"; "e"; "f"]; TopLineNumber = 2<mLine> }
         let windowAfter = { windowBefore with TopLineNumber = 1<mLine>; Buffer = !buffer }
 
-        Move.Backward 1<mScreenHeight>
+        Move.backward vmBy.screenHeight 1
         |> scrollHalf windowBefore 
         |> shouldEqual (windowAfter, Window.Event.ContentsUpdated windowAfter :> Message)
 
@@ -183,7 +183,7 @@ type ``Scrolling (by half screen)``() =
         buffer := []
         let windowBefore = Window.defaultWindowView
 
-        Move.Backward 1<mScreenHeight>
+        Move.backward vmBy.screenHeight 1
         |> scrollHalf windowBefore 
         |> shouldEqual (windowBefore, noMessage)
 
@@ -192,7 +192,7 @@ type ``Scrolling (by half screen)``() =
         buffer := []
         let windowBefore = Window.defaultWindowView
 
-        Move.Forward 1<mScreenHeight>
+        Move.forward vmBy.screenHeight 1
         |> scrollHalf windowBefore 
         |> shouldEqual (windowBefore, noMessage)
 
@@ -200,7 +200,7 @@ type ``Scrolling (by half screen)``() =
     member x.``down when only the last line of the buffer is showing should do nothing``() =
         let windowBefore = { Window.defaultWindowView with TopLineNumber = 6<mLine>; Buffer = ["f"] }
 
-        Move.Forward 1<mScreenHeight>
+        Move.forward vmBy.screenHeight 1
         |> scrollHalf windowBefore 
         |> shouldEqual (windowBefore, noMessage)
 
@@ -209,7 +209,7 @@ type ``Scrolling (by half screen)``() =
         let windowBefore = { Window.defaultWindowView with Buffer = !buffer }
         let windowAfter = { windowBefore with TopLineNumber = 6<mLine>; Buffer = ["f"] }
 
-        Move.Forward 1<mScreenHeight>
+        Move.forward vmBy.screenHeight 1
         |> scrollHalf windowBefore 
         |> shouldEqual (windowAfter, Window.Event.ContentsUpdated windowAfter :> Message)
 
@@ -219,6 +219,6 @@ type ``Scrolling (by half screen)``() =
         let windowBefore = { Window.defaultWindowView with Buffer = !buffer; Dimensions = dimensions }
         let windowAfter = { windowBefore with TopLineNumber = 6<mLine>; Buffer = ["f"] }
 
-        Move.Forward 1<mScreenHeight>
+        Move.forward vmBy.screenHeight 1
         |> scrollHalf windowBefore 
         |> shouldEqual (windowAfter, Window.Event.ContentsUpdated windowAfter :> Message)

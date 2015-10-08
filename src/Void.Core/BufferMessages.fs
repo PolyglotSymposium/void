@@ -14,12 +14,12 @@ type FileBufferProxy = {
     Contents : string seq
 }
 
-type MoveCursor<'TBy, [<Measure>]'UnitOfMotion> =
-    | MoveCursor of Move<'UnitOfMotion>
+type MoveCursor<'By> =
+    | MoveCursor of Move<'By>
     interface CommandMessage
     interface BufferMessage
 
-type MoveCursorTo<'TBy, [<Measure>]'InnerUnit, [<Measure>]'OuterUnit> =
+type MoveCursorTo<[<Measure>]'InnerUnit, [<Measure>]'OuterUnit> =
     | MoveCursorTo of MoveTo<'InnerUnit, 'OuterUnit>
     interface CommandMessage
     interface BufferMessage

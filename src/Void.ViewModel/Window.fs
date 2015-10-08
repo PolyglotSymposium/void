@@ -82,7 +82,7 @@ module Window =
     let scrollByLineMovement requestSender window movement =
         let noScroll = window, noMessage
         match movement with
-        | Move.Backward xLines ->
+        | Move.Backward (By.Line xLines) ->
             let scrollAmount =
                 if window.TopLineNumber > xLines
                 then xLines
@@ -90,7 +90,7 @@ module Window =
             if scrollAmount > 0<mLine>
             then scroll requestSender window -scrollAmount
             else noScroll
-        | Move.Forward xLines ->
+        | Move.Forward (By.Line xLines) ->
             let scrollAmount =
                 if linesInWindow window > xLines
                 then xLines
@@ -102,10 +102,11 @@ module Window =
     let scrollHalfScreenHeights requestSender (window : WindowView) movement =
         let toLines (screenHeights : int<mScreenHeight>) =
             window.Dimensions.Rows / 2<mScreenHeight> * screenHeights * linePerRow
+            |> By.Line
         match movement with
-        | Move.Backward screenHeights ->
+        | Move.Backward (vmBy.ScreenHeight screenHeights) ->
             toLines screenHeights |> Move.Backward
-        | Move.Forward screenHeights ->
+        | Move.Forward (vmBy.ScreenHeight screenHeights) ->
             toLines screenHeights |> Move.Forward
         |> scrollByLineMovement requestSender window
 
