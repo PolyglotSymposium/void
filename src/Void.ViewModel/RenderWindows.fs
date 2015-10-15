@@ -71,14 +71,38 @@ module RenderWindows =
             windowAsDrawingObjects windows.[0]
         ] |> Seq.concat
 
+    let private rerenderOneCell cell (window : WindowView) =
+        [
+            DrawingObject.Block {
+                Area = GridConvert.boxAroundOneCell cell
+                Color = Colors.defaultColorscheme.Background
+            }
+            DrawingObject.Text {
+                Text = getCharacter window.Buffer cell
+                UpperLeftCorner = GridConvert.upperLeftCornerOf cell
+                Color = Colors.defaultColorscheme.Foreground
+            }
+        ]
+
+    let private unrenderCursor fromCell window =
+        GridConvert.boxAroundOneCell fromCell, Seq.ofList <| rerenderOneCell fromCell window
+
+    let private renderOnlyCursor cell (window : WindowView) =
+        GridConvert.boxAroundOneCell cell, Seq.ofList <| cursorAsDrawingObjects window
+
+    let private renderMovedCursor fromCell toCell window =
+        let removedCursor = unrenderCursor fromCell window
+        let newCursor = renderOnlyCursor toCell window
+        VMEvent.MultipleViewPortionsRendered [removedCursor; newCursor] :> Message
+
     let handleWindowEvent =
         function
         | Window.Event.ContentsUpdated window ->
             renderWindow window
         | Window.Event.Initialized window ->
             renderWindow window
-        | Window.Event.CursorMoved (fromCell, window) ->
-            renderWindow window // TODO optimize: render only fromCell and toCell
+        | Window.Event.CursorMoved (fromCell, toCell, window) ->
+            renderMovedCursor fromCell toCell window
 
     let handleWindowCommand (Window.Command.RedrawWindow window) =
         renderWindow window

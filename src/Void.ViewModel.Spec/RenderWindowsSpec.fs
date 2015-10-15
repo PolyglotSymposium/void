@@ -126,3 +126,45 @@ type ``Rendering buffers``() =
                 UpperLeftCorner = { Y = i+1; X = 0 }
                 Color = Colors.defaultColorscheme.DimForeground
             }]) |> ignore
+
+    [<Test>]
+    member x.``when the cursor is moved in normal mode, it only renders the from and to cells again``() =
+        let cursorCell = { Row = 1<mRow>; Column = 1<mColumn> }
+        let cursor = Visible <| CursorView.Block cursorCell
+        let window = { Window.defaultWindowView with Buffer = ["foo"; "bar"; "bez"]; Cursor = cursor }
+        let event = Window.Event.CursorMoved (originCell, cursorCell, window)
+        match RenderWindows.handleWindowEvent event with
+        | :? VMEvent as vmEvent ->
+            match vmEvent with
+            | VMEvent.MultipleViewPortionsRendered viewPortions ->
+                Seq.length viewPortions |> should equal 2
+                let block1, viewPortion1 = Seq.head viewPortions
+                let block2, viewPortion2 = Seq.last viewPortions
+                block1 |> should equal (GridConvert.boxAroundOneCell originCell)
+                block2 |> should equal (GridConvert.boxAroundOneCell cursorCell)
+                Seq.length viewPortion1 |> should equal 2
+                Seq.length viewPortion2 |> should equal 2
+                let drawingObject1 = Seq.head viewPortion1
+                let drawingObject2 = Seq.last viewPortion1
+                let drawingObject3 = Seq.head viewPortion2
+                let drawingObject4 = Seq.last viewPortion2
+                drawingObject1 |> shouldEqual (DrawingObject.Block {
+                    Area = block1
+                    Color = Colors.defaultColorscheme.Background
+                })
+                drawingObject2 |> shouldEqual (DrawingObject.Text {
+                    Text = "f"
+                    UpperLeftCorner = PointGrid.originPoint
+                    Color = Colors.defaultColorscheme.Foreground
+                })
+                drawingObject3 |> shouldEqual (DrawingObject.Block {
+                    Area = block2
+                    Color = Colors.defaultColorscheme.Foreground
+                })
+                drawingObject4 |> shouldEqual (DrawingObject.Text {
+                    Text = "a"
+                    UpperLeftCorner = GridConvert.upperLeftCornerOf cursorCell
+                    Color = Colors.defaultColorscheme.Background
+                })
+            | _ -> Assert.Fail("Expected MultipleViewPortionsRendered")
+        | _ -> Assert.Fail("Expected VMEvent")

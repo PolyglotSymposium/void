@@ -46,6 +46,19 @@ namespace Void.UI
                     TriggerDraw(((VMEvent.ViewPortionRendered)eventMsg).Item1);
                 }
             }
+            if (eventMsg.IsMultipleViewPortionsRendered)
+            {
+                var blocks = new List<PointGrid.Block>();
+                foreach (var viewPortionRenderd in ((VMEvent.MultipleViewPortionsRendered) eventMsg).Item)
+                {
+                    _drawings.AddRange(viewPortionRenderd.Item2);
+                    blocks.Add(viewPortionRenderd.Item1);
+                }
+                if (_cellMetrics != null)
+                {
+                    TriggerDraw(blocks);
+                }
+            }
             if (eventMsg.IsViewModelInitialized)
             {
                 var viewModel = ((VMEvent.ViewModelInitialized)eventMsg).Item;
@@ -140,9 +153,21 @@ namespace Void.UI
             Text = title;
         }
 
-        public void TriggerDraw(PointGrid.Block block)
+        private void TriggerDraw(PointGrid.Block block)
         {
             Invalidate(block.AsWinFormsRectangle(_cellMetrics));
+        }
+
+        private void TriggerDraw(IEnumerable<PointGrid.Block> blocks)
+        {
+            var regions = blocks.Select(block => block.AsWinFormsRectangle(_cellMetrics))
+                .Select(rect => new Region(rect));
+            var cumulativeRegion = new Region();
+            foreach (var region in regions)
+            {
+                cumulativeRegion.Union(region);
+            }
+            Invalidate(cumulativeRegion);
         }
     }
 }

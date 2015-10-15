@@ -18,6 +18,7 @@ type FileOrBufferId = // TODO this is very sketchy right now
 type VMEvent =
     | ViewModelInitialized of MainViewModel // Vim rough equivalent: GUIEnter
     | ViewPortionRendered of PointGrid.Block * seq<DrawingObject>
+    | MultipleViewPortionsRendered of seq<PointGrid.Block * seq<DrawingObject>>
     | BufferLoadedIntoWindow
     interface EventMessage
 
