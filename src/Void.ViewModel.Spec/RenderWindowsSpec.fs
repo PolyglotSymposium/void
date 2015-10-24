@@ -148,20 +148,20 @@ type ``Rendering buffers``() =
                 let drawingObject2 = Seq.last viewPortion1
                 let drawingObject3 = Seq.head viewPortion2
                 let drawingObject4 = Seq.last viewPortion2
-                drawingObject1 |> shouldEqual (DrawingObject.Block {
+                drawingObject1 |> should equal (DrawingObject.Block {
                     Area = block1
                     Color = Colors.defaultColorscheme.Background
                 })
-                drawingObject2 |> shouldEqual (DrawingObject.Text {
+                drawingObject2 |> should equal (DrawingObject.Text {
                     Text = "f"
                     UpperLeftCorner = PointGrid.originPoint
                     Color = Colors.defaultColorscheme.Foreground
                 })
-                drawingObject3 |> shouldEqual (DrawingObject.Block {
+                drawingObject3 |> should equal (DrawingObject.Block {
                     Area = block2
                     Color = Colors.defaultColorscheme.Foreground
                 })
-                drawingObject4 |> shouldEqual (DrawingObject.Text {
+                drawingObject4 |> should equal (DrawingObject.Text {
                     Text = "a"
                     UpperLeftCorner = GridConvert.upperLeftCornerOf cursorCell
                     Color = Colors.defaultColorscheme.Background

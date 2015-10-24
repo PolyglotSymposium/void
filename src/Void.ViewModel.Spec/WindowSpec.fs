@@ -8,13 +8,6 @@ open System.Linq
 open NUnit.Framework
 open FsUnit
 
-[<AutoOpen>]
-module Assertions =
-    let shouldEqual expected actual =
-        printfn "Expected: %A" expected
-        printfn "Actual: %A" actual
-        should equal expected actual
-
 [<TestFixture>]
 type ``Constructing a buffer view model from a sequence of text lines``() = 
     let asViewModelBuffer = Window.bufferFrom { Rows = 25<mRow>; Columns = 80<mColumn> }
@@ -76,7 +69,7 @@ type ``Scrolling (by line)``() =
 
         Move.backward By.line 3
         |> scroll windowBefore 
-        |> shouldEqual (windowBefore, noMessage)
+        |> should equal (windowBefore, noMessage)
 
     [<Test>]
     member x.``up one line when the top line is two should work``() =
@@ -85,7 +78,7 @@ type ``Scrolling (by line)``() =
 
         Move.backward By.line 1
         |> scroll windowBefore 
-        |> shouldEqual (windowAfter, Window.Event.ContentsUpdated windowAfter :> Message)
+        |> should equal (windowAfter, Window.Event.ContentsUpdated windowAfter :> Message)
 
     [<Test>]
     member x.``up three lines when the top line is four should go to the top of the file``() =
@@ -94,7 +87,7 @@ type ``Scrolling (by line)``() =
 
         Move.backward By.line 3
         |> scroll windowBefore 
-        |> shouldEqual (windowAfter, Window.Event.ContentsUpdated windowAfter :> Message)
+        |> should equal (windowAfter, Window.Event.ContentsUpdated windowAfter :> Message)
 
     [<Test>]
     member x.``up four lines when the top line is three should go to the top of the file``() =
@@ -103,7 +96,7 @@ type ``Scrolling (by line)``() =
 
         Move.backward By.line 4
         |> scroll windowBefore 
-        |> shouldEqual (windowAfter, Window.Event.ContentsUpdated windowAfter :> Message)
+        |> should equal (windowAfter, Window.Event.ContentsUpdated windowAfter :> Message)
 
     [<Test>]
     member x.``up when the buffer is empty should do nothing``() =
@@ -112,7 +105,7 @@ type ``Scrolling (by line)``() =
 
         Move.backward By.line 1
         |> scroll windowBefore 
-        |> shouldEqual (windowBefore, noMessage)
+        |> should equal (windowBefore, noMessage)
 
     [<Test>]
     member x.``down when the buffer is empty should do nothing``() =
@@ -121,7 +114,7 @@ type ``Scrolling (by line)``() =
 
         Move.forward By.line 1
         |> scroll windowBefore 
-        |> shouldEqual (windowBefore, noMessage)
+        |> should equal (windowBefore, noMessage)
 
     [<Test>]
     member x.``down when only the last line of the buffer is showing should do nothing``() =
@@ -129,7 +122,7 @@ type ``Scrolling (by line)``() =
 
         Move.forward By.line 1
         |> scroll windowBefore 
-        |> shouldEqual (windowBefore, noMessage)
+        |> should equal (windowBefore, noMessage)
 
     [<Test>]
     member x.``down multiple lines from the top``() =
@@ -138,7 +131,7 @@ type ``Scrolling (by line)``() =
 
         Move.forward By.line 3
         |> scroll windowBefore 
-        |> shouldEqual (windowAfter, Window.Event.ContentsUpdated windowAfter :> Message)
+        |> should equal (windowAfter, Window.Event.ContentsUpdated windowAfter :> Message)
 
 [<TestFixture>]
 type ``Scrolling (by half screen)``() = 
@@ -167,7 +160,7 @@ type ``Scrolling (by half screen)``() =
 
         Move.backward vmBy.screenHeight 1
         |> scrollHalf windowBefore 
-        |> shouldEqual (windowBefore, noMessage)
+        |> should equal (windowBefore, noMessage)
 
     [<Test>]
     member x.``up half a screen height when the top line is two should go to the top of the file``() =
@@ -176,7 +169,7 @@ type ``Scrolling (by half screen)``() =
 
         Move.backward vmBy.screenHeight 1
         |> scrollHalf windowBefore 
-        |> shouldEqual (windowAfter, Window.Event.ContentsUpdated windowAfter :> Message)
+        |> should equal (windowAfter, Window.Event.ContentsUpdated windowAfter :> Message)
 
     [<Test>]
     member x.``up when the buffer is empty should do nothing``() =
@@ -185,7 +178,7 @@ type ``Scrolling (by half screen)``() =
 
         Move.backward vmBy.screenHeight 1
         |> scrollHalf windowBefore 
-        |> shouldEqual (windowBefore, noMessage)
+        |> should equal (windowBefore, noMessage)
 
     [<Test>]
     member x.``down when the buffer is empty should do nothing``() =
@@ -194,7 +187,7 @@ type ``Scrolling (by half screen)``() =
 
         Move.forward vmBy.screenHeight 1
         |> scrollHalf windowBefore 
-        |> shouldEqual (windowBefore, noMessage)
+        |> should equal (windowBefore, noMessage)
 
     [<Test>]
     member x.``down when only the last line of the buffer is showing should do nothing``() =
@@ -202,7 +195,7 @@ type ``Scrolling (by half screen)``() =
 
         Move.forward vmBy.screenHeight 1
         |> scrollHalf windowBefore 
-        |> shouldEqual (windowBefore, noMessage)
+        |> should equal (windowBefore, noMessage)
 
     [<Test>]
     member x.``down when less than half a screen is showing should leave last line showing``() =
@@ -211,7 +204,7 @@ type ``Scrolling (by half screen)``() =
 
         Move.forward vmBy.screenHeight 1
         |> scrollHalf windowBefore 
-        |> shouldEqual (windowAfter, Window.Event.ContentsUpdated windowAfter :> Message)
+        |> should equal (windowAfter, Window.Event.ContentsUpdated windowAfter :> Message)
 
     [<Test>]
     member x.``down when exactly half a screen is showing should leave the last line showing``() =
@@ -221,7 +214,7 @@ type ``Scrolling (by half screen)``() =
 
         Move.forward vmBy.screenHeight 1
         |> scrollHalf windowBefore 
-        |> shouldEqual (windowAfter, Window.Event.ContentsUpdated windowAfter :> Message)
+        |> should equal (windowAfter, Window.Event.ContentsUpdated windowAfter :> Message)
 
 [<TestFixture>]
 type ``Moving the cursor``() = 
