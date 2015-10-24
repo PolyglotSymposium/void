@@ -222,3 +222,37 @@ type ``Scrolling (by half screen)``() =
         Move.forward vmBy.screenHeight 1
         |> scrollHalf windowBefore 
         |> shouldEqual (windowAfter, Window.Event.ContentsUpdated windowAfter :> Message)
+
+[<TestFixture>]
+type ``Moving the cursor``() = 
+    [<Test>]
+    member x.``When the cursor is moved in the buffer, it is moved in the window``() =
+        let targetCell = below originCell 1<mRow>
+        let windowBefore = { Window.defaultWindowView with Buffer = ["a"; "b"]}
+        let windowAfter = { windowBefore with Cursor = Visibility.Visible <| CursorView.Block targetCell }
+
+        { BufferId = 1; Message = BufferEvent.CursorMoved(originCell, targetCell) }
+        |> Window.handleBufferEvent windowBefore
+        |> should equal (windowAfter, Window.Event.CursorMoved(originCell, targetCell, windowAfter) :> Message)
+
+    [<Test>]
+    member x.``The cursor in the window is tracked relative to the window, not the buffer``() =
+        let targetCell = below originCell 1<mRow>
+        let buffer =
+            Seq.initInfinite (sprintf "%i")
+            |> Seq.take 25
+            |> Seq.toList
+        let windowBefore = { Window.defaultWindowView with Buffer = buffer; TopLineNumber = 10<mLine> }
+        let windowAfter = { windowBefore with Cursor = Visibility.Visible <| CursorView.Block targetCell }
+
+        { BufferId = 1; Message = BufferEvent.CursorMoved(below originCell 9<mRow>, below targetCell 9<mRow>) }
+        |> Window.handleBufferEvent windowBefore
+        |> should equal (windowAfter, Window.Event.CursorMoved(originCell, targetCell, windowAfter) :> Message)
+
+    [<Test>]
+    member x.``When the buffer cursor moves below what is visible in the window, the buffer is scrolled down``() =
+        ()
+
+    [<Test>]
+    member x.``When the buffer cursor moves above what is visible in the window, the buffer is scrolled up``() =
+        ()

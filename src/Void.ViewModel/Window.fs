@@ -67,9 +67,12 @@ module Window =
         match event.Message with
         | BufferEvent.Added buffer ->
             loadBufferIntoWindow buffer window
-        | BufferEvent.CursorMoved(fromCell, toCell) ->
-            let updatedWindow = { window with Cursor = Visible (CursorView.Block toCell)}
-            updatedWindow, Event.CursorMoved(fromCell, toCell, updatedWindow) :> Message
+        | BufferEvent.CursorMoved(fromBufferCell, toBufferCell) ->
+            let firstRow = ``line#->row#`` window.TopLineNumber
+            let fromWindowCell = CellGrid.above fromBufferCell firstRow
+            let toWindowCell = CellGrid.above toBufferCell firstRow
+            let updatedWindow = { window with Cursor = Visible (CursorView.Block toWindowCell)}
+            updatedWindow, Event.CursorMoved(fromWindowCell, toWindowCell, updatedWindow) :> Message
 
     let private scroll (requestSender : RequestSender) window xLines =
         let request : GetWindowContentsRequest = { StartingAtLine = window.TopLineNumber + xLines }
