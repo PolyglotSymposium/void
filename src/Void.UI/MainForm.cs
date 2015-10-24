@@ -16,6 +16,7 @@ namespace Void.UI
         private readonly List<DrawingObject> _drawings = new List<DrawingObject>();
         private Font _font = new Font(FontFamily.GenericMonospace, 9);
         private CellMetrics _cellMetrics;
+        private readonly Queue<VMEvent.ViewPortionRendered> _portionsYetToRender = new Queue<VMEvent.ViewPortionRendered>();
 
 
         public MainForm(Bus bus, WinFormsInputModeChanger inputModeChanger)
@@ -48,16 +49,12 @@ namespace Void.UI
             }
             if (eventMsg.IsMultipleViewPortionsRendered)
             {
-                var blocks = new List<PointGrid.Block>();
-                foreach (var viewPortionRenderd in ((VMEvent.MultipleViewPortionsRendered) eventMsg).Item)
+                var multipleEvents = ((VMEvent.MultipleViewPortionsRendered) eventMsg).Split().ToList();
+                foreach (var @event in multipleEvents.Skip(1))
                 {
-                    _drawings.AddRange(viewPortionRenderd.Item2);
-                    blocks.Add(viewPortionRenderd.Item1);
+                    _portionsYetToRender.Enqueue(@event);
                 }
-                if (_cellMetrics != null)
-                {
-                    TriggerDraw(blocks);
-                }
+                return multipleEvents.First();
             }
             if (eventMsg.IsViewModelInitialized)
             {
@@ -117,6 +114,10 @@ namespace Void.UI
                         artist.Draw(drawing);
                     }
                     _drawings.Clear();
+                    if (_portionsYetToRender.Count > 0)
+                    {
+                        _bus.publish(_portionsYetToRender.Dequeue());
+                    }
                 }
                 else
                 {
@@ -156,18 +157,6 @@ namespace Void.UI
         private void TriggerDraw(PointGrid.Block block)
         {
             Invalidate(block.AsWinFormsRectangle(_cellMetrics));
-        }
-
-        private void TriggerDraw(IEnumerable<PointGrid.Block> blocks)
-        {
-            var regions = blocks.Select(block => block.AsWinFormsRectangle(_cellMetrics))
-                .Select(rect => new Region(rect));
-            var cumulativeRegion = new Region();
-            foreach (var region in regions)
-            {
-                cumulativeRegion.Union(region);
-            }
-            Invalidate(cumulativeRegion);
         }
     }
 }

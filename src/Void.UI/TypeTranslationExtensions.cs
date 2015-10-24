@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using System.Windows.Forms;
 using Microsoft.FSharp.Core;
 using Void.Core;
@@ -79,6 +81,11 @@ namespace Void.UI
         public static Func<TextOrHotKey,Unit> AsTextAndHotKeysHandler(this InputMode<Unit> inputMode)
         {
             return ((InputMode<Unit>.TextAndHotKeys) inputMode).Item.Invoke;
+        }
+
+        public static IEnumerable<VMEvent.ViewPortionRendered> Split(this VMEvent.MultipleViewPortionsRendered multiple)
+        {
+            return multiple.Item.Select(x => (VMEvent.ViewPortionRendered)VMEvent.NewViewPortionRendered(x.Item1, x.Item2));
         }
 
         public static KeyPress AsVoidKeyPress(this KeyEventArgs keyEvent)
