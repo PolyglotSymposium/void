@@ -24,6 +24,8 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
     <DocumentationFile>bin\Debug\Void.ViewModel.Spec.XML</DocumentationFile>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <WarningsAsErrors />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -33,6 +35,8 @@
     <DefineConstants>TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
     <DocumentationFile>bin\Release\Void.ViewModel.Spec.XML</DocumentationFile>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <WarningsAsErrors />
   </PropertyGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>
@@ -54,9 +58,10 @@
     <Content Include="packages.config" />
     <Content Include="app.config" />
     <Compile Include="RenderCommandBarSpec.fs" />
-    <Compile Include="ViewModelSpec.fs" />
+    <Compile Include="WindowSpec.fs" />
     <Compile Include="CommandBarSpec.fs" />
-    <Compile Include="RenderSpec.fs" />
+    <Compile Include="RenderWindowsSpec.fs" />
+    <Compile Include="RenderNotificationBarSpec.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FsUnit.NUnit">

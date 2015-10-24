@@ -19,7 +19,7 @@ type ModeNotImplementedYet_FakeInputHandler() =
 
 type ModeService
     (
-        normalModeInputHandler : NormalMode.InputHandler,
+        normalModeInputHandler : NormalModeBindings.InputHandler,
         commandModeInputHandler : CommandMode.InputHandler,
         visualModeInputHandler : VisualModeInputHandler,
         insertModeInputHandler : InsertModeInputHandler,
@@ -43,7 +43,8 @@ type ModeService
 
     member x.handleEvent =
         function
-        | CoreEvent.ErrorOccurred (Error.ScriptFragmentParseFailed _) -> 
+        | CoreEvent.ErrorOccurred (Error.ScriptFragmentParseFailed _)
+        | CoreEvent.ErrorOccurred Error.NoInterpreter -> 
             CoreCommand.ChangeToMode Mode.Normal :> Message // TODO or whatever mode we were in previously?
         | _ -> noMessage
 
@@ -69,9 +70,9 @@ type ModeService
             CoreEvent.ModeChanged change :> Message
         | _ -> noMessage
 
-    member x.subscribe (subscribeHandler : SubscribeToBus) =
-        subscribeHandler.subscribe x.handleCommandModeEvent
-        subscribeHandler.subscribe x.handleEvent
-        subscribeHandler.subscribe x.handleCommand
-        commandModeInputHandler.subscribe subscribeHandler
-        subscribeHandler.subscribe normalModeInputHandler.handleCommand
+    member x.subscribe (bus : Bus) =
+        bus.subscribe x.handleCommandModeEvent
+        bus.subscribe x.handleEvent
+        bus.subscribe x.handleCommand
+        commandModeInputHandler.subscribe bus
+        bus.subscribe normalModeInputHandler.handleCommand

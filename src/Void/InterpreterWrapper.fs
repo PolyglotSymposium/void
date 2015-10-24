@@ -16,9 +16,8 @@ type InterpreterWrapperService(interpreter : VoidScriptInterpreter) =
             | InterpretScriptFragmentResult.ParseFailed error ->
                 Error.ScriptFragmentParseFailed (ParseErrors.textOf error, request.Fragment)
                 |> InterpretScriptFragmentResponse.ParseFailed
-            :> ResponseMessage<InterpretScriptFragmentRequest>
             |> Some
         | _ -> None
 
-    member x.subscribe (subscribeToBus : SubscribeToBus) =
-        subscribeToBus.subscribeToRequest x.handleInterpretFragmentRequest
+    member x.subscribe (bus : Bus) =
+        bus.subscribeToRequest x.handleInterpretFragmentRequest

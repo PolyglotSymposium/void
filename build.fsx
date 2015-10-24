@@ -17,7 +17,7 @@ Target "RestorePackages" (fun _ ->
 )
 
 Target "Compile" (fun _ ->
-   !! "src/**/*.fsproj"
+   !! "src/Void.sln"
    |> MSBuildRelease buildDir "Build"
    |> Log "Compile-Output: "
 )

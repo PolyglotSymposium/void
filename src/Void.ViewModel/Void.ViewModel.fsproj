@@ -22,6 +22,8 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
     <DocumentationFile>bin\Debug\Void.ViewModel.XML</DocumentationFile>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <WarningsAsErrors />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -31,6 +33,8 @@
     <DefineConstants>TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
     <DocumentationFile>bin\Release\Void.ViewModel.XML</DocumentationFile>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <WarningsAsErrors />
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />
@@ -45,14 +49,18 @@
     <Compile Include="Color.fs" />
     <Compile Include="ViewModelTypes.fs" />
     <Compile Include="DrawingObjects.fs" />
+    <Compile Include="WindowMessages.fs" />
     <Compile Include="ViewModelMessages.fs" />
     <Compile Include="CommandBar.fs" />
-    <Compile Include="Render.fs" />
     <Compile Include="ViewModel.fs" />
     <Compile Include="RenderCommandBar.fs" />
     <Compile Include="ViewModelService.fs" />
     <Compile Include="WindowBufferMap.fs" />
     <Compile Include="NotifyUserOfEvent.fs" />
+    <Compile Include="Window.fs" />
+    <Compile Include="NotificationBar.fs" />
+    <Compile Include="RenderNotificationBar.fs" />
+    <Compile Include="RenderWindows.fs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Void.Core\Void.Core.fsproj">

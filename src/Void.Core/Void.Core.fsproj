@@ -22,6 +22,8 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
     <DocumentationFile>bin\Debug\Void.Core.XML</DocumentationFile>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <WarningsAsErrors />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -31,6 +33,8 @@
     <DefineConstants>TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
     <DocumentationFile>bin\Release\Void.Core.XML</DocumentationFile>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <WarningsAsErrors />
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />
@@ -44,12 +48,18 @@
   <ItemGroup>
     <Compile Include="FSharpUtil.fs" />
     <Compile Include="BaseMessageTypes.fs" />
+    <Compile Include="Messaging.fs" />
+    <Compile Include="CannedResponseRequestSender.fs" />
     <Compile Include="Service.fs" />
     <Compile Include="Keys.fs" />
     <Compile Include="UserNotificationTypes.fs" />
-    <Compile Include="EditorTypes.fs" />
+    <Compile Include="ModeTypes.fs" />
+    <Compile Include="Grids.fs" />
+    <Compile Include="Motion.fs" />
+    <Compile Include="CommandModeMessages.fs" />
     <Compile Include="CoreMessages.fs" />
-    <Compile Include="NormalMode.fs" />
+    <Compile Include="BufferMessages.fs" />
+    <Compile Include="NormalModeBindings.fs" />
     <Compile Include="CommandMode.fs" />
     <Compile Include="Notifications.fs" />
     <Compile Include="ModeService.fs" />

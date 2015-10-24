@@ -21,6 +21,8 @@ module DefaultNormalModeBindings =
 
             [KeyPress.ControlL], CoreCommand.Redraw :> CommandMessage
 
+            [KeyPress.ControlD], VMCommand.ScrollHalf (Move.Forward 1<mScreenHeight>) :> CommandMessage
+            [KeyPress.ControlU], VMCommand.ScrollHalf (Move.Backward 1<mScreenHeight>) :> CommandMessage
             [KeyPress.ControlE], VMCommand.Scroll (Move.Forward 1<mLine>) :> CommandMessage
             [KeyPress.ControlY], VMCommand.Scroll (Move.Backward 1<mLine>) :> CommandMessage
 
@@ -43,13 +45,13 @@ module DefaultNormalModeBindings =
         ]
 
     let bindAllCommands bindings =
-        Seq.map NormalMode.Command.Bind bindings
+        Seq.map NormalModeBindings.Command.Bind bindings
 
     let handleCommand (bus : Bus) command =
         match command with
         | CoreCommand.InitializeVoid ->
-            bindAllCommands voidBindings
-            |> bus.publishAll
+            for message in bindAllCommands voidBindings do
+                bus.publish message
         | _ -> ()
         noMessage
 

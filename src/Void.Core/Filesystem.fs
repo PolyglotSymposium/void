@@ -59,8 +59,7 @@ module Filesystem =
             else CoreEvent.NewFileForEditing path :> Message
         | Command.SaveToDisk (path, lines) ->
             writeLines path lines :> Message
-        | _ -> noMessage
 
     module Service =
-        let subscribe (subscribeHandler : SubscribeToBus) =
-            subscribeHandler.subscribe handleCommand
+        let subscribe (bus : Bus) =
+            bus.subscribe handleCommand

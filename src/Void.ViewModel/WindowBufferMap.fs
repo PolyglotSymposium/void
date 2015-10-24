@@ -46,43 +46,60 @@ module WindowBufferMap =
                                            |> setCurrentBuffer bufferId
                                            |> replaceCurrentWindow windowBufferMap
         }
-        (updated, VMEvent.BufferLoadedIntoWindow :> Message)
+        updated, VMEvent.BufferLoadedIntoWindow :> Message
 
     let handleVMCommand windowBufferMap command =
         match command with
         | VMCommand.Edit fileOrBufferId ->
             match fileOrBufferId with
             | FileOrBufferId.Path path ->
-                (windowBufferMap, Filesystem.Command.OpenFile path :> Message)
+                windowBufferMap, Filesystem.Command.OpenFile path :> Message
             | FileOrBufferId.CurrentBuffer ->
-                (windowBufferMap, noMessage)
+                windowBufferMap, noMessage
             | FileOrBufferId.AlternateBuffer ->
-                (windowBufferMap, noMessage)
+                windowBufferMap, noMessage
             | FileOrBufferId.BufferNumber bufferId ->
-                (windowBufferMap, noMessage)
+                windowBufferMap, noMessage
         | VMCommand.Write fileOrBufferId ->
             match fileOrBufferId with
             | FileOrBufferId.Path path ->
                 let id = currentBufferId windowBufferMap
                 in (windowBufferMap, CoreCommand.WriteBufferToPath (id, path) :> Message)
             | FileOrBufferId.CurrentBuffer ->
-                (windowBufferMap, noMessage)
+                windowBufferMap, noMessage
             | FileOrBufferId.AlternateBuffer ->
-                (windowBufferMap, noMessage)
+                windowBufferMap, noMessage
             | FileOrBufferId.BufferNumber bufferId ->
-                (windowBufferMap, noMessage)
-
-    let handleEvent windowBufferMap event =
-        match event with
-        | CoreEvent.BufferAdded (bufferId, buffer) ->
-            loadBufferIntoCurrentWindow windowBufferMap bufferId
+                windowBufferMap, noMessage
         | _ ->
-            (windowBufferMap, noMessage)
+            windowBufferMap, noMessage
+
+    let handleBufferEvent windowBufferMap event =
+        match event.Message with
+        | BufferEvent.Added _ ->
+            loadBufferIntoCurrentWindow windowBufferMap event.BufferId
+
+    let getWindowContentsResponse getBufferContentsResponse =
+        {
+            FirstLineNumber = getBufferContentsResponse.Message.FirstLineNumber
+            RequestedContents = getBufferContentsResponse.Message.RequestedContents
+        } : GetWindowContentsResponse
+
+    let handleGetWindowContentsRequest (requestSender : PackagedRequestSender) windowBufferMap (request : GetWindowContentsRequest) =
+        requestSender.makePackagedRequest {
+            BufferId = currentBufferId !windowBufferMap
+            Message = { StartingAtLine = request.StartingAtLine }
+        }
+        |> Option.map getWindowContentsResponse
 
     module Service =
         open Void.Core
 
-        let subscribe (subscribeHandler : SubscribeToBus) =
+        let subscribe (bus : Bus) =
             let windowBufferMap = ref empty
-            subscribeHandler.subscribe <| Service.wrap windowBufferMap handleVMCommand
-            subscribeHandler.subscribe <| Service.wrap windowBufferMap handleEvent
+            Service.wrap windowBufferMap handleVMCommand
+            |> bus.subscribe
+            Service.wrap windowBufferMap handleBufferEvent
+            |> bus.subscribe
+            handleGetWindowContentsRequest bus windowBufferMap
+            |> bus.subscribeToRequest

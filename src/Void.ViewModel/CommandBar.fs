@@ -1,5 +1,18 @@
 ﻿namespace Void.ViewModel
 
+(* "Command line" is too equivocal. I mean the ; (or : in Vim) bar at the
+ * bottom of the screen *)
+[<RequireQualifiedAccess>]
+type CommandBarPrompt =
+    | VoidDefault
+    | ClassicVim
+
+type CommandBarView = {
+    Width : int
+    Prompt : CommandBarPrompt Visibility
+    WrappedLines : string list
+}
+
 module CommandBar =
     open Void.Core
     open Void.Core.CellGrid
@@ -18,6 +31,11 @@ module CommandBar =
             Prompt = Visible CommandBarPrompt.VoidDefault
             WrappedLines = [""]
         }
+
+    [<RequireQualifiedAccess>]
+    type Command =
+        | Redraw of CommandBarView
+        interface CommandMessage
 
     [<RequireQualifiedAccess>]
     type Event =
@@ -43,6 +61,10 @@ module CommandBar =
     let private replaceText replacement commandBar =
         let bar = { commandBar with WrappedLines = [replacement] }
         (bar, Event.TextChanged bar :> Message)
+
+    let private appendNewline commandBar =
+        let bar = { commandBar with WrappedLines = "" :: commandBar.WrappedLines }
+        (bar, Event.TextReflowed bar :> Message)
 
     let private appendText textToAppend commandBar =
         if currentLineWillOverflow textToAppend commandBar
@@ -81,18 +103,27 @@ module CommandBar =
         | CoreEvent.ModeChanged { From = _; To = Mode.Command } -> show
         | _ -> (commandBar, noMessage)
 
+    let handleCoreCommand commandBar command =
+        match command with
+        | CoreCommand.Redraw ->
+             Command.Redraw !commandBar :> Message
+        | _ -> noMessage
+
     let handleCommandModeEvent commandBar event =
         match event with
         | CommandMode.Event.EntryCancelled -> hide
         | CommandMode.Event.CharacterBackspaced -> characterBackspaced commandBar
         | CommandMode.Event.TextAppended text -> appendText text commandBar
-        | CommandMode.Event.CommandCompleted _ -> (commandBar, noMessage)
+        | CommandMode.Event.CommandCompleted _ -> commandBar, noMessage
         | CommandMode.Event.TextReplaced text -> replaceText text commandBar
+        | CommandMode.Event.NewlineAppended -> appendNewline commandBar
 
     module Service =
         open Void.Core
 
-        let subscribe (subscribeHandler : SubscribeToBus) =
+        let subscribe (bus : Bus) =
             let commandBar = ref hidden
-            subscribeHandler.subscribe <| Service.wrap commandBar handleEvent
-            subscribeHandler.subscribe <| Service.wrap commandBar handleCommandModeEvent
+            Service.wrap commandBar handleEvent |> bus.subscribe
+            Service.wrap commandBar handleCommandModeEvent |> bus.subscribe
+            handleCoreCommand commandBar |> bus.subscribe
+

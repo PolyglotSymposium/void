@@ -15,17 +15,20 @@ module CommandLanguage =
     let handleRequest language request =
         {
             CurrentCommandLanguage = !language
-        } :> ResponseMessage<GetCurrentCommandLanguageRequest>
+        }
 
     let handleCommand _ (ChangeCurrentCommandLanguageTo newLanguage) =
         newLanguage, CurrentCommandLanguageChangedTo newLanguage :> Message
 
-    let handleNoResponseToInterpretFragmentRequest _ (msg : NoResponseToRequest<InterpretScriptFragmentRequest>) =
-        voidScript, CurrentCommandLanguageChangedTo voidScript :> Message
+    let handleCoreEvent language event =
+        match event with
+        | CoreEvent.ErrorOccurred Error.NoInterpreter ->
+            voidScript, CurrentCommandLanguageChangedTo voidScript :> Message
+        | _ -> language, noMessage
 
     module Service =
-        let subscribe (subscribeHandler : SubscribeToBus) =
+        let subscribe (bus : Bus) =
             let language = ref voidScript
-            subscribeHandler.subscribeToRequest (handleRequest language)
-            subscribeHandler.subscribe <| Service.wrap language handleCommand
-            subscribeHandler.subscribe <| Service.wrap language handleNoResponseToInterpretFragmentRequest
+            bus.subscribeToRequest (handleRequest language)
+            bus.subscribe <| Service.wrap language handleCommand
+            bus.subscribe <| Service.wrap language handleCoreEvent

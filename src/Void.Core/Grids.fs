@@ -1,22 +1,5 @@
 ﻿namespace Void.Core
 
-// TODO be very careful to get the abstractions right here!
-// TODO could be very easy to shoot oneself in the foot with the wrong abstraction!
-[<RequireQualifiedAccess>]
-type Mode =
-    | Insert
-    | Normal
-    | Command
-    | Visual
-    | VisualBlock // TODO should this be subsumed under Visual?
-    | OperatorPending // TODO is this a submode of command
-    // TODO there are many more modes
-
-type ModeChange = {
-    From : Mode
-    To : Mode
-}
-
 module PointGrid =
     type Point = {
         X : int
@@ -47,6 +30,8 @@ module CellGrid =
         Dimensions : Dimensions
     }
     let originCell = { Row = 0; Column = 0 }
+    let zeroDimensions = { Rows = 0; Columns = 0 }
+    let zeroBlock = { UpperLeftCell = originCell; Dimensions = zeroDimensions }
 
     let rightOf cell count =
         { Row = cell.Row; Column = cell.Column + count }
@@ -90,30 +75,3 @@ module GridConvert =
             UpperLeftCorner = upperLeftCornerOf cell
             Dimensions = { Width = 1; Height = 1 }
         }
-
-// TODO This is naive, obviously
-type FileBuffer = private {
-    Filepath : string option
-    Contents : string list
-    CursorPosition : CellGrid.Cell
-}
-
-[<Measure>] type mCharacter
-[<Measure>] type mLine
-[<Measure>] type mPararagraph
-[<Measure>] type mBuffer
-
-type Motion = interface end
-
-[<RequireQualifiedAccess>]
-type Move<[<Measure>]'UnitOfMotion> = // Relative motion
-    | Backward of int<'UnitOfMotion>
-    | Forward of int<'UnitOfMotion>
-    interface Motion
-
-[<RequireQualifiedAccess>]
-type MoveTo<[<Measure>]'InnerUnit, [<Measure>]'OuterUnit> = // Absolute motion
-    | First
-    | Nth of int<'InnerUnit>
-    | Last
-    interface Motion

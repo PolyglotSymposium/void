@@ -3,17 +3,17 @@
 [<RequireQualifiedAccess>]
 type Error =
     | AccessToPathNotAuthorized of string
+    | NoInterpreter
     | NotImplemented
     | ScriptFragmentParseFailed of string * string
-    | UnableToInterpretLanguage of string
 
 module Errors =
     let textOf =
         function
         | Error.AccessToPathNotAuthorized path -> sprintf "Access to path not authorized: \"%s\"" path
+        | Error.NoInterpreter -> "No interpreter responded to the request to interpret the command"
         | Error.NotImplemented -> "That command is not yet implemented"
         | Error.ScriptFragmentParseFailed (msg, _) -> msg
-        | Error.UnableToInterpretLanguage language -> sprintf "No interpreter was found for %s code" language
 
 [<RequireQualifiedAccess>]
 // In Vim this is called a message, e.g. :messages or :echomsg.

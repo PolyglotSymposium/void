@@ -38,34 +38,18 @@ module Init =
 
     let buildVoid inputModeChanger (options : VoidOptions) =
         let editorService = EditorService()
-        let viewService = ViewModelService()
-        let coreCommandChannel =
-            Channel [
-                viewService.handleCommand
-                editorService.handleCommand
-            ]
-        let coreEventChannel =
-            Channel [
-                viewService.handleEvent
-            ]
-        let commandBarEventChannel =
-            Channel [
-                viewService.handleCommandBarEvent
-            ]
-        let bus =
-            Bus [
-                coreCommandChannel
-                coreEventChannel
-                commandBarEventChannel
-            ]
+        let viewModelService = ViewModelService()
+        let bus = Messaging.newBus()
+        bus.subscribe editorService.handleCommand
         let interpreter = Interpreter.init <| VoidScriptEditorModule(bus.publish).Commands
         let interpreterWrapperService = InterpreterWrapperService interpreter
-        let modeService = ModeService(NormalMode.InputHandler(),
-                                      CommandMode.InputHandler(),
+        let modeService = ModeService(NormalModeBindings.InputHandler(),
+                                      CommandMode.InputHandler(bus),
                                       VisualModeInputHandler(),
                                       InsertModeInputHandler(),
                                       setInputMode inputModeChanger bus.publish)
         modeService.subscribe bus
+        viewModelService.subscribe bus
         if options.EnableVerboseMessageLogging then MessageLog.Service.subscribe bus
         interpreterWrapperService.subscribe bus
         BufferList.Service.subscribe bus
@@ -75,8 +59,12 @@ module Init =
         Notifications.Service.subscribe bus
         Filesystem.Service.subscribe bus
         CommandBar.Service.subscribe bus
+        RenderCommandBar.Service.subscribe bus
         WindowBufferMap.Service.subscribe bus
         NotifyUserOfEvent.Service.subscribe bus
+        Window.Service.subscribe bus
+        RenderWindows.Service.subscribe bus
+        RenderNotificationBar.Service.subscribe bus
         bus
 
     let launchVoid (bus : Bus) =

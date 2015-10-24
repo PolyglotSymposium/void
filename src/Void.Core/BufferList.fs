@@ -1,5 +1,12 @@
 ﻿namespace Void.Core
 
+// TODO This is naive, obviously
+type FileBuffer = private {
+    Filepath : string option
+    Contents : string list
+    CursorPosition : CellGrid.Cell
+}
+
 module Buffer =
     open CellGrid
 
@@ -13,7 +20,7 @@ module Buffer =
         { Filepath = Some path; Contents = contents; CursorPosition = originCell }
 
     let readLines fileBuffer start =
-        fileBuffer.Contents |> Seq.skip (start - 1) // Line numbers start at 1
+        fileBuffer.Contents |> Seq.skip ((start - 1<mLine>)/1<mLine>) // Line numbers start at 1
 
 type Buffers = private {
     List : Map<int, FileBuffer>
@@ -36,13 +43,17 @@ module BufferList =
             List = bufferList.List.Add(id, buffer)
             LastId = id
         }
-        (listPlusOne, CoreEvent.BufferAdded (id, buffer) :> Message )
+        let bufferProxy = {
+            MaybeFilepath = buffer.Filepath
+            Contents = Seq.ofList buffer.Contents
+        }
+        (listPlusOne, { BufferId = id; Message = BufferEvent.Added bufferProxy } :> Message )
 
     let private addEmptyBuffer bufferList =
         addBuffer bufferList Buffer.emptyFile
 
     let private writeBufferToPath bufferList bufferId path =
-        let lines = Buffer.readLines bufferList.List.[bufferId] 0
+        let lines = Buffer.readLines bufferList.List.[bufferId] 0<mLine>
         let msg = Filesystem.Command.SaveToDisk (path, lines) :> Message
         (bufferList, msg)
 
@@ -72,10 +83,33 @@ module BufferList =
         | CoreCommand.WriteBufferToPath (bufferId, path) ->
             writeBufferToPath bufferList bufferId path
         | _ -> 
-            (bufferList, noMessage)
+            bufferList, noMessage
+
+    let private package bufferId message =
+        {
+            BufferId = bufferId
+            Message = message
+        }
+
+    let handleGetBufferContentsRequest bufferList envelope =
+        let buffers = (!bufferList).List
+        if buffers.ContainsKey envelope.BufferId
+        then
+            let buffer = buffers.[envelope.BufferId]
+            {
+                FirstLineNumber = envelope.Message.StartingAtLine
+                RequestedContents =
+                    if buffer.Contents.Length*1<mLine> < envelope.Message.StartingAtLine
+                    then Seq.empty
+                    else Buffer.readLines buffer envelope.Message.StartingAtLine
+            }
+            |> package envelope.BufferId
+            |> Some
+        else None
 
     module Service =
-        let subscribe (subscribeHandler : SubscribeToBus) =
+        let subscribe (bus : Bus) =
             let bufferList = ref empty
-            subscribeHandler.subscribe <| Service.wrap bufferList handleCommand
-            subscribeHandler.subscribe <| Service.wrap bufferList handleEvent
+            Service.wrap bufferList handleCommand |> bus.subscribe
+            Service.wrap bufferList handleEvent |> bus.subscribe
+            handleGetBufferContentsRequest bufferList |> bus.subscribeToPackagedRequest
