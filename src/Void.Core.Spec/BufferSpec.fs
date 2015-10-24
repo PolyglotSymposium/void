@@ -69,10 +69,16 @@ type ``Moving the cursor in a buffer``() =
         |> should equal (oneCharacterBuffer, Buffer.DidNotMove)
 
     [<Test>]
-    member x.``down one line should succeed within a two-line buffer``() =
+    member x.``down one line should succeed within a two-line buffer when starting on line one``() =
         Buffer.handleMoveCursorByRows twoLineBuffer j
         |> snd
         |> should equal (Buffer.CursorMoved(CellGrid.originCell, { Column = 0<mColumn>; Row = 1<mRow> }))
+
+    [<Test>]
+    member x.``down one line should do nothing within a two-line buffer when starting on line two``() =
+        let onLineTwo, _ = Buffer.handleMoveCursorByRows twoLineBuffer j
+        Buffer.handleMoveCursorByRows onLineTwo j
+        |> should equal (onLineTwo, Buffer.DidNotMove)
 
     [<Test>]
     member x.``moving up one line should undo moving down one line``() =

@@ -251,7 +251,16 @@ type ``Moving the cursor``() =
 
     [<Test>]
     member x.``When the buffer cursor moves below what is visible in the window, the buffer is scrolled down``() =
-        ()
+        let startCell = below originCell 24<mRow>
+        let buffer =
+            Seq.initInfinite (sprintf "%i")
+            |> Seq.take 25
+            |> Seq.toList
+        let window = { Window.defaultWindowView with Buffer = buffer }
+
+        { BufferId = 1; Message = BufferEvent.CursorMoved(startCell, below startCell 5<mRow>) }
+        |> Window.handleBufferEvent window
+        |> should equal (window, VMCommand.Scroll (Move.forward By.line 5) :> Message)
 
     [<Test>]
     member x.``When the buffer cursor moves above what is visible in the window, the buffer is scrolled up``() =

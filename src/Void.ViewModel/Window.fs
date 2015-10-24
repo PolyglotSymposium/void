@@ -79,8 +79,17 @@ module Window =
             else
                 let fromWindowCell = CellGrid.above fromBufferCell firstRow
                 let toWindowCell = CellGrid.above toBufferCell firstRow
-                let updatedWindow = { window with Cursor = Visible (CursorView.Block toWindowCell)}
-                updatedWindow, Event.CursorMoved(fromWindowCell, toWindowCell, updatedWindow) :> Message
+                let lastRowInWindow = window.Dimensions.Rows - 1<mRow>
+                if toWindowCell.Row > lastRowInWindow
+                then
+                    let msg = (toWindowCell.Row - lastRowInWindow) * linePerRow
+                              |> By.Line
+                              |> Move.Forward
+                              |> VMCommand.Scroll :> Message
+                    window, msg
+                else
+                    let updatedWindow = { window with Cursor = Visible (CursorView.Block toWindowCell) }
+                    updatedWindow, Event.CursorMoved(fromWindowCell, toWindowCell, updatedWindow) :> Message
 
     let private scroll (requestSender : RequestSender) window xLines =
         let request : GetWindowContentsRequest = { StartingAtLine = window.TopLineNumber + xLines }

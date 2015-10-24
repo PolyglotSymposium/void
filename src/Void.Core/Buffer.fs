@@ -49,10 +49,11 @@ module Buffer =
                 { buffer with CursorPosition = newPosition }, event
             else buffer, DidNotMove
         | MoveCursor (Move.Forward (By.Row rows)) ->
+            let rowsToTheEnd = lengthInRows buffer - buffer.CursorPosition.Row
             let rowsToMove =
-                if lengthInRows buffer > rows
+                if rowsToTheEnd > rows
                 then rows
-                else lengthInRows buffer - 1<mRow>
+                else rowsToTheEnd - 1<mRow>
             if rowsToMove > 0<mRow>
             then
                 let newPosition = below buffer.CursorPosition rowsToMove
