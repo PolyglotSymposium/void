@@ -255,4 +255,8 @@ type ``Moving the cursor``() =
 
     [<Test>]
     member x.``When the buffer cursor moves above what is visible in the window, the buffer is scrolled up``() =
-        ()
+        let window = { Window.defaultWindowView with Buffer = ["z"]; TopLineNumber = 30<mLine> }
+
+        { BufferId = 1; Message = BufferEvent.CursorMoved(below originCell 29<mRow>, below originCell 26<mRow>) }
+        |> Window.handleBufferEvent window
+        |> should equal (window, VMCommand.Scroll (Move.backward By.line 3) :> Message)
