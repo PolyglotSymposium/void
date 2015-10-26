@@ -19,8 +19,8 @@ type MoveCursor<'By> =
     interface CommandMessage
     interface BufferMessage
 
-type MoveCursorTo<[<Measure>]'InnerUnit, [<Measure>]'OuterUnit> =
-    | MoveCursorTo of MoveTo<'InnerUnit, 'OuterUnit>
+type MoveCursorTo<'By, 'In> =
+    | MoveCursorTo of MoveTo<'By, 'In>
     interface CommandMessage
     interface BufferMessage
 

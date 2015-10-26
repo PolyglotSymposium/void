@@ -42,22 +42,16 @@ module RenderWindows =
         buffer.[cell.Row/1<mRow>].[cell.Column/1<mColumn>].ToString()
 
     let private cursorAsDrawingObjects (window : WindowView) =
-        match window.Cursor with
-        | Visible cursor ->
-            match cursor with
-            | CursorView.Block cell ->
-                DrawingObject.Block {
-                    Area = GridConvert.boxAroundOneCell cell
-                    Color = Colors.defaultColorscheme.Foreground
-                } :: if window.Buffer.Length > 0
-                     then [DrawingObject.Text {
-                        Text = getCharacter window.Buffer cell
-                        UpperLeftCorner = GridConvert.upperLeftCornerOf cell
-                        Color = Colors.defaultColorscheme.Background
-                     }]
-                     else []
-            | CursorView.IBeam _ -> []
-        | Hidden -> []
+        DrawingObject.Block {
+            Area = GridConvert.boxAroundOneCell window.Cursor.Position
+            Color = Colors.defaultColorscheme.Foreground
+        } :: if window.Buffer.Length > 0
+             then [DrawingObject.Text {
+                Text = getCharacter window.Buffer window.Cursor.Position
+                UpperLeftCorner = GridConvert.upperLeftCornerOf window.Cursor.Position
+                Color = Colors.defaultColorscheme.Background
+             }]
+             else []
 
     let windowAsDrawingObjects (window : WindowView) =
         List.append (contentsAsDrawingObjects window.Dimensions window.Buffer) (cursorAsDrawingObjects window)

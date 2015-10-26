@@ -125,3 +125,6 @@ module WindowBufferMap =
 
             handleCurrentBufferCommandEnvelope<MoveCursor<By.Row>> windowBufferMap
             |> bus.subscribe
+
+            handleCurrentBufferCommandEnvelope<MoveCursorTo<By.Line,In.Buffer>> windowBufferMap
+            |> bus.subscribe

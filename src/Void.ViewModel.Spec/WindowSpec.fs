@@ -8,6 +8,13 @@ open System.Linq
 open NUnit.Framework
 open FsUnit
 
+[<AutoOpen>]
+module WindowSpecUtil = 
+    let buffer25lines =
+        Seq.initInfinite (sprintf "%i")
+        |> Seq.take 25
+        |> Seq.toList
+
 [<TestFixture>]
 type ``Constructing a buffer view model from a sequence of text lines``() = 
     let asViewModelBuffer = Window.bufferFrom { Rows = 25<mRow>; Columns = 80<mColumn> }
@@ -125,6 +132,16 @@ type ``Scrolling (by line)``() =
         |> should equal (windowBefore, noMessage)
 
     [<Test>]
+    member x.``down should move the window-relative cursor if necessary to keep it from being on an empty line``() =
+        buffer := buffer25lines
+        let windowBefore = { Window.defaultWindowView with TopLineNumber = 1<mLine>; Buffer = !buffer; Cursor = { Window.defaultWindowView.Cursor with Position = { Row = 24<mRow>; Column = 0<mColumn> } } }
+        let windowAfter = { Window.defaultWindowView with TopLineNumber = 11<mLine>; Buffer = Seq.toList <| Seq.skip 10 buffer25lines; Cursor = { windowBefore.Cursor with Position = { Row = 14<mRow>; Column = 0<mColumn> } } }
+
+        Move.forward By.line 10
+        |> scroll windowBefore 
+        |> should equal (windowAfter, Window.Event.ContentsUpdated windowAfter :> Message)
+
+    [<Test>]
     member x.``down multiple lines from the top``() =
         let windowBefore = { Window.defaultWindowView with Buffer = !buffer }
         let windowAfter = { windowBefore with TopLineNumber = 4<mLine>; Buffer = ["d"; "e"; "f"] }
@@ -222,7 +239,7 @@ type ``Moving the cursor``() =
     member x.``When the cursor is moved in the buffer, it is moved in the window``() =
         let targetCell = below originCell 1<mRow>
         let windowBefore = { Window.defaultWindowView with Buffer = ["a"; "b"]}
-        let windowAfter = { windowBefore with Cursor = Visibility.Visible <| CursorView.Block targetCell }
+        let windowAfter = { windowBefore with Cursor = { windowBefore.Cursor with Position = targetCell } }
 
         { BufferId = 1; Message = BufferEvent.CursorMoved(originCell, targetCell) }
         |> Window.handleBufferEvent windowBefore
@@ -231,12 +248,8 @@ type ``Moving the cursor``() =
     [<Test>]
     member x.``The cursor in the window is tracked relative to the window, not the buffer``() =
         let targetCell = below originCell 1<mRow>
-        let buffer =
-            Seq.initInfinite (sprintf "%i")
-            |> Seq.take 25
-            |> Seq.toList
-        let windowBefore = { Window.defaultWindowView with Buffer = buffer; TopLineNumber = 10<mLine> }
-        let windowAfter = { windowBefore with Cursor = Visibility.Visible <| CursorView.Block targetCell }
+        let windowBefore = { Window.defaultWindowView with Buffer = buffer25lines; TopLineNumber = 10<mLine> }
+        let windowAfter = { windowBefore with Cursor = { windowBefore.Cursor with Position = targetCell } }
 
         { BufferId = 1; Message = BufferEvent.CursorMoved(below originCell 9<mRow>, below targetCell 9<mRow>) }
         |> Window.handleBufferEvent windowBefore
@@ -245,11 +258,7 @@ type ``Moving the cursor``() =
     [<Test>]
     member x.``When the buffer cursor moves below what is visible in the window, the buffer is scrolled down``() =
         let startCell = below originCell 24<mRow>
-        let buffer =
-            Seq.initInfinite (sprintf "%i")
-            |> Seq.take 25
-            |> Seq.toList
-        let window = { Window.defaultWindowView with Buffer = buffer }
+        let window = { Window.defaultWindowView with Buffer = buffer25lines; Cursor = { Window.defaultWindowView.Cursor with Position = startCell } }
 
         { BufferId = 1; Message = BufferEvent.CursorMoved(startCell, below startCell 5<mRow>) }
         |> Window.handleBufferEvent window

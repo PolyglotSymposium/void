@@ -35,6 +35,15 @@ module Buffer =
         | DidNotMove
         | CursorMoved of From : Cell * To : Cell
 
+    let cursorMoved buffer newPosition =
+        let event = CursorMoved(buffer.CursorPosition, newPosition)
+        { buffer with CursorPosition = newPosition }, event
+
+    let private setCursorPosition buffer newPosition =
+        if buffer.CursorPosition = newPosition
+        then buffer, DidNotMove
+        else cursorMoved buffer newPosition
+
     let handleMoveCursorByRows buffer (moveCursor : MoveCursor<By.Row>) =
         match moveCursor with
         | MoveCursor (Move.Backward (By.Row rows)) ->
@@ -44,9 +53,8 @@ module Buffer =
                 else buffer.CursorPosition.Row
             if rowsToMove > 0<mRow>
             then
-                let newPosition = above buffer.CursorPosition rowsToMove
-                let event = CursorMoved(buffer.CursorPosition, newPosition)
-                { buffer with CursorPosition = newPosition }, event
+                above buffer.CursorPosition rowsToMove
+                |> cursorMoved buffer
             else buffer, DidNotMove
         | MoveCursor (Move.Forward (By.Row rows)) ->
             let rowsToTheEnd = lengthInRows buffer - buffer.CursorPosition.Row
@@ -56,9 +64,8 @@ module Buffer =
                 else rowsToTheEnd - 1<mRow>
             if rowsToMove > 0<mRow>
             then
-                let newPosition = below buffer.CursorPosition rowsToMove
-                let event = CursorMoved(buffer.CursorPosition, newPosition)
-                { buffer with CursorPosition = newPosition }, event
+                below buffer.CursorPosition rowsToMove
+                |> cursorMoved buffer
             else buffer, DidNotMove
 
     let handleMoveCursorByColumns buffer (moveCursor : MoveCursor<By.Column>) =
@@ -68,3 +75,14 @@ module Buffer =
         | MoveCursor (Move.Forward (By.Column columns)) ->
             buffer, DidNotMove
 
+    let handleMoveCursorToLineInBuffer buffer (moveCursorTo : MoveCursorTo<By.Line, In.Buffer>) =
+        match moveCursorTo with
+        | MoveCursorTo MoveTo.First ->
+            setCursorPosition buffer originCell
+        | MoveCursorTo (MoveTo.Nth (By.Line line)) ->
+            ``line#->row#`` line
+            |> below originCell
+            |> setCursorPosition buffer
+        | MoveCursorTo MoveTo.Last ->
+            below originCell (lengthInRows buffer - 1<mRow>)
+            |> setCursorPosition buffer

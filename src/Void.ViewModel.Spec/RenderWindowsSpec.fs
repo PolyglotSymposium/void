@@ -83,7 +83,7 @@ type ``Rendering buffers``() =
     [<Test>]
     member x.``when the buffer has text and is focused and the cursor is not at the origin, it renders the normal-mode cursor``() =
         let cursorCell = { Row = 1<mRow>; Column = 1<mColumn> }
-        let cursor = Visible <| CursorView.Block cursorCell
+        let cursor = { Position = cursorCell; Appearance = Visible CursorStyle.Block }
         let window = { Window.defaultWindowView with Buffer = ["foo"; "bar"; "bez"]; Cursor = cursor }
         let drawingObjects = RenderWindows.windowAsDrawingObjects window
         drawingObjects.Length |> should equal 28
@@ -130,7 +130,7 @@ type ``Rendering buffers``() =
     [<Test>]
     member x.``when the cursor is moved in normal mode, it only renders the from and to cells again``() =
         let cursorCell = { Row = 1<mRow>; Column = 1<mColumn> }
-        let cursor = Visible <| CursorView.Block cursorCell
+        let cursor = { Position = cursorCell; Appearance = Visible CursorStyle.Block }
         let window = { Window.defaultWindowView with Buffer = ["foo"; "bar"; "bez"]; Cursor = cursor }
         let event = Window.Event.CursorMoved (originCell, cursorCell, window)
         match RenderWindows.handleWindowEvent event with

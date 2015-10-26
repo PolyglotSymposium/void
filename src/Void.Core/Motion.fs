@@ -6,6 +6,7 @@ module By =
      * Thus these By* types provide a wrapper. *)
     type Column = Column of int<mColumn>
     type Row = Row of int<mRow>
+    type Character = Character of int<mCharacter>
     type Line = Line of int<mLine>
 
     let row (x : int) =
@@ -14,8 +15,15 @@ module By =
     let column (x : int) =
         Column (x*1<mColumn>)
 
+    let character (x : int) =
+        Character (x * 1<mCharacter>)
+
     let line (x : int) =
         Line (x * 1<mLine>)
+
+module In =
+    type Line = private | Line
+    type Buffer = private | Buffer
 
 [<RequireQualifiedAccess>]
 type Move<'By> = // Relative motion
@@ -29,7 +37,7 @@ module Move =
         Move.Forward (by x)
 
 [<RequireQualifiedAccess>]
-type MoveTo<[<Measure>]'InnerUnit, [<Measure>]'OuterUnit> = // Absolute motion
+type MoveTo<'InnerUnit, 'OuterUnit> = // Absolute motion
     | First
-    | Nth of int<'InnerUnit>
+    | Nth of 'InnerUnit
     | Last

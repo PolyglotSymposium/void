@@ -18,11 +18,11 @@ module DefaultNormalModeBindings =
             [KeyPress.K], move (Move.backward By.row 1)
             [KeyPress.L], move (Move.forward By.column 1)
 
-            [KeyPress.Zero], moveTo MoveTo<mCharacter,mLine>.First
-            [KeyPress.DollarSign], moveTo MoveTo<mCharacter,mLine>.Last
+            [KeyPress.Zero], moveTo MoveTo<By.Character,In.Line>.First
+            [KeyPress.DollarSign], moveTo MoveTo<By.Character,In.Line>.Last
 
-            [KeyPress.G; KeyPress.G], moveTo MoveTo<mLine,mBuffer>.First
-            [KeyPress.ShiftG], moveTo MoveTo<mLine,mBuffer>.Last
+            [KeyPress.G; KeyPress.G], moveTo MoveTo<By.Line,In.Buffer>.First
+            [KeyPress.ShiftG], moveTo MoveTo<By.Line,In.Buffer>.Last
 
             [KeyPress.G; KeyPress.Q; KeyPress.G; KeyPress.Q], CoreCommand.FormatCurrentLine :> CommandMessage // TODO this is an abomination of course
 
