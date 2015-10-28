@@ -39,7 +39,9 @@ module RenderWindows =
         List.append (background :: bufferLines) rowsNotInBuffer
 
     let private getCharacter (buffer : string list) cell =
-        buffer.[cell.Row/1<mRow>].[cell.Column/1<mColumn>].ToString()
+        match buffer.[cell.Row/1<mRow>] with
+          | "" -> ""
+          | text -> text.[cell.Column/1<mColumn>].ToString()
 
     let private cursorAsDrawingObjects (window : WindowView) =
         match window.Cursor with
