@@ -66,6 +66,31 @@ module Window =
         let updatedWindow = { window with Buffer = toScreenBuffer window.Dimensions buffer }
         updatedWindow, Event.ContentsUpdated updatedWindow :> Message
 
+    let private setCursorPosition window cell =
+        { window with Cursor = { window.Cursor with Position = cell } }
+
+    let private firstRowOf window =
+        ``line#->row#`` window.TopLineNumber
+
+    let private lastRowOf (window : WindowView) =
+        window.Dimensions.Rows - 1<mRow>
+
+    let private scrollUpSinceCursorMovedAboveTop window toBufferCell =
+        let updatedWindow = setCursorPosition window originCell
+        let msg = (firstRowOf window - toBufferCell.Row) * linePerRow
+                  |> By.Line
+                  |> Move.Backward
+                  |> VMCommand.Scroll :> Message
+        updatedWindow, msg
+
+    let private scrollUpSinceCursorMovedBelowBottom window toWindowCell =
+        let updatedWindow = setCursorPosition window { originCell with Row = lastRowOf window }
+        let msg = (toWindowCell.Row - lastRowOf window) * linePerRow
+                  |> By.Line
+                  |> Move.Forward
+                  |> VMCommand.Scroll :> Message
+        updatedWindow, msg
+
     let handleBufferEvent window event =
         match event.Message with
         | BufferEvent.Added buffer ->
@@ -73,40 +98,30 @@ module Window =
         | BufferEvent.CursorMoved(fromBufferCell, toBufferCell) ->
             let firstRow = ``line#->row#`` window.TopLineNumber
             if toBufferCell.Row < firstRow
-            then
-                let updatedWindow = { window with Cursor = { window.Cursor with Position = originCell } }
-                let msg = (firstRow - toBufferCell.Row) * linePerRow
-                          |> By.Line
-                          |> Move.Backward
-                          |> VMCommand.Scroll :> Message
-                updatedWindow, msg
+            then scrollUpSinceCursorMovedAboveTop window toBufferCell
             else
-                let fromWindowCell = CellGrid.above fromBufferCell firstRow
                 let toWindowCell = CellGrid.above toBufferCell firstRow
-                let lastRowInWindow = window.Dimensions.Rows - 1<mRow>
-                if toWindowCell.Row > lastRowInWindow
-                then
-                    let updatedWindow = { window with Cursor = { window.Cursor with Position = { originCell with Row = lastRowInWindow} } }
-                    let msg = (toWindowCell.Row - lastRowInWindow) * linePerRow
-                              |> By.Line
-                              |> Move.Forward
-                              |> VMCommand.Scroll :> Message
-                    updatedWindow, msg
+                if toWindowCell.Row > window.Dimensions.Rows - 1<mRow>
+                then scrollUpSinceCursorMovedBelowBottom window toWindowCell
                 else
-                    let updatedWindow = { window with Cursor = { window.Cursor with Position = toWindowCell } }
+                    let fromWindowCell = CellGrid.above fromBufferCell firstRow
+                    let updatedWindow = setCursorPosition window toWindowCell
                     updatedWindow, Event.CursorMoved(fromWindowCell, toWindowCell, updatedWindow) :> Message
+
+    let private resetCursorIfNecessary window =
+        if lastPopulatedRow window < window.Cursor.Position.Row
+        then
+            { window.Cursor.Position with Row = lastPopulatedRow window }
+            |> setCursorPosition window
+        else window
 
     let private scroll (requestSender : RequestSender) window xLines =
         let request : GetWindowContentsRequest = { StartingAtLine = window.TopLineNumber + xLines }
         match requestSender.makeRequest request with
         | Some (response : GetWindowContentsResponse) ->
             let updatedWindow = { window with TopLineNumber = response.FirstLineNumber; Buffer = Seq.toList response.RequestedContents }
-            if lastPopulatedRow updatedWindow < updatedWindow.Cursor.Position.Row
-            then
-                let updatedWindow2 = { updatedWindow with Cursor = { window.Cursor with Position = { window.Cursor.Position with Row = lastPopulatedRow updatedWindow } } }
-                updatedWindow2, Event.ContentsUpdated updatedWindow2 :> Message
-            else
-                updatedWindow, Event.ContentsUpdated updatedWindow :> Message
+            let updatedWindow2 = resetCursorIfNecessary updatedWindow
+            updatedWindow2, Event.ContentsUpdated updatedWindow2 :> Message
         | None -> window, noMessage
 
     let scrollByLineMovement requestSender window movement =
