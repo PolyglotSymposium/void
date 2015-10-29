@@ -66,7 +66,7 @@ module Window =
         let updatedWindow = { window with Buffer = toScreenBuffer window.Dimensions buffer }
         updatedWindow, Event.ContentsUpdated updatedWindow :> Message
 
-    let private setCursorPosition window cell =
+    let setCursorPosition window cell =
         { window with Cursor = { window.Cursor with Position = cell } }
 
     let private firstRowOf window =
