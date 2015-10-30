@@ -1,8 +1,9 @@
 ﻿namespace Void.ViewModel
 
 module Sizing =
+    open Void.Core
     open Void.Core.CellGrid
-    let defaultViewSize = { Rows = 26; Columns = 80 }
+    let defaultViewSize = { Rows = 26<mRow>; Columns = 80<mColumn> }
     let defaultViewArea = { UpperLeftCell = originCell; Dimensions = defaultViewSize }
 
 module ViewModel = // TODO name suspect at this point
@@ -29,11 +30,11 @@ module ViewModel = // TODO name suspect at this point
 
     let upperLeftCellOfCommandBar viewModel =
         // TODO this is just hacked together for the moment
-        { Row = CellGrid.lastRow (wholeArea viewModel); Column = 0 }
+        { Row = CellGrid.lastRow (wholeArea viewModel); Column = 0<mColumn> }
 
     let areaOfCommandBarOrNotifications viewModel =
         // TODO this is just hacked together for the moment
         {
             UpperLeftCell = upperLeftCellOfCommandBar viewModel
-            Dimensions = { Rows = 1; Columns = viewModel.Size.Columns }
+            Dimensions = { Rows = 1<mRow>; Columns = viewModel.Size.Columns }
         }

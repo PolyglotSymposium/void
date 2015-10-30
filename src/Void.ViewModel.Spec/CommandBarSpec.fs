@@ -32,7 +32,7 @@ type ``The command mode command line (or command bar for short)``() =
     member x.``should remove the last character when it is backspaced``() =
         let bar, msg = CommandBar.handleCommandModeEvent visibleQui5 CommandMode.Event.CharacterBackspaced
         bar |> should equal visibleQui
-        msg |> should equal (CommandBar.Event.CharacterBackspacedFromLine { Row = 0; Column = 4 })
+        msg |> should equal (CommandBar.Event.CharacterBackspacedFromLine { Row = 0<mRow>; Column = 4<mColumn> })
 
     [<Test>]
     member x.``should reflow the text when backspace results in removal of line``() =
@@ -44,7 +44,7 @@ type ``The command mode command line (or command bar for short)``() =
     member x.``should add characters when text is appended``() =
         let bar, msg = CommandBar.handleCommandModeEvent visibleQui <| CommandMode.Event.TextAppended "5"
         bar |> should equal visibleQui5
-        msg |> should equal (CommandBar.Event.TextAppendedToLine { LeftMostCell = { Row = 0; Column = 4 }; Text = "5" })
+        msg |> should equal (CommandBar.Event.TextAppendedToLine { LeftMostCell = { Row = 0<mRow>; Column = 4<mColumn> }; Text = "5" })
 
     [<Test>]
     member x.``should reflow the text when an added character results in a second line``() =

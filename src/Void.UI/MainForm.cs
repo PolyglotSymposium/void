@@ -16,6 +16,7 @@ namespace Void.UI
         private readonly List<DrawingObject> _drawings = new List<DrawingObject>();
         private Font _font = new Font(FontFamily.GenericMonospace, 9);
         private CellMetrics _cellMetrics;
+        private readonly Queue<VMEvent.ViewPortionRendered> _portionsYetToRender = new Queue<VMEvent.ViewPortionRendered>();
 
 
         public MainForm(Bus bus, WinFormsInputModeChanger inputModeChanger)
@@ -45,6 +46,15 @@ namespace Void.UI
                 {
                     TriggerDraw(((VMEvent.ViewPortionRendered)eventMsg).Item1);
                 }
+            }
+            if (eventMsg.IsMultipleViewPortionsRendered)
+            {
+                var multipleEvents = ((VMEvent.MultipleViewPortionsRendered) eventMsg).Split().ToList();
+                foreach (var @event in multipleEvents.Skip(1))
+                {
+                    _portionsYetToRender.Enqueue(@event);
+                }
+                return multipleEvents.First();
             }
             if (eventMsg.IsViewModelInitialized)
             {
@@ -104,6 +114,10 @@ namespace Void.UI
                         artist.Draw(drawing);
                     }
                     _drawings.Clear();
+                    if (_portionsYetToRender.Count > 0)
+                    {
+                        _bus.publish(_portionsYetToRender.Dequeue());
+                    }
                 }
                 else
                 {
@@ -140,7 +154,7 @@ namespace Void.UI
             Text = title;
         }
 
-        public void TriggerDraw(PointGrid.Block block)
+        private void TriggerDraw(PointGrid.Block block)
         {
             Invalidate(block.AsWinFormsRectangle(_cellMetrics));
         }

@@ -18,10 +18,11 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <Tailcalls>false</Tailcalls>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>../../build/</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>bin\Debug\Void.Core.XML</DocumentationFile>
+    <DocumentationFile>
+    </DocumentationFile>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <WarningsAsErrors />
   </PropertyGroup>
@@ -29,7 +30,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <Tailcalls>true</Tailcalls>
-    <OutputPath>bin\Release\</OutputPath>
+    <OutputPath>../../build/</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
     <DocumentationFile>bin\Release\Void.Core.XML</DocumentationFile>
@@ -54,6 +55,7 @@
     <Compile Include="Keys.fs" />
     <Compile Include="UserNotificationTypes.fs" />
     <Compile Include="ModeTypes.fs" />
+    <Compile Include="Units.fs" />
     <Compile Include="Grids.fs" />
     <Compile Include="Motion.fs" />
     <Compile Include="CommandModeMessages.fs" />
@@ -65,6 +67,7 @@
     <Compile Include="ModeService.fs" />
     <Compile Include="EditorService.fs" />
     <Compile Include="Filesystem.fs" />
+    <Compile Include="Buffer.fs" />
     <Compile Include="BufferList.fs" />
     <Compile Include="CommandHistory.fs" />
     <Compile Include="CommandLanguage.fs" />

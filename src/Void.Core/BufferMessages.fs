@@ -14,15 +14,20 @@ type FileBufferProxy = {
     Contents : string seq
 }
 
-[<RequireQualifiedAccess>]
-type BufferCommand =
-    | MoveCursor of Motion
+type MoveCursor<'By> =
+    | MoveCursor of Move<'By>
+    interface CommandMessage
+    interface BufferMessage
+
+type MoveCursorTo<[<Measure>]'InnerUnit, [<Measure>]'OuterUnit> =
+    | MoveCursorTo of MoveTo<'InnerUnit, 'OuterUnit>
     interface CommandMessage
     interface BufferMessage
 
 [<RequireQualifiedAccess>]
 type BufferEvent =
     | Added of FileBufferProxy
+    | CursorMoved of From : CellGrid.Cell * To : CellGrid.Cell
     interface EventMessage
     interface BufferMessage
 

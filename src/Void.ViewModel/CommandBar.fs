@@ -48,7 +48,7 @@ module CommandBar =
         interface EventMessage
 
     let private lastCell commandBar = 
-        CellGrid.rightOf CellGrid.originCell commandBar.WrappedLines.Head.Length
+        CellGrid.rightOf CellGrid.originCell (commandBar.WrappedLines.Head.Length * 1<mColumn>)
 
     let private currentLineWillOverflow (textToAppend : string) commandBar =
         if commandBar.WrappedLines = [] // TODO this is a hack to avoid an exception
@@ -75,7 +75,7 @@ module CommandBar =
             // TODO: I ran into an exception here
             let line = commandBar.WrappedLines.Head + textToAppend
             let bar = { commandBar with WrappedLines = line :: commandBar.WrappedLines.Tail }
-            let textSegment = { LeftMostCell = CellGrid.rightOf (lastCell commandBar) 1; Text = textToAppend }
+            let textSegment = { LeftMostCell = CellGrid.rightOf (lastCell commandBar) 1<mColumn>; Text = textToAppend }
             (bar, Event.TextAppendedToLine textSegment :> Message)
 
     let private characterBackspaced commandBar =

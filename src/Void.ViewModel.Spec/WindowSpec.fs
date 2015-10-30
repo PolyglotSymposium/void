@@ -8,16 +8,9 @@ open System.Linq
 open NUnit.Framework
 open FsUnit
 
-[<AutoOpen>]
-module Assertions =
-    let shouldEqual expected actual =
-        printfn "Expected: %A" expected
-        printfn "Actual: %A" actual
-        should equal expected actual
-
 [<TestFixture>]
 type ``Constructing a buffer view model from a sequence of text lines``() = 
-    let asViewModelBuffer = Window.bufferFrom { Rows = 25; Columns = 80 }
+    let asViewModelBuffer = Window.bufferFrom { Rows = 25<mRow>; Columns = 80<mColumn> }
 
     [<Test>]
     member x.``should create an empty buffer view model from an empty buffer``() =
@@ -74,71 +67,71 @@ type ``Scrolling (by line)``() =
     member x.``up when we are already at the top of the file should do nothing``() =
         let windowBefore = { Window.defaultWindowView with Buffer = !buffer }
 
-        Move.Backward 3<mLine>
+        Move.backward By.line 3
         |> scroll windowBefore 
-        |> shouldEqual (windowBefore, noMessage)
+        |> should equal (windowBefore, noMessage)
 
     [<Test>]
     member x.``up one line when the top line is two should work``() =
         let windowBefore = { Window.defaultWindowView with Buffer = ["b"; "c"; "d"; "e"; "f"]; TopLineNumber = 2<mLine> }
         let windowAfter = { windowBefore with TopLineNumber = 1<mLine>; Buffer = !buffer }
 
-        Move.Backward 1<mLine>
+        Move.backward By.line 1
         |> scroll windowBefore 
-        |> shouldEqual (windowAfter, Window.Event.ContentsUpdated windowAfter :> Message)
+        |> should equal (windowAfter, Window.Event.ContentsUpdated windowAfter :> Message)
 
     [<Test>]
     member x.``up three lines when the top line is four should go to the top of the file``() =
         let windowBefore = { Window.defaultWindowView with Buffer = ["d"; "e"; "f"]; TopLineNumber = 4<mLine> }
         let windowAfter = { windowBefore with TopLineNumber = 1<mLine>; Buffer = !buffer }
 
-        Move.Backward 3<mLine>
+        Move.backward By.line 3
         |> scroll windowBefore 
-        |> shouldEqual (windowAfter, Window.Event.ContentsUpdated windowAfter :> Message)
+        |> should equal (windowAfter, Window.Event.ContentsUpdated windowAfter :> Message)
 
     [<Test>]
     member x.``up four lines when the top line is three should go to the top of the file``() =
         let windowBefore = { Window.defaultWindowView with Buffer = ["d"; "e"; "f"]; TopLineNumber = 3<mLine> }
         let windowAfter = { windowBefore with TopLineNumber = 1<mLine>; Buffer = !buffer }
 
-        Move.Backward 4<mLine>
+        Move.backward By.line 4
         |> scroll windowBefore 
-        |> shouldEqual (windowAfter, Window.Event.ContentsUpdated windowAfter :> Message)
+        |> should equal (windowAfter, Window.Event.ContentsUpdated windowAfter :> Message)
 
     [<Test>]
     member x.``up when the buffer is empty should do nothing``() =
         buffer := []
         let windowBefore = Window.defaultWindowView
 
-        Move.Backward 1<mLine>
+        Move.backward By.line 1
         |> scroll windowBefore 
-        |> shouldEqual (windowBefore, noMessage)
+        |> should equal (windowBefore, noMessage)
 
     [<Test>]
     member x.``down when the buffer is empty should do nothing``() =
         buffer := []
         let windowBefore = Window.defaultWindowView
 
-        Move.Forward 1<mLine>
+        Move.forward By.line 1
         |> scroll windowBefore 
-        |> shouldEqual (windowBefore, noMessage)
+        |> should equal (windowBefore, noMessage)
 
     [<Test>]
     member x.``down when only the last line of the buffer is showing should do nothing``() =
         let windowBefore = { Window.defaultWindowView with TopLineNumber = 6<mLine>; Buffer = ["f"] }
 
-        Move.Forward 1<mLine>
+        Move.forward By.line 1
         |> scroll windowBefore 
-        |> shouldEqual (windowBefore, noMessage)
+        |> should equal (windowBefore, noMessage)
 
     [<Test>]
     member x.``down multiple lines from the top``() =
         let windowBefore = { Window.defaultWindowView with Buffer = !buffer }
         let windowAfter = { windowBefore with TopLineNumber = 4<mLine>; Buffer = ["d"; "e"; "f"] }
 
-        Move.Forward 3<mLine>
+        Move.forward By.line 3
         |> scroll windowBefore 
-        |> shouldEqual (windowAfter, Window.Event.ContentsUpdated windowAfter :> Message)
+        |> should equal (windowAfter, Window.Event.ContentsUpdated windowAfter :> Message)
 
 [<TestFixture>]
 type ``Scrolling (by half screen)``() = 
@@ -165,60 +158,107 @@ type ``Scrolling (by half screen)``() =
     member x.``up when we are already at the top of the file should do nothing``() =
         let windowBefore = { Window.defaultWindowView with Buffer = !buffer }
 
-        Move.Backward 1<mScreenHeight>
+        Move.backward vmBy.screenHeight 1
         |> scrollHalf windowBefore 
-        |> shouldEqual (windowBefore, noMessage)
+        |> should equal (windowBefore, noMessage)
 
     [<Test>]
     member x.``up half a screen height when the top line is two should go to the top of the file``() =
         let windowBefore = { Window.defaultWindowView with Buffer = ["b"; "c"; "d"; "e"; "f"]; TopLineNumber = 2<mLine> }
         let windowAfter = { windowBefore with TopLineNumber = 1<mLine>; Buffer = !buffer }
 
-        Move.Backward 1<mScreenHeight>
+        Move.backward vmBy.screenHeight 1
         |> scrollHalf windowBefore 
-        |> shouldEqual (windowAfter, Window.Event.ContentsUpdated windowAfter :> Message)
+        |> should equal (windowAfter, Window.Event.ContentsUpdated windowAfter :> Message)
 
     [<Test>]
     member x.``up when the buffer is empty should do nothing``() =
         buffer := []
         let windowBefore = Window.defaultWindowView
 
-        Move.Backward 1<mScreenHeight>
+        Move.backward vmBy.screenHeight 1
         |> scrollHalf windowBefore 
-        |> shouldEqual (windowBefore, noMessage)
+        |> should equal (windowBefore, noMessage)
 
     [<Test>]
     member x.``down when the buffer is empty should do nothing``() =
         buffer := []
         let windowBefore = Window.defaultWindowView
 
-        Move.Forward 1<mScreenHeight>
+        Move.forward vmBy.screenHeight 1
         |> scrollHalf windowBefore 
-        |> shouldEqual (windowBefore, noMessage)
+        |> should equal (windowBefore, noMessage)
 
     [<Test>]
     member x.``down when only the last line of the buffer is showing should do nothing``() =
         let windowBefore = { Window.defaultWindowView with TopLineNumber = 6<mLine>; Buffer = ["f"] }
 
-        Move.Forward 1<mScreenHeight>
+        Move.forward vmBy.screenHeight 1
         |> scrollHalf windowBefore 
-        |> shouldEqual (windowBefore, noMessage)
+        |> should equal (windowBefore, noMessage)
 
     [<Test>]
     member x.``down when less than half a screen is showing should leave last line showing``() =
         let windowBefore = { Window.defaultWindowView with Buffer = !buffer }
         let windowAfter = { windowBefore with TopLineNumber = 6<mLine>; Buffer = ["f"] }
 
-        Move.Forward 1<mScreenHeight>
+        Move.forward vmBy.screenHeight 1
         |> scrollHalf windowBefore 
-        |> shouldEqual (windowAfter, Window.Event.ContentsUpdated windowAfter :> Message)
+        |> should equal (windowAfter, Window.Event.ContentsUpdated windowAfter :> Message)
 
     [<Test>]
     member x.``down when exactly half a screen is showing should leave the last line showing``() =
-        let dimensions = { Rows = 12; Columns = 60 }
+        let dimensions = { Rows = 12<mRow>; Columns = 60<mColumn> }
         let windowBefore = { Window.defaultWindowView with Buffer = !buffer; Dimensions = dimensions }
         let windowAfter = { windowBefore with TopLineNumber = 6<mLine>; Buffer = ["f"] }
 
-        Move.Forward 1<mScreenHeight>
+        Move.forward vmBy.screenHeight 1
         |> scrollHalf windowBefore 
-        |> shouldEqual (windowAfter, Window.Event.ContentsUpdated windowAfter :> Message)
+        |> should equal (windowAfter, Window.Event.ContentsUpdated windowAfter :> Message)
+
+[<TestFixture>]
+type ``Moving the cursor``() = 
+    [<Test>]
+    member x.``When the cursor is moved in the buffer, it is moved in the window``() =
+        let targetCell = below originCell 1<mRow>
+        let windowBefore = { Window.defaultWindowView with Buffer = ["a"; "b"]}
+        let windowAfter = { windowBefore with Cursor = Visibility.Visible <| CursorView.Block targetCell }
+
+        { BufferId = 1; Message = BufferEvent.CursorMoved(originCell, targetCell) }
+        |> Window.handleBufferEvent windowBefore
+        |> should equal (windowAfter, Window.Event.CursorMoved(originCell, targetCell, windowAfter) :> Message)
+
+    [<Test>]
+    member x.``The cursor in the window is tracked relative to the window, not the buffer``() =
+        let targetCell = below originCell 1<mRow>
+        let buffer =
+            Seq.initInfinite (sprintf "%i")
+            |> Seq.take 25
+            |> Seq.toList
+        let windowBefore = { Window.defaultWindowView with Buffer = buffer; TopLineNumber = 10<mLine> }
+        let windowAfter = { windowBefore with Cursor = Visibility.Visible <| CursorView.Block targetCell }
+
+        { BufferId = 1; Message = BufferEvent.CursorMoved(below originCell 9<mRow>, below targetCell 9<mRow>) }
+        |> Window.handleBufferEvent windowBefore
+        |> should equal (windowAfter, Window.Event.CursorMoved(originCell, targetCell, windowAfter) :> Message)
+
+    [<Test>]
+    member x.``When the buffer cursor moves below what is visible in the window, the buffer is scrolled down``() =
+        let startCell = below originCell 24<mRow>
+        let buffer =
+            Seq.initInfinite (sprintf "%i")
+            |> Seq.take 25
+            |> Seq.toList
+        let window = { Window.defaultWindowView with Buffer = buffer }
+
+        { BufferId = 1; Message = BufferEvent.CursorMoved(startCell, below startCell 5<mRow>) }
+        |> Window.handleBufferEvent window
+        |> should equal (window, VMCommand.Scroll (Move.forward By.line 5) :> Message)
+
+    [<Test>]
+    member x.``When the buffer cursor moves above what is visible in the window, the buffer is scrolled up``() =
+        let window = { Window.defaultWindowView with Buffer = ["z"]; TopLineNumber = 30<mLine> }
+
+        { BufferId = 1; Message = BufferEvent.CursorMoved(below originCell 29<mRow>, below originCell 26<mRow>) }
+        |> Window.handleBufferEvent window
+        |> should equal (window, VMCommand.Scroll (Move.backward By.line 3) :> Message)

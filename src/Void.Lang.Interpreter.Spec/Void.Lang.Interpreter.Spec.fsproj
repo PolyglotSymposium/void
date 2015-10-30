@@ -20,7 +20,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <Tailcalls>false</Tailcalls>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>../../build/</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
     <DocumentationFile>bin\Debug\Void.Lang.Interpreter.Spec.XML</DocumentationFile>
@@ -31,7 +31,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <Tailcalls>true</Tailcalls>
-    <OutputPath>bin\Release\</OutputPath>
+    <OutputPath>../../build/</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
     <DocumentationFile>bin\Release\Void.Lang.Interpreter.Spec.XML</DocumentationFile>
@@ -73,11 +73,15 @@
       <Private>True</Private>
     </ProjectReference>
     <Reference Include="FsUnit.NUnit">
-      <HintPath>..\packages\FsUnit.1.3.0.1\Lib\Net40\FsUnit.NUnit.dll</HintPath>
+      <HintPath>..\packages\FsUnit.1.4.0.0-beta\lib\FsUnit.NUnit.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="mscorlib" />
     <Reference Include="FSharp.Core, Version=$(TargetFSharpCoreVersion), Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="NHamcrest">
+      <HintPath>..\packages\FsUnit.1.4.0.0-beta\lib\NHamcrest.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="nunit.framework">

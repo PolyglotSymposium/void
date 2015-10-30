@@ -23,6 +23,7 @@ module Window =
     type Event =
         | ContentsUpdated of WindowView
         | Initialized of WindowView
+        | CursorMoved of From : Cell * To : Cell * Window : WindowView
         interface EventMessage
 
     [<RequireQualifiedAccess>]
@@ -40,18 +41,18 @@ module Window =
         }
 
     let private windowInArea window containingArea =
-        { zeroWindowView with Dimensions = (lessRowsBelow 1 containingArea).Dimensions }
+        { zeroWindowView with Dimensions = (lessRowsBelow 1<mRow> containingArea).Dimensions }
 
     let defaultWindowView =
-        { zeroWindowView with Dimensions = Sizing.defaultViewSize }
+        windowInArea zeroWindowView Sizing.defaultViewArea
 
     let private linesInWindow window = 
         window.Buffer.Length*1<mLine>
 
     let bufferFrom (windowSize : Dimensions) lines =
-        let truncateToWindowWidth = StringUtil.noLongerThan windowSize.Columns
+        let truncateToWindowWidth = StringUtil.noLongerThan (windowSize.Columns / 1<mColumn>)
         lines
-        |> SeqUtil.notMoreThan windowSize.Rows
+        |> SeqUtil.notMoreThan (windowSize.Rows / 1<mRow>)
         |> Seq.map truncateToWindowWidth
         |> Seq.toList
 
@@ -66,6 +67,29 @@ module Window =
         match event.Message with
         | BufferEvent.Added buffer ->
             loadBufferIntoWindow buffer window
+        | BufferEvent.CursorMoved(fromBufferCell, toBufferCell) ->
+            let firstRow = ``line#->row#`` window.TopLineNumber
+            if toBufferCell.Row < firstRow
+            then
+                let msg = (firstRow - toBufferCell.Row) * linePerRow
+                          |> By.Line
+                          |> Move.Backward
+                          |> VMCommand.Scroll :> Message
+                window, msg
+            else
+                let fromWindowCell = CellGrid.above fromBufferCell firstRow
+                let toWindowCell = CellGrid.above toBufferCell firstRow
+                let lastRowInWindow = window.Dimensions.Rows - 1<mRow>
+                if toWindowCell.Row > lastRowInWindow
+                then
+                    let msg = (toWindowCell.Row - lastRowInWindow) * linePerRow
+                              |> By.Line
+                              |> Move.Forward
+                              |> VMCommand.Scroll :> Message
+                    window, msg
+                else
+                    let updatedWindow = { window with Cursor = Visible (CursorView.Block toWindowCell) }
+                    updatedWindow, Event.CursorMoved(fromWindowCell, toWindowCell, updatedWindow) :> Message
 
     let private scroll (requestSender : RequestSender) window xLines =
         let request : GetWindowContentsRequest = { StartingAtLine = window.TopLineNumber + xLines }
@@ -78,7 +102,7 @@ module Window =
     let scrollByLineMovement requestSender window movement =
         let noScroll = window, noMessage
         match movement with
-        | Move.Backward xLines ->
+        | Move.Backward (By.Line xLines) ->
             let scrollAmount =
                 if window.TopLineNumber > xLines
                 then xLines
@@ -86,7 +110,7 @@ module Window =
             if scrollAmount > 0<mLine>
             then scroll requestSender window -scrollAmount
             else noScroll
-        | Move.Forward xLines ->
+        | Move.Forward (By.Line xLines) ->
             let scrollAmount =
                 if linesInWindow window > xLines
                 then xLines
@@ -97,11 +121,12 @@ module Window =
 
     let scrollHalfScreenHeights requestSender (window : WindowView) movement =
         let toLines (screenHeights : int<mScreenHeight>) =
-            window.Dimensions.Rows / 2 * screenHeights * 1<mLine>/1<mScreenHeight>
+            window.Dimensions.Rows / 2<mScreenHeight> * screenHeights * linePerRow
+            |> By.Line
         match movement with
-        | Move.Backward screenHeights ->
+        | Move.Backward (vmBy.ScreenHeight screenHeights) ->
             toLines screenHeights |> Move.Backward
-        | Move.Forward screenHeights ->
+        | Move.Forward (vmBy.ScreenHeight screenHeights) ->
             toLines screenHeights |> Move.Forward
         |> scrollByLineMovement requestSender window
 

@@ -18,3 +18,15 @@ type GetWindowContentsResponse =
     }
     interface ResponseMessage<GetWindowContentsRequest>
     interface WindowMessage
+
+type WindowEnvelopeMessage<'TBufferMessage when 'TBufferMessage :> BufferMessage> =
+    {
+        WindowId : int
+        Message : 'TBufferMessage
+    }
+    interface EnvelopeMessage<'TBufferMessage>
+
+type CurrentBufferCommandEnvelope<'TBufferMessage when 'TBufferMessage :> BufferMessage> =
+    | InCurrentBuffer of 'TBufferMessage
+    interface EnvelopeMessage<'TBufferMessage>
+    interface CommandMessage

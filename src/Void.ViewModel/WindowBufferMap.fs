@@ -25,6 +25,13 @@ module WindowBufferMap =
             Windows = Map.empty.Add(0, firstWindow)
         }
 
+    let private getWindowId windowBufferMap bufferId =
+        let windowIdOfMatchingBufferId windowId window =
+            if window.CurrentBufferId = bufferId
+            then Some windowId
+            else None
+        Map.pick windowIdOfMatchingBufferId windowBufferMap.Windows
+
     let private currentWindow windowBufferMap =
         windowBufferMap.Windows.[windowBufferMap.CurrentWindowId]
 
@@ -78,6 +85,17 @@ module WindowBufferMap =
         match event.Message with
         | BufferEvent.Added _ ->
             loadBufferIntoCurrentWindow windowBufferMap event.BufferId
+        | unwrappedEvent ->
+            windowBufferMap, {
+                WindowId = getWindowId windowBufferMap event.BufferId
+                Message = unwrappedEvent
+            } :> Message
+
+    let handleCurrentBufferCommandEnvelope<'TBufferCommand when 'TBufferCommand :> BufferMessage> windowBufferMap (InCurrentBuffer (bufferCommand : 'TBufferCommand)) =
+        {
+            BufferId = currentBufferId !windowBufferMap
+            Message = bufferCommand
+        } :> Message
 
     let getWindowContentsResponse getBufferContentsResponse =
         {
@@ -101,5 +119,9 @@ module WindowBufferMap =
             |> bus.subscribe
             Service.wrap windowBufferMap handleBufferEvent
             |> bus.subscribe
+
             handleGetWindowContentsRequest bus windowBufferMap
             |> bus.subscribeToRequest
+
+            handleCurrentBufferCommandEnvelope<MoveCursor<By.Row>> windowBufferMap
+            |> bus.subscribe

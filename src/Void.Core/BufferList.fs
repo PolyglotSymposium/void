@@ -1,27 +1,5 @@
 ﻿namespace Void.Core
 
-// TODO This is naive, obviously
-type FileBuffer = private {
-    Filepath : string option
-    Contents : string list
-    CursorPosition : CellGrid.Cell
-}
-
-module Buffer =
-    open CellGrid
-
-    let emptyFile =
-        { Filepath = None; Contents = []; CursorPosition = originCell }
-
-    let newFile path =
-        { Filepath = Some path; Contents = []; CursorPosition = originCell }
-
-    let existingFile path contents =
-        { Filepath = Some path; Contents = contents; CursorPosition = originCell }
-
-    let readLines fileBuffer start =
-        fileBuffer.Contents |> Seq.skip ((start - 1<mLine>)/1<mLine>) // Line numbers start at 1
-
 type Buffers = private {
     List : Map<int, FileBuffer>
     LastId : int
@@ -107,9 +85,34 @@ module BufferList =
             |> Some
         else None
 
+    let packageCursorEvent bufferId event =
+        match event with
+        | Buffer.CursorEvent.CursorMoved(fromCell, toCell) ->
+            {
+                BufferId = bufferId
+                Message = BufferEvent.CursorMoved(fromCell, toCell)
+            } :> Message
+        | Buffer.CursorEvent.DidNotMove ->
+            noMessage
+
+    let selectBufferAndDelegate handler packageMessage bufferList envelopeMessage =
+        let buffer, message = handler bufferList.List.[envelopeMessage.BufferId] envelopeMessage.Message
+        let updatedBufferList = { bufferList with List = bufferList.List.Add(envelopeMessage.BufferId, buffer)}
+        updatedBufferList, packageMessage envelopeMessage.BufferId message
+
     module Service =
         let subscribe (bus : Bus) =
             let bufferList = ref empty
+
             Service.wrap bufferList handleCommand |> bus.subscribe
             Service.wrap bufferList handleEvent |> bus.subscribe
+
             handleGetBufferContentsRequest bufferList |> bus.subscribeToPackagedRequest
+
+            selectBufferAndDelegate Buffer.handleMoveCursorByRows packageCursorEvent
+            |> Service.wrap bufferList
+            |> bus.subscribe
+
+            selectBufferAndDelegate Buffer.handleMoveCursorByColumns packageCursorEvent
+            |> Service.wrap bufferList
+            |> bus.subscribe
