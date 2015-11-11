@@ -110,4 +110,8 @@ module Buffer =
         | MoveCursorTo (MoveTo.Nth (By.Character c)) ->
             setCursorColumn buffer (c * 1<mColumn/mCharacter>)
         | MoveCursorTo MoveTo.Last ->
-            setCursorColumn buffer 0<mColumn> // TODO wrong of course
+            if buffer.Contents.Length > 0
+            then
+                (buffer.Contents.[buffer.CursorPosition.Row/1<mRow>].Length - 1) * 1<mColumn>
+                |> setCursorColumn buffer
+            else buffer, DidNotMove

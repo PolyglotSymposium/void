@@ -1,6 +1,7 @@
 ﻿namespace Void.Core.Spec
 
 open Void.Core
+open Void.Core.CellGrid
 open NUnit.Framework
 open FsUnit
 
@@ -67,7 +68,7 @@ type ``Moving the cursor in a buffer``() =
     member x.``down one line should succeed within a two-line buffer when starting on line one``() =
         Buffer.handleMoveCursorByRows twoLineBuffer j
         |> snd
-        |> should equal (Buffer.CursorMoved(CellGrid.originCell, { Column = 0<mColumn>; Row = 1<mRow> }))
+        |> should equal (Buffer.CursorMoved(originCell, { Column = 0<mColumn>; Row = 1<mRow> }))
 
     [<Test>]
     member x.``down one line should do nothing within a two-line buffer when starting on line two``() =
@@ -79,36 +80,38 @@ type ``Moving the cursor in a buffer``() =
     member x.``moving up one line should undo moving down one line``() =
         let moved = Buffer.handleMoveCursorByRows twoLineBuffer j |> fst
         Buffer.handleMoveCursorByRows moved k
-        |> should equal (twoLineBuffer, Buffer.CursorMoved({ Column = 0<mColumn>; Row = 1<mRow> }, CellGrid.originCell))
+        |> should equal (twoLineBuffer, Buffer.CursorMoved({ Column = 0<mColumn>; Row = 1<mRow> }, originCell))
 
     [<Test>]
     member x.``down three lines should succeed within a five-line buffer``() =
         Buffer.handleMoveCursorByRows fiveLineBuffer ``3j``
         |> snd
-        |> should equal (Buffer.CursorMoved(CellGrid.originCell, { Column = 0<mColumn>; Row = 3<mRow> }))
+        |> should equal (Buffer.CursorMoved(originCell, { Column = 0<mColumn>; Row = 3<mRow> }))
 
     [<Test>]
     member x.``moving up three lines should undo moving down three lines``() =
         let moved = Buffer.handleMoveCursorByRows fiveLineBuffer ``3j`` |> fst
         Buffer.handleMoveCursorByRows moved ``3k``
-        |> should equal (fiveLineBuffer, Buffer.CursorMoved({ Column = 0<mColumn>; Row = 3<mRow> }, CellGrid.originCell))
+        |> should equal (fiveLineBuffer, Buffer.CursorMoved({ Column = 0<mColumn>; Row = 3<mRow> }, originCell))
 
     [<Test>]
     member x.``trying to move down five lines within a five-line buffer should not overshoot``() =
         Buffer.handleMoveCursorByRows fiveLineBuffer ``5j``
         |> snd
-        |> should equal (Buffer.CursorMoved(CellGrid.originCell, { Column = 0<mColumn>; Row = 4<mRow> }))
+        |> should equal (Buffer.CursorMoved(originCell, { Column = 0<mColumn>; Row = 4<mRow> }))
 
     [<Test>]
     member x.``moving up five lines in a five-line buffer from the bottom should not overshoot``() =
         let moved = Buffer.handleMoveCursorByRows fiveLineBuffer ``5j`` |> fst
         Buffer.handleMoveCursorByRows moved ``5k``
-        |> should equal (fiveLineBuffer, Buffer.CursorMoved({ Column = 0<mColumn>; Row = 4<mRow> }, CellGrid.originCell))
+        |> should equal (fiveLineBuffer, Buffer.CursorMoved({ Column = 0<mColumn>; Row = 4<mRow> }, originCell))
 
 [<TestFixture>]
 type ``Moving the cursor within one line of a buffer``() = 
     let ``0`` = MoveTo<By.Character, In.Line>.First |> MoveCursorTo
     let ``$`` = MoveTo<By.Character, In.Line>.Last |> MoveCursorTo
+
+    let oneLineBuffer = Buffer.prepend Buffer.emptyFile "line 1"
 
     [<Test>]
     member x.``moving to first character should do nothing in empty line``() =
@@ -119,3 +122,20 @@ type ``Moving the cursor within one line of a buffer``() =
     member x.``moving to last character should do nothing in empty line``() =
         Buffer.handleMoveCursorToCharacterInLine Buffer.emptyFile ``$``
         |> should equal (Buffer.emptyFile, Buffer.DidNotMove)
+
+    [<Test>]
+    member x.``moving to first character should do nothing when already there``() =
+        Buffer.handleMoveCursorToCharacterInLine oneLineBuffer ``0``
+        |> should equal (oneLineBuffer, Buffer.DidNotMove)
+
+    [<Test>]
+    member x.``moving to last character should succeed with non-empty line``() =
+        Buffer.handleMoveCursorToCharacterInLine oneLineBuffer ``$``
+        |> snd
+        |> should equal (Buffer.CursorMoved(originCell, { Column = 5<mColumn>; Row = 0<mRow> }))
+
+    [<Test>]
+    member x.``moving to first character undos moving to last character when cursor started on first character``() =
+        let buffer, _ = Buffer.handleMoveCursorToCharacterInLine oneLineBuffer ``$``
+        Buffer.handleMoveCursorToCharacterInLine buffer ``0``
+        |> should equal (oneLineBuffer, Buffer.CursorMoved({ Column = 5<mColumn>; Row = 0<mRow> }, originCell))
