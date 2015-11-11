@@ -86,3 +86,14 @@ module Buffer =
         | MoveCursorTo MoveTo.Last ->
             below originCell (lengthInRows buffer - 1<mRow>)
             |> setCursorPosition buffer
+
+    let handleMoveCursorToRowInBuffer buffer (moveCursorTo : MoveCursorTo<By.Row, In.Buffer>) =
+        match moveCursorTo with
+        | MoveCursorTo MoveTo.First ->
+            setCursorPosition buffer originCell
+        | MoveCursorTo (MoveTo.Nth (By.Row row)) ->
+            below originCell row
+            |> setCursorPosition buffer
+        | MoveCursorTo MoveTo.Last ->
+            below originCell (lengthInRows buffer - 1<mRow>)
+            |> setCursorPosition buffer

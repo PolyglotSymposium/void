@@ -93,7 +93,9 @@ module RenderWindows =
 
     let handleWindowEvent =
         function
-        | Window.Event.ContentsUpdated window ->
+        | Window.Event.ContentsScrolled window ->
+            renderWindow window
+        | Window.Event.ContentsLoaded window ->
             renderWindow window
         | Window.Event.Initialized window ->
             renderWindow window

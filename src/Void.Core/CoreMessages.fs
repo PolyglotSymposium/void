@@ -33,7 +33,7 @@ type CoreCommand =
     | QuitAll
     | QuitAllWithoutSaving
     | QuitWithoutSaving
-    | Redraw
+    | Redraw // TODO This seems like a view model concern... should be a VMCommand
     | SetBufferOption of EditorOption
     | ShowNotificationHistory
     | WriteBuffer of int

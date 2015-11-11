@@ -91,6 +91,20 @@ module WindowBufferMap =
                 Message = unwrappedEvent
             } :> Message
 
+    let handleWindowEvent windowBufferMap event =
+        match event with
+        | Window.Event.ContentsScrolled window ->
+            windowBufferMap, {
+                BufferId = currentBufferId windowBufferMap
+                Message = ``line#->row#`` window.TopLineNumber
+                          |> (+) window.Cursor.Position.Row
+                          |> By.Row
+                          |> MoveTo<By.Row, In.Buffer>.Nth
+                          |> MoveCursorTo
+            } :> Message
+        | _ ->
+            windowBufferMap, noMessage
+
     let handleCurrentBufferCommandEnvelope<'TBufferCommand when 'TBufferCommand :> BufferMessage> windowBufferMap (InCurrentBuffer (bufferCommand : 'TBufferCommand)) =
         {
             BufferId = currentBufferId !windowBufferMap
@@ -118,6 +132,8 @@ module WindowBufferMap =
             Service.wrap windowBufferMap handleVMCommand
             |> bus.subscribe
             Service.wrap windowBufferMap handleBufferEvent
+            |> bus.subscribe
+            Service.wrap windowBufferMap handleWindowEvent
             |> bus.subscribe
 
             handleGetWindowContentsRequest bus windowBufferMap

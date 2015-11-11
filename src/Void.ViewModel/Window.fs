@@ -21,7 +21,8 @@ module Window =
 
     [<RequireQualifiedAccess>]
     type Event =
-        | ContentsUpdated of WindowView
+        | ContentsScrolled of WindowView
+        | ContentsLoaded of WindowView
         | Initialized of WindowView
         | CursorMoved of From : Cell * To : Cell * Window : WindowView
         interface EventMessage
@@ -64,7 +65,7 @@ module Window =
 
     let private loadBufferIntoWindow buffer (window : WindowView) =
         let updatedWindow = { window with Buffer = toScreenBuffer window.Dimensions buffer }
-        updatedWindow, Event.ContentsUpdated updatedWindow :> Message
+        updatedWindow, Event.ContentsLoaded updatedWindow :> Message
 
     let setCursorPosition window cell =
         { window with Cursor = { window.Cursor with Position = cell } }
@@ -121,7 +122,7 @@ module Window =
         | Some (response : GetWindowContentsResponse) ->
             let updatedWindow = { window with TopLineNumber = response.FirstLineNumber; Buffer = Seq.toList response.RequestedContents }
             let updatedWindow2 = resetCursorIfNecessary updatedWindow
-            updatedWindow2, Event.ContentsUpdated updatedWindow2 :> Message
+            updatedWindow2, Event.ContentsScrolled updatedWindow2 :> Message
         | None -> window, noMessage
 
     let scrollByLineMovement requestSender window movement =

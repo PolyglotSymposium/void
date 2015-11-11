@@ -33,7 +33,7 @@ type ``Constructing a buffer view model from a sequence of text lines``() =
     [<Test>]
     member x.``for one line, with length equal to the window width, should create a buffer with one line``() =
         seq { yield String('X', 80) }
-        |> asViewModelBuffer 
+        |> asViewModelBuffer
         |> should equal [String('X', 80)]
 
     [<Test>]
@@ -85,7 +85,7 @@ type ``Scrolling (by line)``() =
 
         Move.backward By.line 1
         |> scroll windowBefore 
-        |> should equal (windowAfter, Window.Event.ContentsUpdated windowAfter :> Message)
+        |> should equal (windowAfter, Window.Event.ContentsScrolled windowAfter :> Message)
 
     [<Test>]
     member x.``up three lines when the top line is four should go to the top of the file``() =
@@ -94,7 +94,7 @@ type ``Scrolling (by line)``() =
 
         Move.backward By.line 3
         |> scroll windowBefore 
-        |> should equal (windowAfter, Window.Event.ContentsUpdated windowAfter :> Message)
+        |> should equal (windowAfter, Window.Event.ContentsScrolled windowAfter :> Message)
 
     [<Test>]
     member x.``up four lines when the top line is three should go to the top of the file``() =
@@ -103,7 +103,7 @@ type ``Scrolling (by line)``() =
 
         Move.backward By.line 4
         |> scroll windowBefore 
-        |> should equal (windowAfter, Window.Event.ContentsUpdated windowAfter :> Message)
+        |> should equal (windowAfter, Window.Event.ContentsScrolled windowAfter :> Message)
 
     [<Test>]
     member x.``up when the buffer is empty should do nothing``() =
@@ -132,7 +132,7 @@ type ``Scrolling (by line)``() =
         |> should equal (windowBefore, noMessage)
 
     [<Test>]
-    member x.``down should move the window-relative cursor if necessary to keep it from being on an empty line``() =
+    member x.``down should move the window-relative cursor if necessary to keep it from being on an non-existent line``() =
         buffer := buffer25lines
         let windowBefore = { Window.defaultWindowView with TopLineNumber = 1<mLine>; Buffer = !buffer }
         let windowBefore = Window.setCursorPosition windowBefore { Row = 24<mRow>; Column = 0<mColumn> }
@@ -141,7 +141,7 @@ type ``Scrolling (by line)``() =
 
         Move.forward By.line 10
         |> scroll windowBefore 
-        |> should equal (windowAfter, Window.Event.ContentsUpdated windowAfter :> Message)
+        |> should equal (windowAfter, Window.Event.ContentsScrolled windowAfter :> Message)
 
     [<Test>]
     member x.``down multiple lines from the top``() =
@@ -150,7 +150,7 @@ type ``Scrolling (by line)``() =
 
         Move.forward By.line 3
         |> scroll windowBefore 
-        |> should equal (windowAfter, Window.Event.ContentsUpdated windowAfter :> Message)
+        |> should equal (windowAfter, Window.Event.ContentsScrolled windowAfter :> Message)
 
 [<TestFixture>]
 type ``Scrolling (by half screen)``() = 
@@ -188,7 +188,7 @@ type ``Scrolling (by half screen)``() =
 
         Move.backward vmBy.screenHeight 1
         |> scrollHalf windowBefore 
-        |> should equal (windowAfter, Window.Event.ContentsUpdated windowAfter :> Message)
+        |> should equal (windowAfter, Window.Event.ContentsScrolled windowAfter :> Message)
 
     [<Test>]
     member x.``up when the buffer is empty should do nothing``() =
@@ -223,7 +223,7 @@ type ``Scrolling (by half screen)``() =
 
         Move.forward vmBy.screenHeight 1
         |> scrollHalf windowBefore 
-        |> should equal (windowAfter, Window.Event.ContentsUpdated windowAfter :> Message)
+        |> should equal (windowAfter, Window.Event.ContentsScrolled windowAfter :> Message)
 
     [<Test>]
     member x.``down when exactly half a screen is showing should leave the last line showing``() =
@@ -233,7 +233,7 @@ type ``Scrolling (by half screen)``() =
 
         Move.forward vmBy.screenHeight 1
         |> scrollHalf windowBefore 
-        |> should equal (windowAfter, Window.Event.ContentsUpdated windowAfter :> Message)
+        |> should equal (windowAfter, Window.Event.ContentsScrolled windowAfter :> Message)
 
 [<TestFixture>]
 type ``Moving the cursor``() = 

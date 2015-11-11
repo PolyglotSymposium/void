@@ -120,3 +120,7 @@ module BufferList =
             selectBufferAndDelegate Buffer.handleMoveCursorToLineInBuffer packageCursorEvent
             |> Service.wrap bufferList
             |> bus.subscribe
+
+            selectBufferAndDelegate Buffer.handleMoveCursorToRowInBuffer packageCursorEvent
+            |> Service.wrap bufferList
+            |> bus.subscribe
