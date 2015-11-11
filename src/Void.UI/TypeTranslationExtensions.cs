@@ -176,6 +176,12 @@ namespace Void.UI
                     case Keys.OemSemicolon:
                         keyPress = KeyPress.Colon;
                         break;
+                    case Keys.D4:
+                        keyPress = KeyPress.DollarSign;
+                        break;
+                    case Keys.Oem4:
+                        keyPress = KeyPress.DollarSign;
+                        break;
                 }
             } 
             else if (keyEvent.Control)
@@ -409,6 +415,9 @@ namespace Void.UI
                         break;
                     case Keys.OemSemicolon:
                         keyPress = KeyPress.Semicolon;
+                        break;
+                    case Keys.D0:
+                        keyPress = KeyPress.Zero;
                         break;
                 }
             }
