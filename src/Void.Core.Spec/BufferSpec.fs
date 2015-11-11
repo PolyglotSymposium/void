@@ -104,3 +104,18 @@ type ``Moving the cursor in a buffer``() =
         let moved = Buffer.handleMoveCursorByRows fiveLineBuffer ``5j`` |> fst
         Buffer.handleMoveCursorByRows moved ``5k``
         |> should equal (fiveLineBuffer, Buffer.CursorMoved({ Column = 0<mColumn>; Row = 4<mRow> }, CellGrid.originCell))
+
+[<TestFixture>]
+type ``Moving the cursor within one line of a buffer``() = 
+    let ``0`` = MoveTo<By.Character, In.Line>.First |> MoveCursorTo
+    let ``$`` = MoveTo<By.Character, In.Line>.Last |> MoveCursorTo
+
+    [<Test>]
+    member x.``moving to first character should do nothing in empty line``() =
+        Buffer.handleMoveCursorToCharacterInLine Buffer.emptyFile ``0``
+        |> should equal (Buffer.emptyFile, Buffer.DidNotMove)
+
+    [<Test>]
+    member x.``moving to last character should do nothing in empty line``() =
+        Buffer.handleMoveCursorToCharacterInLine Buffer.emptyFile ``$``
+        |> should equal (Buffer.emptyFile, Buffer.DidNotMove)

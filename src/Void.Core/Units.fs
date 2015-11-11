@@ -10,7 +10,7 @@
 
 [<AutoOpen>]
 module UnitConversions =
-    let linePerRow = 1<mLine>/1<mRow>
+    let linePerRow = 1<mLine/mRow>
     let rowPerLine = 1/linePerRow
 
     (* IMPORTANT!!! Lines are 1-based. Rows are 0-based. *)

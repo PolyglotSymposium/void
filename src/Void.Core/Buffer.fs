@@ -44,6 +44,11 @@ module Buffer =
         then buffer, DidNotMove
         else cursorMoved buffer newPosition
 
+    let private setCursorColumn buffer newColumn =
+        if buffer.CursorPosition.Column = newColumn
+        then buffer, DidNotMove
+        else cursorMoved buffer { buffer.CursorPosition with Column = newColumn }
+
     let handleMoveCursorByRows buffer (moveCursor : MoveCursor<By.Row>) =
         match moveCursor with
         | MoveCursor (Move.Backward (By.Row rows)) ->
@@ -97,3 +102,12 @@ module Buffer =
         | MoveCursorTo MoveTo.Last ->
             below originCell (lengthInRows buffer - 1<mRow>)
             |> setCursorPosition buffer
+
+    let handleMoveCursorToCharacterInLine buffer (moveCursorTo : MoveCursorTo<By.Character, In.Line>) =
+        match moveCursorTo with
+        | MoveCursorTo MoveTo.First ->
+            setCursorColumn buffer 0<mColumn>
+        | MoveCursorTo (MoveTo.Nth (By.Character c)) ->
+            setCursorColumn buffer (c * 1<mColumn/mCharacter>)
+        | MoveCursorTo MoveTo.Last ->
+            setCursorColumn buffer 0<mColumn> // TODO wrong of course
