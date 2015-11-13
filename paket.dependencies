@@ -1,4 +1,6 @@
 source https://www.nuget.org/api/v2/
 
+nuget FAKE
+nuget NUnit.Runners
 nuget Nuget.CommandLine @>= 0
 nuget FsUnit @= 1.4.0.0-beta framework: >= net45

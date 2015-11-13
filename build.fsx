@@ -1,4 +1,4 @@
-#r "./tools/FAKE/tools/FakeLib.dll"
+#r "./packages/FAKE/tools/FakeLib.dll"
 open Fake
 open Fake.NuGet.Install
 
@@ -20,19 +20,6 @@ Target "Compile" (fun _ ->
    !! "src/Void.sln"
    |> MSBuildRelease buildDir "Build"
    |> Log "Compile-Output: "
-)
-
-(* If the build ends up having more NuGet dependencies than this, I should
- * probably make a packages.config for it instead, and make this target
- * "AcquireBuildDependencies". "NUnit.Runners" can simply be replaced with
- * "packages.config". *)
-Target "AcquireUnitTestRunner" (fun _ ->
-    "NUnit.Runners"
-    |> NugetInstall (fun p ->
-        { p with
-            ToolPath = "src/.nuget/NuGet.exe"
-            OutputDirectory = "tools/"
-            ExcludeVersion = true })
 )
 
 Target "Test" (fun _ ->
@@ -58,7 +45,6 @@ Target "JustRunTests" (fun _ ->
 "Clean"
   ==> "RestorePackages"
   ==> "Compile"
-  ==> "AcquireUnitTestRunner"
   ==> "Rebuild"
 
 "Test"
