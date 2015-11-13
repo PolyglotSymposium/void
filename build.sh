@@ -2,7 +2,7 @@
 
 ROOT_DIR=$PWD
 SOURCE_DIR=$PWD/src
-PAKET_DIR=$SOURCE_DIR/.paket
+PAKET_DIR=.paket
 PACKAGE_DIR=packages/
 PAKET_BOOTSTRAPPER_BIN=$PAKET_DIR/paket.bootstrapper.exe
 PAKET_BIN=$PAKET_DIR/paket.exe
