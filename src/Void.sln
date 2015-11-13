@@ -3,6 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".paket", ".paket", "{71516CA8-2F30-4785-BD31-C460081FF7EA}"
+	ProjectSection(SolutionItems) = preProject
+		..\paket.dependencies = ..\paket.dependencies
+	EndProjectSection
+EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Void.Core", "Void.Core\Void.Core.fsproj", "{0619A030-5068-4EFF-8D9E-55EA3FE924D8}"
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Void.Core.Spec", "Void.Core.Spec\Void.Core.Spec.fsproj", "{BFCCE3A7-30F0-405A-8F05-5550D1D4BBFD}"
@@ -10,13 +15,6 @@ EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Void.ViewModel", "Void.ViewModel\Void.ViewModel.fsproj", "{ABA22359-EAF6-4604-82E2-977F816040ED}"
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Void.ViewModel.Spec", "Void.ViewModel.Spec\Void.ViewModel.Spec.fsproj", "{59E18566-01F3-467C-BCF5-1D7291F795F6}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{17C27C95-B99B-4C62-A48B-44F6F9F6838C}"
-	ProjectSection(SolutionItems) = preProject
-		.nuget\NuGet.Config = .nuget\NuGet.Config
-		.nuget\NuGet.exe = .nuget\NuGet.exe
-		.nuget\NuGet.targets = .nuget\NuGet.targets
-	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Void.UI", "Void.UI\Void.UI.csproj", "{D34992B0-0F36-4E4B-8533-8841BE2CE010}"
 EndProject
