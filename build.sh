@@ -9,8 +9,8 @@ PAKET_BIN=$PAKET_DIR/paket.exe
 FAKE_BIN=$PACKAGE_DIR/FAKE/tools/FAKE.exe
 
 chmod +x $PAKET_BOOTSTRAPPER_BIN
-chmod +x $PAKET_BIN
 mono $PAKET_BOOTSTRAPPER_BIN
+chmod +x $PAKET_BIN
 mono $PAKET_BIN restore
 chmod +x $FAKE_BIN
 mono $FAKE_BIN build.fsx
