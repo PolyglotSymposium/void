@@ -1,6 +1,6 @@
-version: 0.0.0.{build}
+version: 0.0.2.{build}
 build_script:
-- ./build.bat
+- ./build.bat WinCIBuild
 test: off
 notifications:
 - provider: Slack

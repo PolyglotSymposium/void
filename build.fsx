@@ -6,10 +6,13 @@ open System.IO
 // Properties
 let buildDir = "./build/"
 let version = "0.0.2"
+let wxsFile = "SetupTemplate.wxs"
 
 // Targets
 Target "Clean" (fun _ ->
     CleanDirs [buildDir]
+    DeleteFile wxsFile
+    DeleteFile (wxsFile + ".wixobj")
 )
 
 Target "RestorePackages" (fun _ ->
@@ -68,7 +71,6 @@ Target "BuildWixInstall" (fun _ ->
 
     (* Generates a predefined WiX template with placeholders which will be
      * replaced in "FillInWiXScript" *)
-    let wxsFile = "SetupTemplate.wxs"
     generateWiXScript wxsFile
 
     let WiXUIMondo = generateUIRef (fun f -> {f with Id = "WixUI_Mondo" })
@@ -108,6 +110,9 @@ Target "RebuildMsi" (fun _ ->
     trace "Build MSI completed!"
 )
 
+Target "WinCIBuild" (fun _ ->
+    trace "Windows CI build completed!"
+)
 
 // Dependencies
 "Test"
@@ -126,6 +131,9 @@ Target "RebuildMsi" (fun _ ->
 
 "BuildWixInstall"
  ==> "RebuildMsi"
+
+"RebuildMsi"
+ ==> "WinCIBuild"
 
 // start build
 RunTargetOrDefault "Rebuild"
