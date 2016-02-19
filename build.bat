@@ -1,3 +1,4 @@
 @echo off
-"src\.nuget\NuGet.exe" "Install" "FAKE" "-OutputDirectory" "tools" "-ExcludeVersion"
-"tools\FAKE\tools\Fake.exe" build.fsx
+.paket\paket.bootstrapper.exe
+.paket\paket.exe restore
+packages\FAKE\tools\Fake.exe build.fsx %*
