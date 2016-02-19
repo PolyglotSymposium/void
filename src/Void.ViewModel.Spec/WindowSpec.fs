@@ -8,6 +8,13 @@ open System.Linq
 open NUnit.Framework
 open FsUnit
 
+[<AutoOpen>]
+module WindowSpecUtil = 
+    let buffer25lines =
+        Seq.initInfinite (sprintf "%i")
+        |> Seq.take 25
+        |> Seq.toList
+
 [<TestFixture>]
 type ``Constructing a buffer view model from a sequence of text lines``() = 
     let asViewModelBuffer = Window.bufferFrom { Rows = 25<mRow>; Columns = 80<mColumn> }
@@ -26,7 +33,7 @@ type ``Constructing a buffer view model from a sequence of text lines``() =
     [<Test>]
     member x.``for one line, with length equal to the window width, should create a buffer with one line``() =
         seq { yield String('X', 80) }
-        |> asViewModelBuffer 
+        |> asViewModelBuffer
         |> should equal [String('X', 80)]
 
     [<Test>]
@@ -78,7 +85,7 @@ type ``Scrolling (by line)``() =
 
         Move.backward By.line 1
         |> scroll windowBefore 
-        |> should equal (windowAfter, Window.Event.ContentsUpdated windowAfter :> Message)
+        |> should equal (windowAfter, Window.Event.ContentsScrolled windowAfter :> Message)
 
     [<Test>]
     member x.``up three lines when the top line is four should go to the top of the file``() =
@@ -87,7 +94,7 @@ type ``Scrolling (by line)``() =
 
         Move.backward By.line 3
         |> scroll windowBefore 
-        |> should equal (windowAfter, Window.Event.ContentsUpdated windowAfter :> Message)
+        |> should equal (windowAfter, Window.Event.ContentsScrolled windowAfter :> Message)
 
     [<Test>]
     member x.``up four lines when the top line is three should go to the top of the file``() =
@@ -96,7 +103,7 @@ type ``Scrolling (by line)``() =
 
         Move.backward By.line 4
         |> scroll windowBefore 
-        |> should equal (windowAfter, Window.Event.ContentsUpdated windowAfter :> Message)
+        |> should equal (windowAfter, Window.Event.ContentsScrolled windowAfter :> Message)
 
     [<Test>]
     member x.``up when the buffer is empty should do nothing``() =
@@ -125,13 +132,25 @@ type ``Scrolling (by line)``() =
         |> should equal (windowBefore, noMessage)
 
     [<Test>]
+    member x.``down should move the window-relative cursor if necessary to keep it from being on an non-existent line``() =
+        buffer := buffer25lines
+        let windowBefore = { Window.defaultWindowView with TopLineNumber = 1<mLine>; Buffer = !buffer }
+        let windowBefore = Window.setCursorPosition windowBefore { Row = 24<mRow>; Column = 0<mColumn> }
+        let windowAfter = { Window.defaultWindowView with TopLineNumber = 11<mLine>; Buffer = Seq.toList <| Seq.skip 10 buffer25lines }
+        let windowAfter = Window.setCursorPosition windowAfter { Row = 14<mRow>; Column = 0<mColumn> }
+
+        Move.forward By.line 10
+        |> scroll windowBefore 
+        |> should equal (windowAfter, Window.Event.ContentsScrolled windowAfter :> Message)
+
+    [<Test>]
     member x.``down multiple lines from the top``() =
         let windowBefore = { Window.defaultWindowView with Buffer = !buffer }
         let windowAfter = { windowBefore with TopLineNumber = 4<mLine>; Buffer = ["d"; "e"; "f"] }
 
         Move.forward By.line 3
         |> scroll windowBefore 
-        |> should equal (windowAfter, Window.Event.ContentsUpdated windowAfter :> Message)
+        |> should equal (windowAfter, Window.Event.ContentsScrolled windowAfter :> Message)
 
 [<TestFixture>]
 type ``Scrolling (by half screen)``() = 
@@ -169,7 +188,7 @@ type ``Scrolling (by half screen)``() =
 
         Move.backward vmBy.screenHeight 1
         |> scrollHalf windowBefore 
-        |> should equal (windowAfter, Window.Event.ContentsUpdated windowAfter :> Message)
+        |> should equal (windowAfter, Window.Event.ContentsScrolled windowAfter :> Message)
 
     [<Test>]
     member x.``up when the buffer is empty should do nothing``() =
@@ -204,7 +223,7 @@ type ``Scrolling (by half screen)``() =
 
         Move.forward vmBy.screenHeight 1
         |> scrollHalf windowBefore 
-        |> should equal (windowAfter, Window.Event.ContentsUpdated windowAfter :> Message)
+        |> should equal (windowAfter, Window.Event.ContentsScrolled windowAfter :> Message)
 
     [<Test>]
     member x.``down when exactly half a screen is showing should leave the last line showing``() =
@@ -214,15 +233,15 @@ type ``Scrolling (by half screen)``() =
 
         Move.forward vmBy.screenHeight 1
         |> scrollHalf windowBefore 
-        |> should equal (windowAfter, Window.Event.ContentsUpdated windowAfter :> Message)
+        |> should equal (windowAfter, Window.Event.ContentsScrolled windowAfter :> Message)
 
 [<TestFixture>]
 type ``Moving the cursor``() = 
     [<Test>]
     member x.``When the cursor is moved in the buffer, it is moved in the window``() =
         let targetCell = below originCell 1<mRow>
-        let windowBefore = { Window.defaultWindowView with Buffer = ["a"; "b"]}
-        let windowAfter = { windowBefore with Cursor = Visibility.Visible <| CursorView.Block targetCell }
+        let windowBefore = { Window.defaultWindowView with Buffer = ["a"; "b"] }
+        let windowAfter = Window.setCursorPosition windowBefore targetCell
 
         { BufferId = 1; Message = BufferEvent.CursorMoved(originCell, targetCell) }
         |> Window.handleBufferEvent windowBefore
@@ -231,12 +250,8 @@ type ``Moving the cursor``() =
     [<Test>]
     member x.``The cursor in the window is tracked relative to the window, not the buffer``() =
         let targetCell = below originCell 1<mRow>
-        let buffer =
-            Seq.initInfinite (sprintf "%i")
-            |> Seq.take 25
-            |> Seq.toList
-        let windowBefore = { Window.defaultWindowView with Buffer = buffer; TopLineNumber = 10<mLine> }
-        let windowAfter = { windowBefore with Cursor = Visibility.Visible <| CursorView.Block targetCell }
+        let windowBefore = { Window.defaultWindowView with Buffer = buffer25lines; TopLineNumber = 10<mLine> }
+        let windowAfter = Window.setCursorPosition windowBefore targetCell
 
         { BufferId = 1; Message = BufferEvent.CursorMoved(below originCell 9<mRow>, below targetCell 9<mRow>) }
         |> Window.handleBufferEvent windowBefore
@@ -245,11 +260,7 @@ type ``Moving the cursor``() =
     [<Test>]
     member x.``When the buffer cursor moves below what is visible in the window, the buffer is scrolled down``() =
         let startCell = below originCell 24<mRow>
-        let buffer =
-            Seq.initInfinite (sprintf "%i")
-            |> Seq.take 25
-            |> Seq.toList
-        let window = { Window.defaultWindowView with Buffer = buffer }
+        let window = { Window.setCursorPosition Window.defaultWindowView startCell with Buffer = buffer25lines }
 
         { BufferId = 1; Message = BufferEvent.CursorMoved(startCell, below startCell 5<mRow>) }
         |> Window.handleBufferEvent window

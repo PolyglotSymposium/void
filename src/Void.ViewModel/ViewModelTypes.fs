@@ -7,9 +7,14 @@ type Visibility<'a> =
     | Visible of 'a
 
 [<RequireQualifiedAccess>]
-type CursorView =
-    | Block of CellGrid.Cell
-    | IBeam of PointGrid.Point
+type CursorStyle =
+    | Block
+    | IBeam
+
+type CursorView = {
+    Position : CellGrid.Cell
+    Appearance : CursorStyle Visibility
+}
 
 [<RequireQualifiedAccess>]
 type TabNameView = // Speculative... :(

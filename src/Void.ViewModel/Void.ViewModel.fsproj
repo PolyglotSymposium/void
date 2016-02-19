@@ -56,9 +56,9 @@
     <Compile Include="ViewModel.fs" />
     <Compile Include="RenderCommandBar.fs" />
     <Compile Include="ViewModelService.fs" />
-    <Compile Include="WindowBufferMap.fs" />
     <Compile Include="NotifyUserOfEvent.fs" />
     <Compile Include="Window.fs" />
+    <Compile Include="WindowBufferMap.fs" />
     <Compile Include="NotificationBar.fs" />
     <Compile Include="RenderNotificationBar.fs" />
     <Compile Include="RenderWindows.fs" />

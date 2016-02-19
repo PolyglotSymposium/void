@@ -11,7 +11,7 @@ type WindowView = {
     StatusLine : StatusLineView
     Dimensions : CellGrid.Dimensions
     Buffer : string list
-    Cursor : CursorView Visibility
+    Cursor : CursorView
     TopLineNumber : int<mLine>
 }
 
@@ -21,7 +21,8 @@ module Window =
 
     [<RequireQualifiedAccess>]
     type Event =
-        | ContentsUpdated of WindowView
+        | ContentsScrolled of WindowView
+        | ContentsLoaded of WindowView
         | Initialized of WindowView
         | CursorMoved of From : Cell * To : Cell * Window : WindowView
         interface EventMessage
@@ -36,7 +37,7 @@ module Window =
             StatusLine = StatusLineView.Focused
             Buffer = []
             Dimensions = zeroDimensions
-            Cursor = Visible <| CursorView.Block originCell
+            Cursor = { Position = originCell; Appearance = Visible CursorStyle.Block }
             TopLineNumber = 1<mLine>
         }
 
@@ -48,6 +49,9 @@ module Window =
 
     let private linesInWindow window = 
         window.Buffer.Length*1<mLine>
+
+    let private lastPopulatedRow window = 
+        ``line#->row#`` <| linesInWindow window
 
     let bufferFrom (windowSize : Dimensions) lines =
         let truncateToWindowWidth = StringUtil.noLongerThan (windowSize.Columns / 1<mColumn>)
@@ -61,7 +65,32 @@ module Window =
 
     let private loadBufferIntoWindow buffer (window : WindowView) =
         let updatedWindow = { window with Buffer = toScreenBuffer window.Dimensions buffer }
-        updatedWindow, Event.ContentsUpdated updatedWindow :> Message
+        updatedWindow, Event.ContentsLoaded updatedWindow :> Message
+
+    let setCursorPosition window cell =
+        { window with Cursor = { window.Cursor with Position = cell } }
+
+    let private firstRowOf window =
+        ``line#->row#`` window.TopLineNumber
+
+    let private lastRowOf (window : WindowView) =
+        window.Dimensions.Rows - 1<mRow>
+
+    let private scrollUpSinceCursorMovedAboveTop window toBufferCell =
+        let updatedWindow = setCursorPosition window originCell
+        let msg = (firstRowOf window - toBufferCell.Row) * linePerRow
+                  |> By.Line
+                  |> Move.Backward
+                  |> VMCommand.Scroll :> Message
+        updatedWindow, msg
+
+    let private scrollUpSinceCursorMovedBelowBottom window toWindowCell =
+        let updatedWindow = setCursorPosition window { originCell with Row = lastRowOf window }
+        let msg = (toWindowCell.Row - lastRowOf window) * linePerRow
+                  |> By.Line
+                  |> Move.Forward
+                  |> VMCommand.Scroll :> Message
+        updatedWindow, msg
 
     let handleBufferEvent window event =
         match event.Message with
@@ -70,33 +99,30 @@ module Window =
         | BufferEvent.CursorMoved(fromBufferCell, toBufferCell) ->
             let firstRow = ``line#->row#`` window.TopLineNumber
             if toBufferCell.Row < firstRow
-            then
-                let msg = (firstRow - toBufferCell.Row) * linePerRow
-                          |> By.Line
-                          |> Move.Backward
-                          |> VMCommand.Scroll :> Message
-                window, msg
+            then scrollUpSinceCursorMovedAboveTop window toBufferCell
             else
-                let fromWindowCell = CellGrid.above fromBufferCell firstRow
                 let toWindowCell = CellGrid.above toBufferCell firstRow
-                let lastRowInWindow = window.Dimensions.Rows - 1<mRow>
-                if toWindowCell.Row > lastRowInWindow
-                then
-                    let msg = (toWindowCell.Row - lastRowInWindow) * linePerRow
-                              |> By.Line
-                              |> Move.Forward
-                              |> VMCommand.Scroll :> Message
-                    window, msg
+                if toWindowCell.Row > window.Dimensions.Rows - 1<mRow>
+                then scrollUpSinceCursorMovedBelowBottom window toWindowCell
                 else
-                    let updatedWindow = { window with Cursor = Visible (CursorView.Block toWindowCell) }
+                    let fromWindowCell = CellGrid.above fromBufferCell firstRow
+                    let updatedWindow = setCursorPosition window toWindowCell
                     updatedWindow, Event.CursorMoved(fromWindowCell, toWindowCell, updatedWindow) :> Message
+
+    let private resetCursorIfNecessary window =
+        if lastPopulatedRow window < window.Cursor.Position.Row
+        then
+            { window.Cursor.Position with Row = lastPopulatedRow window }
+            |> setCursorPosition window
+        else window
 
     let private scroll (requestSender : RequestSender) window xLines =
         let request : GetWindowContentsRequest = { StartingAtLine = window.TopLineNumber + xLines }
         match requestSender.makeRequest request with
         | Some (response : GetWindowContentsResponse) ->
             let updatedWindow = { window with TopLineNumber = response.FirstLineNumber; Buffer = Seq.toList response.RequestedContents }
-            updatedWindow, Event.ContentsUpdated updatedWindow :> Message
+            let updatedWindow2 = resetCursorIfNecessary updatedWindow
+            updatedWindow2, Event.ContentsScrolled updatedWindow2 :> Message
         | None -> window, noMessage
 
     let scrollByLineMovement requestSender window movement =
