@@ -2,6 +2,9 @@ version: 0.0.2.{build}
 build_script:
 - ./build.bat WinCIBuild
 test: off
+artifacts:
+- path: build/Void.msi
+  name: MSI installer
 notifications:
 - provider: Slack
   auth_token:
