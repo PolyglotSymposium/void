@@ -68,6 +68,13 @@ if the "new" feature is a Vim feature, because I do not intend to
 indiscriminately accept all Vim features into Void. That being said, please
 contribute!
 
+### Installing
+
+There is an `.msi` available for installing on Windows as an artifact of the
+[latest AppVeyor
+build](https://ci.appveyor.com/project/Kazark/void/build/artifacts). Automated
+installs are not available for other platforms at this time.
+
 ## Disclaimer
 And yes, I know...
 
