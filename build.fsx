@@ -95,6 +95,7 @@ Target "BuildWixInstall" (fun _ ->
                                     UpgradeGuid = System.Guid.Parse "1b0f1b5e-90fd-4870-8a27-628f94f97d3b"
                                     MajorUpgrade = [MajorUpgrade]
                                     UIRefs = [WiXUIMondo; WiXUIError]
+                                    WiXVariables = [{ Id = "WixUILicenseRtf"; Overridable = YesOrNo.No; Value="LICENSE.rtf" }]
                                     ProgramFilesFolder = ProgramFiles32
                                     Components = components
                                     BuildNumber = "0"
