@@ -8,11 +8,25 @@ let buildDir = "./build/"
 let version = "0.0.2"
 let wxsFile = "SetupTemplate.wxs"
 
-// Targets
 Target "Clean" (fun _ ->
-    CleanDirs [buildDir]
+    CleanDir buildDir
     DeleteFile wxsFile
     DeleteFile (wxsFile + ".wixobj")
+)
+
+Target "PurgeTestArtifacts" (fun _ ->
+    (* TODO Is there a better way to do this? I tried:
+     * DeleteFiles (!! buildDir + pattern).Includes
+     * but that gave me an illegal character in path exception.
+     *)
+    let deleteFiles pattern = 
+        filesInDirMatching pattern (directoryInfo buildDir)
+        |> Seq.map (fun finfo -> finfo.FullName)
+        |> DeleteFiles
+    deleteFiles "*.Spec.*"
+    deleteFiles "*NUnit*"
+    deleteFiles "*nunit*"
+    deleteFiles "*NHamcrest*"
 )
 
 Target "RestorePackages" (fun _ ->
@@ -130,7 +144,8 @@ Target "WinCIBuild" (fun _ ->
 "Rebuild"
  ==> "RebuildMsi"
 
-"BuildWixInstall"
+"PurgeTestArtifacts"
+ ==> "BuildWixInstall"
  ==> "RebuildMsi"
 
 "RebuildMsi"
