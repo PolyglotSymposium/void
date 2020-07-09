@@ -1,3 +1,5 @@
+**tl;dr** This was a fun little breakable toy, never completed, rather insane in its approach, and long abandoned. I found my editor that is better than Vim that I was looking for: Spacemacs.
+
 # Void
 ## A fearless modern text editor in the spirit of Vim
 [![Mono Build Status](https://travis-ci.org/PolyglotSymposium/void.svg?branch=master)](https://travis-ci.org/PolyglotSymposium/void)
